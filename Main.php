@@ -14,7 +14,7 @@
 * - Khalem (RK1)
 * - Naturalistic (RK1)
 * - Temar (RK1)
-*
+* - Bitnykk (RK5)
 * See Credits file for all acknowledgements.
 *
 *  This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@
 *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 *  USA
 */
-define('BOT_VERSION', "0.8.4");
+define('BOT_VERSION', "0.8.5");
 define('BOT_VERSION_INFO', ".git(official)");
 define('BOT_VERSION_NAME', "BeBot");
 
