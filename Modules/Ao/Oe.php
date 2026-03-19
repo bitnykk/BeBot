@@ -51,7 +51,8 @@ class Oe extends BaseActiveModule
     function command_handler($name, $msg, $origin)
     {
         if (preg_match("/^oe (.+)$/i", $msg, $info)) {
-            return $this->calc_oe($info[1]);
+            if(is_numeric($info[1])) return $this->calc_oe($info[1]);
+			else return "Wrong input, usage: !oe level";
         } else {
             $this->bot->send_help($name);
         }

@@ -391,10 +391,12 @@ $this->cl_list = array(
 			return $this -> show_what($sender, $arr, $channel);
         elseif (preg_match("/^clustloc (.+)/i", $msg, $arr))
 			return $this -> find_clust($sender, $arr, $channel);
-        elseif (preg_match("/^impreq ([0-9]+) ([0-9]+)/i", $msg, $arr))
+        elseif (preg_match("/^impreq ([0-9]+) ([0-9]+)/i", $msg, $arr)&&is_numeric($arr[1])&&is_numeric($arr[2]))
 			return $this -> imp_req($sender, $arr, $channel);
-         elseif (preg_match("/^impql ([0-9]+)/i", $msg, $arr))
+         elseif (preg_match("/^impql ([0-9]+)/i", $msg, $arr)&&is_numeric($arr[1]))
 			return $this -> imp_ql($sender, $arr, $channel);
+		else
+            $this->bot->send_help($sender);			
 	}
 
 		function matches($probe, $comp) {

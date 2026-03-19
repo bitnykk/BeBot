@@ -56,7 +56,8 @@ class aggdef extends BaseActiveModule
 			switch($com['com'])
 			{
 				case'aggdef':
-					Return($this -> aggdef_blob($com['ar'],$com['rr'],$com['in']));
+					if(is_numeric($com['ar'])&&is_numeric($com['rr'])&&is_numeric($com['in'])) Return($this -> aggdef_blob($com['ar'],$com['rr'],$com['in']));
+					else return "Wrong input, usage: !aggdef attack recharge init";
 				break;
 				Default:
 					Return "##error##Error : Broken plugin, received unhandled command: ".$vars[0]."##end##";
@@ -87,7 +88,7 @@ class aggdef extends BaseActiveModule
 		}
 	}
 	
-	function aggdef_blob($attackrate,$rechargerate,$inits)
+	function aggdef_blob($attackrate=0,$rechargerate=0,$inits=0)
 	{
 			$diminishratio = 1/3;
 			$finalinit = 0;
