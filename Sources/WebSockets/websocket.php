@@ -343,7 +343,6 @@ class WebSocketClient extends WebSocketBase
 
 class WebSocketBase
 {
-	var $clients;
 	// посчитать серверный ключ на основе клиентского ключа
 	protected function server_key($key)
 	{

@@ -101,6 +101,7 @@ class Rally extends BaseActiveModule
 
     function command_handler($name, $msg, $origin)
     {
+		$noadd = false;
         $msg = explode(" ", $msg, 2);
         if (strtolower($msg[0]) != "rally") {
             Return ("Error Unknown Command ##highlight##$msg[0]##end## in Rally Module");

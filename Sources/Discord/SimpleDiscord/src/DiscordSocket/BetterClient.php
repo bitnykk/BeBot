@@ -57,12 +57,12 @@ class BetterClient extends \WebSocket\Client {
 
 		// Is this the final fragment?  // Bit 0 in byte 0
 		/// @todo Handle huge payloads with multiple fragments.
-		$final = (boolean) (ord($data[0]) & 1 << 7);
+		$final = (bool) (ord($data[0]) & 1 << 7);
 
 		// Should be unused, and must be false…  // Bits 1, 2, & 3
-		$rsv1 = (boolean) (ord($data[0]) & 1 << 6);
-		$rsv2 = (boolean) (ord($data[0]) & 1 << 5);
-		$rsv3 = (boolean) (ord($data[0]) & 1 << 4);
+		$rsv1 = (bool) (ord($data[0]) & 1 << 6);
+		$rsv2 = (bool) (ord($data[0]) & 1 << 5);
+		$rsv3 = (bool) (ord($data[0]) & 1 << 4);
 
 		// Parse opcode
 		$opcode_int  = ord($data[0]) & 31; // Bits 4-7
@@ -78,12 +78,12 @@ class BetterClient extends \WebSocket\Client {
 		}
 
 		// Masking?
-		$mask = (boolean) (ord($data[1]) >> 7); // Bit 0 in byte 1
+		$mask = (bool) (ord($data[1]) >> 7); // Bit 0 in byte 1
 
 		$payload = '';
 
 		// Payload length
-		$payload_length = (integer) ord($data[1]) & 127; // Bits 1-7 in byte 1
+		$payload_length = (int) ord($data[1]) & 127; // Bits 1-7 in byte 1
 		if ($payload_length > 125) {
 			if ($payload_length === 126) {
 				$data = $this->read(2);

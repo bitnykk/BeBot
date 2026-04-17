@@ -340,7 +340,7 @@ class Roster_Core extends BasePassiveModule
 					case "aotestproxy":
 						$dimension = "0";
 						break;
-					case "rubi-ka";
+					case "rubi-ka":
 					case "aoliveproxy":
 						$dimension = "5";
 						break;

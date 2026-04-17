@@ -120,6 +120,8 @@ class MassMsg extends BaseActiveModule
 
     function mass_msg($sender, $msg, $type)
     {
+		$bots = array();
+		$joiners = array();
 		$pgroup = $this->bot->botname;
 		if ($this->bot->exists_module("com")) {
 			if($this->bot->core("settings")->get("Com", "Channels")!="") {

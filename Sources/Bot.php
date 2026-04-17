@@ -137,7 +137,7 @@ class Bot
 	var $server, $port, $username, $password, $other_bots, $guildname, $game, $connected_time;
 	var $accessallbots, $core_directories, $module_directories, $ini, $cron_activated;
 	var $command_error_text;
-	public $slave;
+	public $slave, $periph;
     public $owner;
     public $super_admin;
     private $module_links = array();
@@ -217,7 +217,7 @@ class Bot
         self::$instance[$bothandle]->dimension = ucfirst(strtolower($dimension));
         self::$instance[$bothandle]->botversion = 'BOT_VERSION';
         self::$instance[$bothandle]->botversionname = 'BOT_VERSION_NAME';
-		if (is_array($other_bots)) {
+		if (isset($other_bots)&&is_array($other_bots)) {
 			self::$instance[$bothandle]->other_bots = $other_bots;
 		} else {
 			self::$instance[$bothandle]->other_bots = array();
@@ -343,21 +343,21 @@ class Bot
 			case "0":
 				$dimension = "Testlive";
 				break;
-			case "5";
+			case "5":
 				$dimension = "Rubi-Ka";
 				break;
-			case "6";
+			case "6":
 				$dimension = "Rubi-Ka-2019";
 				break;	
-			case "90";
+			case "90":
 				$dimension = "AoTestProxy";
 				$this->dimension = 0;
 				break;					
-			case "95";
+			case "95":
 				$dimension = "AoLiveProxy";
 				$this->dimension = 5;
 				break;					
-			case "96";
+			case "96":
 				$dimension = "AoRk19Proxy";
 				$this->dimension = 6;
 				break;					

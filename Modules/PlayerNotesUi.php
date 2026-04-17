@@ -68,14 +68,14 @@ class PlayerNotes_UI extends BaseActiveModule
             case 'add':
                 return $this->add_note($name, $com['args']);
                 break;
-            case 'add':
             case 'admin':
-                $admin = explode(" ", $msg[2], 2);
-                if (strtolower($admin[0]) == "add" || strtolower($admin[0]) == "admin") {
+                $admin = explode(" ", $com['args'], 2);
+                if (strtolower($admin[0]) == "add") {
                     return $this->add_note($name, $admin[1], true);
                 } else {
-                    return $this->add_note($name, $msg[2], false);
+                    return "Bad admin command, instead use: !notes admin add Player Note";
                 }
+				break;
             case 'rem':
             case 'del':
                 return $this->rem_note($com['args']);
@@ -115,7 +115,8 @@ class PlayerNotes_UI extends BaseActiveModule
 
     function rem_note($pnid)
     { // Start function rem_note()
-        return ($this->bot->core("player_notes")->del($pnid));
+        if(isset($pnid)&&is_numeric($pnid)&&$pnid>0) return ($this->bot->core("player_notes")->del($pnid));
+		else return "Wrong note ID provided.";
     } // End function rem_note()
 
     /*

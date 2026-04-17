@@ -1,7 +1,7 @@
 ------------------------
 Release 0.8.5 - ??? 202?
 ------------------------
-- For both: ...
+- For both: PHP 8.5 fixes
 - For AO: Twink, Skills, Oe, Gmi, Aggdef, Cluster, Recruit & (Send)Com improved
 - For AoC: ...
 

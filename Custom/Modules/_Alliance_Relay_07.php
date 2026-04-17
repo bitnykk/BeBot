@@ -314,7 +314,7 @@ class HRelay extends BaseActiveModule
 			}
 			else
 			{
-				$this -> bot -> db -> query("INSERT INTO #___hrelay".$bot." (time, type, botname, msg) VALUES (".time().", 'agcr', '".$this -> bot -> botname."', '".mysql_real_escape_string($msg)."')");
+				$this -> bot -> db -> query("INSERT INTO #___hrelay".$bot." (time, type, botname, msg) VALUES (".time().", 'agcr', '".$this -> bot -> botname."', '".mysqli_real_escape_string($msg)."')");
 			}
 		}
 	}

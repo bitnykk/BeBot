@@ -413,8 +413,7 @@ class tools extends BasePassiveModule
 			}
 			$return .= curl_exec($ch);
 			sleep(1);
-		}		
-		curl_close($ch);
+		}				
 		@unlink($cookie);
 		
         Return $return;
@@ -464,7 +463,6 @@ class tools extends BasePassiveModule
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         // The usual - get the data and close the session
         $return = curl_exec($ch);
-        curl_close($ch);
         // Did the calling function want http headers stripped?
         //if ($strip_headers)// already stripped?
         //{

@@ -150,7 +150,7 @@ class Time_Core extends BaseActiveModule
             $timeparts = explode(":", $timestr);
             $numberlength = 0;
             for ($i = count($timeparts) - 1; $i >= 0; $i--) {
-                settype($timeparts[$i], "integer");
+                settype($timeparts[$i], "int");
                 $numberlength += $timesize * $timeparts[$i];
                 if ($timeunit == 1) {
                     $timesize = 60;
@@ -163,7 +163,7 @@ class Time_Core extends BaseActiveModule
             }
         } else {
             $numberlength = $timestr;
-            settype($numberlength, "integer");
+            settype($numberlength, "int");
             $numberlength = $numberlength * $timesize;
         }
         $duration = $numberlength;

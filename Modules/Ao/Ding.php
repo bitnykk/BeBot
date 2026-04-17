@@ -77,7 +77,8 @@ class Ding extends BaseActiveModule
 		switch($command)
 		{
 			case 'ding':			
-				return $this -> send_ding($source, $vars[1]);
+				if(isset($vars[1])) return $this -> send_ding($source, $vars[1]);
+				else return $this -> send_ding($source, 1);
 				break;			
 			default:				
 				$this -> error -> set("Broken plugin, received unhandled command: $command");
@@ -119,7 +120,7 @@ class Ding extends BaseActiveModule
 		}
 	}	
 	
-	function send_ding($name, $level)
+	function send_ding($name, $level=1)
 	{
 		if ($level < 2) {
 			$dingText = array(
