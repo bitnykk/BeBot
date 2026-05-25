@@ -554,7 +554,7 @@ class AOChat
         $c = array();
         $sec = (int)$time;
         if (is_float($time)) {
-            $usec = (int)($time * 1000000 % 1000000);
+            $usec = (int)((int)($time * 1000000) % 1000000);
         } else {
             $usec = 0;
         }
