@@ -462,7 +462,8 @@ class AOChat
                                                            ));
         $this->send_packet($pak);
         $packet = $this->get_packet();
-		$this->bot->log("LOGIN", "AUTH", "Received packet Type :".gettype($packet));		
+		$this->bot->log("LOGIN", "AUTH", "Received packet Type :".gettype($packet));
+		if(gettype($packet)!="object") print_r($packet);
         /* If the account was wrongly frozen we may attempt bot self defreeze ...
 			But BEWARE : this can only work 5 times per 24 hours from same computer (must wait for more) */
         if ($packet->type == AOCP_LOGIN_ERROR && substr($packet->args[0],-28) == "/Account system denies login") {
