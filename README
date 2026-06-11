@@ -486,18 +486,27 @@ Anarchy Online
 --------------
 
 To bypass that annoying limit for AO :
-
 First create all needed slaves in one or several account(s).
-
-Then download AOCP at https://github.com/Budabot/AOChatProxy
-If none yet, you may also need to install Java JDK for your OS
-
-Configure AOCP within its config.properties (copied from template) with :
+From there you have 2 solutions with same range of settings :
 - proxy local port (9993 by default, advised unless you know why you change)
 - server distant adress & port (according to what game/dimension you need)
 - all the slaves you want starting at number one (with user, pass, name)
-Once ready, run the service (run.bat on windows, run.sh on linux/mac).
-Then the service should be waiting for main bot connection ...
+
+1/ Tyrence's Scala/java AOCP (older, obsolete)
+Download AOCP at https://github.com/Budabot/AOChatProxy
+You may also need to install Java JDK for your OS https://www.oracle.com/java/technologies/downloads/
+Configure AOCP within its config.properties (copied from template) with wanted settings.
+Once ready, run the executable of the service :
+run.bat (on windows) | run.sh (on linux/mac)
+
+2/ Nady's Rust AOCP v2 (newer, adviced)
+The source is forked at https://github.com/bitnykk/aochatproxy2
+You first may have to install Docker for your OS https://wiki.bebot.link/index.php/Docker
+Then create the .env file as explained in Nady's README with wanted settings.
+Endly, run container with exposed port, eg :
+docker run --rm -it -p 9993:9993 --env-file /path/to/.env quay.io/nadyita/aochatproxy:stable
+
+In both cases, the Proxy service should now be waiting for main bot connection ...
 
 Now edit you Conf/Bot.conf and set $dimension to the correct value :
 For AO its a number, e.g. for Live Proxy : $dimension = "95";
