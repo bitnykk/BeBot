@@ -225,6 +225,7 @@ class Taraviza extends BaseActiveModule
 	{
 		$inside = ''; $total = 0;
 		foreach ($this -> wlist AS $dim => $bosses) {
+			if($relay) shuffle($bosses);
 			foreach (array_reverse($bosses) AS $boss => $last) {
 				switch($boss) {
 					case 'abmouth':
