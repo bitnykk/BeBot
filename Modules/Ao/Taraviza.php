@@ -228,7 +228,7 @@ class Taraviza extends BaseActiveModule
 			foreach (array_reverse($bosses) AS $boss => $last) {
 				switch($boss) {
 					case 'abmouth':
-						$cycle = 10800; // 3H cycle randomized (15=immortality)
+						$cycle = 3*3600; // 3H cycle randomized (15=immortality)
 						$title = 'Mutated <a href="chatcmd:///waypoint 3150 1550 556">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss); // for relay
 						$perce = " [5% chance]";
@@ -236,14 +236,14 @@ class Taraviza extends BaseActiveModule
 						$immor = 15*60;
 						break;										
 					case 'atma':
-						$cycle = 10800; // 3H cycle randomized (15=immortality)
+						$cycle = 3*3600; // 3H cycle randomized (15=immortality)
 						$title = 'Winged <a href="chatcmd:///waypoint 1900 3000 650">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss);
 						$rperc = " [30%]";
 						$immor = 15*60;
 						break;										
 					case 'cerubin':
-						$cycle = 32400; // 9h cycle randomized (15=immortality)
+						$cycle = 9*3600; // 9h cycle randomized (15=immortality)
 						$title = 'Rejected <a href="chatcmd:///waypoint 2100 280 505">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss);
 						$perce = " [85% chance]";
@@ -251,7 +251,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 15*60;
 						break;
 						case 'desert-rider':
-						$cycle = 21600; // 6h cycle randomized (5=immortality)
+						$cycle = 6*3600; // 6h cycle randomized (5=immortality)
 						$title = 'Nomad <a href="chatcmd:///waypoint 2232 1586 565">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss);
 						$perce = " [unpredictable]";
@@ -259,7 +259,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 5*60;
 						break;									
 					case 'father-time':
-						$cycle = 33300; // 9H15 cycle (15=immortality)
+						$cycle = 9*3600; // 9H15 cycle (15=immortality)
 						$title = 'Timed <a href="chatcmd:///waypoint 2900 300 615">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss);
 						$perce = " [99% sure]";
@@ -267,7 +267,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 15*60;
 						break;					
 					case 'loren':
-						$cycle = 33300; // 9H15 cycle (15=immortality)
+						$cycle = 9*3600; // 9H15 cycle (15=immortality)
 						$title = 'Mercenary <a href="chatcmd:///waypoint 350 500 567">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss);
 						$perce = " [99% sure]";
@@ -275,7 +275,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 15*60;
 						break;					
 					case 'reaper':
-						$cycle = 33300; // 9H15 cycle (15=immortality)
+						$cycle = 9*3600; // 9H15 cycle (15=immortality)
 						$title = 'Dark <a href="chatcmd:///waypoint 1760 2840 595">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss);
 						$perce = " [99% sure]";
@@ -283,7 +283,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 15*60;
 						break;
 					case 'tam':
-						$cycle = 21600; // 6H cycle randomized (15=immortality)
+						$cycle = 6*3600; // 6H cycle randomized (15=immortality)
 						$title = 'Automaton <a href="chatcmd:///waypoint 1130 1530 795">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss);
 						$perce = " [60% chance]";
@@ -307,7 +307,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 7*60;
 						break;			
 					case 'zaal':
-						$cycle = 21600; // 6H cycle randomized (15=immortality)
+						$cycle = 6*3600; // 6H cycle randomized (15=immortality)
 						$title = 'Deity <a href="chatcmd:///waypoint 1730 1200 610">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss);
 						$perce = " [75% chance]";
@@ -315,7 +315,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 15*60;
 						break;																
 					default:
-						$cycle = 21600; // 6H default common cycle, assumed for any other
+						$cycle = 6*3600; // 6H default common cycle, assumed for any other
 						$title = "Unknown ".ucfirst($boss); // no coordinates by default
 						$rtitl = ucfirst($boss);
 						$perce = " [no details]"; // unpredictable chance
@@ -323,7 +323,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 15*60; // default 15 min immortality
 						break;
 				}
-				if (time()<$last+$immor+30) {
+				if (time()<$last+$immor+30||(time()>$last+$cycle&&time()<$last+$cycle+$immor+30)) { // 30 sec margin/lag
 					if($relay) $updown = "could be up";
 					else $updown = "could be ##green##up##end##";
 				} else {
