@@ -300,10 +300,15 @@ class Taraviza extends BaseActiveModule
 						$immor = 15*60; // default 15 min immortality
 						break;
 				}
-				if (time()<$last+$immor+30) $updown = "could be ##green##up##end##"; //
-				else $updown = "prolly ##red##down##end##";
+				if (time()<$last+$immor+30) {
+					if($relay) $updown = "could be up";
+					else $updown = "could be ##green##up##end##";
+				} else {
+					if($relay) $updown = "prolly down";
+					else $updown = "prolly ##red##down##end##";
+				}
 				if (time()-$last<172800) { // after 48h without spawn, boss event is prolly over
-					if($relay) $inside .= strip_tags($title).' (RK'.$dim.') : '.strip_tags($updown).' / last seen '.$this->nextpop($last,0).' ago, may repop in '.$this->nextpop($last,$cycle).$perce.". ";
+					if($relay) $inside .= strip_tags($title).' (RK'.$dim.') : '.$updown.' / last seen '.$this->nextpop($last,0).' ago, may repop in '.$this->nextpop($last,$cycle).$perce.". ";
 					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / last seen '.$this->nextpop($last,0).' ago, may repop in '.$this->nextpop($last,$cycle).$perce;
 					$total++;
 				}
