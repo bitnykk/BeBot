@@ -326,7 +326,7 @@ class Taraviza extends BaseActiveModule
 			}
 			$inside .= '<br>';
 		}
-		if($relay) return $total." world boss(es) currently found. ".$inside;
+		if($relay) return $total." wb found. ".$inside;
 		else return $total." world boss(es) currently found : ".$this->bot->core("tools")->make_blob("click to view", $inside);	
 	}
 	
