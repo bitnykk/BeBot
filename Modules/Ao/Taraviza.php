@@ -221,7 +221,7 @@ class Taraviza extends BaseActiveModule
 		}
 	}
 	
-	function show_world()
+	function show_world($relay=false)
 	{
 		$inside = ''; $total = 0;
 		foreach ($this -> wlist AS $dim => $bosses) {
@@ -303,13 +303,15 @@ class Taraviza extends BaseActiveModule
 				if (time()<$last+$immor+30) $updown = "could be ##green##up##end##"; //
 				else $updown = "prolly ##red##down##end##";
 				if (time()-$last<172800) { // after 48h without spawn, boss event is prolly over
-					$inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / last seen '.$this->nextpop($last,0).' ago, may repop in '.$this->nextpop($last,$cycle).$perce;
+					if($relay) $inside .= strip_tags($title).' (RK'.$dim.') : '.strip_tags($updown).' / last seen '.$this->nextpop($last,0).' ago, may repop in '.$this->nextpop($last,$cycle).$perce.". ";
+					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / last seen '.$this->nextpop($last,0).' ago, may repop in '.$this->nextpop($last,$cycle).$perce;
 					$total++;
 				}
 			}
 			$inside .= '<br>';
 		}
-		return $total." world boss(es) currently found : ".$this->bot->core("tools")->make_blob("click to view", $inside);	
+		if($relay) return $total." world boss(es) currently found. ".$inside;
+		else return $total." world boss(es) currently found : ".$this->bot->core("tools")->make_blob("click to view", $inside);	
 	}
 	
 	function nextpop($timer,$cycle)

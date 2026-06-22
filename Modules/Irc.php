@@ -48,7 +48,7 @@ class IRC extends BaseActiveModule
     var $whois;
     var $target;
     var $irc;
-	var $note = "Irc side commands available are : help, tara, viza, is, online/sm, whois, alts, level/lvl/pvp, bots/bot/up";
+	var $note = "Irc side commands available are : help, tara/viza/wb, is, online/sm, whois, alts, level/lvl/pvp, bots/bot/up";
 	var $spam, $irconline, $ircmsg;
 
     /*
@@ -722,14 +722,20 @@ class IRC extends BaseActiveModule
             SMARTIRC_TYPE_CHANNEL,
             $this->bot->commpre . 'tara',
             $this->bot->commands["tell"]["irc"],
-            'irc_tara'
+            'irc_world'
         );		
         $this->irc->registerActionhandler(
             SMARTIRC_TYPE_CHANNEL,
             $this->bot->commpre . 'viza',
             $this->bot->commands["tell"]["irc"],
-            'irc_viza'
+            'irc_world'
         );
+        $this->irc->registerActionhandler(
+            SMARTIRC_TYPE_CHANNEL,
+            $this->bot->commpre . 'wb',
+            $this->bot->commands["tell"]["irc"],
+            'irc_world'
+        );		
         $this->irc->registerActionhandler(
             SMARTIRC_TYPE_CHANNEL,
             $this->bot->commpre . 'help',
@@ -856,14 +862,20 @@ class IRC extends BaseActiveModule
             SMARTIRC_TYPE_QUERY,
             $this->bot->commpre . 'tara',
             $this->bot->commands["tell"]["irc"],
-            'irc_tara'
+            'irc_world'
         );
         $this->irc->registerActionhandler(
             SMARTIRC_TYPE_QUERY,
             $this->bot->commpre . 'viza',
             $this->bot->commands["tell"]["irc"],
-            'irc_viza'
+            'irc_world'
         );	
+        $this->irc->registerActionhandler(
+            SMARTIRC_TYPE_QUERY,
+            $this->bot->commpre . 'wb',
+            $this->bot->commands["tell"]["irc"],
+            'irc_world'
+        );			
         $this->irc->registerActionhandler(
             SMARTIRC_TYPE_QUERY,
             $this->bot->commpre . 'help',
@@ -979,6 +991,7 @@ class IRC extends BaseActiveModule
             && (strtolower($data->message) != strtolower(str_replace("\\", "", $this->bot->commpre . 'level')))
 			&& (strtolower($data->message) != strtolower(str_replace("\\", "", $this->bot->commpre . 'tara')))
 			&& (strtolower($data->message) != strtolower(str_replace("\\", "", $this->bot->commpre . 'viza')))
+			&& (strtolower($data->message) != strtolower(str_replace("\\", "", $this->bot->commpre . 'wb')))
 			&& (strtolower($data->message) != strtolower(str_replace("\\", "", $this->bot->commpre . 'help')))
 			&& (strtolower($data->message) != strtolower(str_replace("\\", "", $this->bot->commpre . 'bots')))
         ) {
@@ -1311,7 +1324,7 @@ class IRC extends BaseActiveModule
         return $result;
     }
 
-    function irc_tara(&$irc, &$data)
+    function irc_world(&$irc, &$data)
     {
         if ($data->type == SMARTIRC_TYPE_QUERY) {
             $target = $data->nick;
@@ -1319,27 +1332,12 @@ class IRC extends BaseActiveModule
             $target = $this->bot->core("settings")->get("Irc", "Channel");
         }
         $this->target = $target;
-		$msg = "No Tarasque/Cameloot timer found.";
+		$msg = "No boss timer found.";
 		if($this->bot->exists_module("taraviza")) {
-			$msg = $this->bot->core("taraviza")->show_tara("user");
+			$msg = $this->bot->core("taraviza")->show_world(true);
 		}
         $this->irc->message(SMARTIRC_TYPE_CHANNEL, $target, $msg);
     }	
-
-    function irc_viza(&$irc, &$data)
-    {
-        if ($data->type == SMARTIRC_TYPE_QUERY) {
-            $target = $data->nick;
-        } else {
-            $target = $this->bot->core("settings")->get("Irc", "Channel");
-        }
-        $this->target = $target;
-		$msg = "No Vizaresh/Gauntlet timer found.";
-		if($this->bot->exists_module("taraviza")) {
-			$msg = $this->bot->core("taraviza")->show_viza("user");
-		}		
-        $this->irc->message(SMARTIRC_TYPE_CHANNEL, $target, $msg);
-    }		
 	
     function irc_up(&$irc)
     {

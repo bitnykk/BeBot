@@ -79,7 +79,7 @@ class DiscordRelay extends BaseActiveModule
 	var $lastcheck = 0;
 	var $crondelay = "2sec";
 	var $is;
-	var $note = "Discord side commands available are : help, tara, viza, is, online/sm, whois, alts, level/lvl/pvp, bots/bot/up";
+	var $note = "Discord side commands available are : help, tara/viza/wb, is, online/sm, whois, alts, level/lvl/pvp, bots/bot/up";
 
     /*
     Constructor:
@@ -468,11 +468,14 @@ class DiscordRelay extends BaseActiveModule
 												$sent = $this->discord_alts($msg['content']);
 												Break;											
 											case $this->bot->commpre . 'tara':
-												$sent = $this->discord_tara($msg['content']);
+												$sent = $this->discord_world($msg['content']);
 												Break;
 											case $this->bot->commpre . 'viza':
-												$sent = $this->discord_viza($msg['content']);
-												Break;											
+												$sent = $this->discord_world($msg['content']);
+												Break;			
+											case $this->bot->commpre . 'wb':
+												$sent = $this->discord_world($msg['content']);
+												Break;													
 											case $this->bot->commpre . 'online':
 											case $this->bot->commpre . 'sm':
 												$sent = $this->discord_sm($msg['content']);
@@ -654,30 +657,17 @@ class DiscordRelay extends BaseActiveModule
 	}	
 	
     /*
-    * Gets called when someone does !tara
+    * Gets called when someone does !tara !viza or !wb
     */
-    function discord_tara($msg)
+    function discord_world($msg)
     {
 		if ($this->bot->exists_module("taraviza")) {
-			$sent = $this->bot->core("taraviza")->show_tara("user");
+			$sent = $this->bot->core("taraviza")->show_world(true);
 		} else {
-			$sent = "No Tarasque/Cameloot timer found.";
+			$sent = "No boss timer found.";
 		}
 		return $sent;		
-	}	
-
-    /*
-    * Gets called when someone does !viza
-    */
-    function discord_viza($msg)
-    {
-		if ($this->bot->exists_module("taraviza")) {
-			$sent = $this->bot->core("taraviza")->show_viza("user");
-		} else {
-			$sent = "No Vizaresh/Gauntlet timer found.";
-		}
-		return $sent;		
-	}	
+	}
 
     /*
     * Gets called when someone does !bots !bot !up
