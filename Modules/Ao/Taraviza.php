@@ -323,7 +323,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 15*60; // default 15 min immortality
 						break;
 				}
-				if (time()<$last+$immor+30||(time()>$last+$cycle&&time()<$last+$cycle+$immor+30)) { // 30 sec margin/lag
+				if (time()<$last+$immor+30||(time()>$last+$immor+30+$cycle&&time()<$last+$immor+30+$cycle+$immor)) { // 30 sec kill margin
 					if($relay) $updown = "up";
 					else $updown = "could be ##green##up##end##";
 				} else {
@@ -331,8 +331,8 @@ class Taraviza extends BaseActiveModule
 					else $updown = "prolly ##red##down##end##";
 				}
 				if (time()-$last<172800) { // after 48h without spawn, boss event is prolly over
-					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($this->nextpop($last,0),0,-1).' pop in '.substr($this->nextpop($last,$cycle),0,-1).$rperc.". ";
-					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$this->nextpop($last,0).' ago, may pop in '.$this->nextpop($last,$cycle).$perce;
+					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($this->nextpop($last,0),0,-1).' pop in '.substr($this->nextpop($last,$cycle+$immor+30),0,-1).$rperc.". ";
+					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$this->nextpop($last,0).' ago, may pop in '.$this->nextpop($last,$cycle+$immor+30).$perce;
 					$total++;
 				}
 			}
@@ -342,11 +342,11 @@ class Taraviza extends BaseActiveModule
 		else return $total." world boss(es) currently found : ".$this->bot->core("tools")->make_blob("click to view", $inside);	
 	}
 	
-	function nextpop($timer,$cycle)
+	function nextpop($timer,$delay)
 	{
         $now = time();
-        if($cycle>0) { while ($timer <= $now) { $timer = $timer + $cycle; }}
-        if($cycle>0) $left = $timer - $now;
+        if($delay>0) { while ($timer <= $now) { $timer = $timer + $delay; }}
+        if($delay>0) $left = $timer - $now;
 		else $left = $now-$timer;
         $hour = floor($left/3600);
         $left = $left - ($hour*3600);
