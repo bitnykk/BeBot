@@ -324,14 +324,14 @@ class Taraviza extends BaseActiveModule
 						break;
 				}
 				if (time()<$last+$immor+30||(time()>$last+$cycle&&time()<$last+$cycle+$immor+30)) { // 30 sec margin/lag
-					if($relay) $updown = "could be up";
+					if($relay) $updown = "up";
 					else $updown = "could be ##green##up##end##";
 				} else {
-					if($relay) $updown = "prolly down";
+					if($relay) $updown = "down";
 					else $updown = "prolly ##red##down##end##";
 				}
 				if (time()-$last<172800) { // after 48h without spawn, boss event is prolly over
-					if($relay) $inside .= $rtitl.' (RK'.$dim.') : '.$updown.' / seen '.$this->nextpop($last,0).' ago, may pop in '.$this->nextpop($last,$cycle).$rperc.". ";
+					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($this->nextpop($last,0),0,-1).' pop in '.substr($this->nextpop($last,$cycle),0,-1).$rperc.". ";
 					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$this->nextpop($last,0).' ago, may pop in '.$this->nextpop($last,$cycle).$perce;
 					$total++;
 				}
