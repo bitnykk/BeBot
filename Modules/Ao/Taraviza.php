@@ -331,8 +331,8 @@ class Taraviza extends BaseActiveModule
 					else $updown = "prolly ##red##down##end##";
 				}
 				if (time()-$last<172800) { // after 48h without spawn, boss event is prolly over
-					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($this->nextpop($last,0),0,-1).' pop in '.substr($this->nextpop($last,$cycle+$immor+30),0,-1).$rperc.". ";
-					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$this->nextpop($last,0).' ago, may pop in '.$this->nextpop($last,$cycle+$immor+30).$perce;
+					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($this->nextpop($last+$immor+30,0),0,-1).' pop in '.substr($this->nextpop($last+$immor+30,$cycle),0,-1).$rperc.". ";
+					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$this->nextpop($last+$immor+30,0).' ago, may pop in '.$this->nextpop($last+$immor+30,$cycle).$perce;
 					$total++;
 				}
 			}
@@ -342,11 +342,11 @@ class Taraviza extends BaseActiveModule
 		else return $total." world boss(es) currently found : ".$this->bot->core("tools")->make_blob("click to view", $inside);	
 	}
 	
-	function nextpop($timer,$delay)
+	function nextpop($timer,$cycle)
 	{
         $now = time();
-        if($delay>0) { while ($timer <= $now) { $timer = $timer + $delay; }}
-        if($delay>0) $left = $timer - $now;
+        if($cycle>0) { while ($timer <= $now) { $timer = $timer + $cycle; }}
+        if($cycle>0) $left = $timer - $now;
 		else $left = $now-$timer;
         $hour = floor($left/3600);
         $left = $left - ($hour*3600);
