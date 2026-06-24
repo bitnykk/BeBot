@@ -324,15 +324,15 @@ class Taraviza extends BaseActiveModule
 						break;
 				}
 				if (time()<$last+$immor+30||(time()>$last+$immor+30+$cycle&&time()<$last+$immor+30+$cycle+$immor)) { // 30 sec kill margin
-					if($relay) $updown = "up";
+					if($relay) $updown = "up?";
 					else $updown = "could be ##green##up##end##";
 				} else {
-					if($relay) $updown = "down";
+					if($relay) $updown = "off";
 					else $updown = "prolly ##red##down##end##";
 				}
 				if (time()-$last<172800) { // after 48h without spawn, boss event is prolly over
-					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($this->nextpop($last+$immor+30,0),0,-1).' pop in '.substr($this->nextpop($last+$immor+30,$cycle),0,-1).$rperc.". ";
-					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$this->nextpop($last+$immor+30,0).' ago, may pop in '.$this->nextpop($last+$immor+30,$cycle).$perce;
+					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($this->nextpop($last+$immor+30,0),0,-1).' pop in '.substr($this->nextpop($last+$immor+30,$cycle+30),0,-1).$rperc.". ";
+					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$this->nextpop($last+$immor+30,0).' ago, may pop in '.$this->nextpop($last+$immor+30,$cycle+30).$perce;
 					$total++;
 				}
 			}
