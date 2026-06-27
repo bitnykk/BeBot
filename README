@@ -385,7 +385,7 @@ DEFREEZING BOT ACCOUNT (AO ONLY)
 ---------------------------------------
 
 Sometimes an AO account, even a froob, could turn frozen state ...
-You could manually defreeze it by logging at register.funcom.com with browser.
+You could manually fix it by logging at https://account.anarchy-online.com/
 
 Or another option is to setup the bot self defreezer triggered at logon !
 If account password is different than chat login password do this :
@@ -397,6 +397,7 @@ In case of several accounts, as for bot proxy, repeat upper steps for whole netw
 From there, the bot will try to log, notice the frozen error, fix it and restart.
 If you don't change anything in the config, it will redo it everytime necessary.
 But BEWARE : this can only work 5 times per 24 hours from same computer (must wait for more)
+Can also force a defreeze attempt by creating a temp .defreeze file at root of the bot folder
 
 PLAYING WHILE RUNNING THE BOT (AO ONLY)
 ---------------------------------------
