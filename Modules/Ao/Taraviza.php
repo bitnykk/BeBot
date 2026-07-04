@@ -324,7 +324,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 15*60; // default 15 min immortality
 						break;
 				}
-				if (time()<$last+$immor+30||(time()>$last+$immor+30+$cycle&&time()<$last+$immor+30+$cycle+$immor)) { // 30 sec kill margin
+				if (time()<$last+$immor+30||(time()>$last+$immor+30+$cycle&&time()<$last+$immor+30+$cycle+$immor+30)) { // 30 sec kill margin
 					if($relay) $updown = "up?";
 					else $updown = "could be ##green##up##end##";
 				} else {
@@ -332,8 +332,8 @@ class Taraviza extends BaseActiveModule
 					else $updown = "prolly ##red##down##end##";
 				}
 				if (time()-$last<172800) { // after 48h without spawn, boss event is prolly over
-					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($this->nextpop($last+$immor+30,0),0,-1).' pop in '.substr($this->nextpop($last+$immor+30,$cycle+30),0,-1).$rperc.". ";
-					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$this->nextpop($last+$immor+30,0).' ago, may pop in '.$this->nextpop($last+$immor+30,$cycle+30).$perce;
+					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($this->nextpop($last,0),0,-1).' pop in '.substr($this->nextpop($last,$immor+30+$cycle),0,-1).$rperc.". ";
+					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$this->nextpop($last,0).' ago, may pop in '.$this->nextpop($last,$immor+30+$cycle).$perce;
 					$total++;
 				}
 			}
@@ -353,8 +353,8 @@ class Taraviza extends BaseActiveModule
         $hour = floor($left/3600);
         $left = $left - ($hour*3600);
         $min = floor($left/60);
-        /*$sec = $left - ($min*60);
-        /if ($sec < 10) { $sec = "0".$sec; }*/
+        $sec = $left - ($min*60);
+        if ($sec < 10) { $sec = "0".$sec; }
         if ($hour < 10) { $hour = "0".$hour; }
         if ($min < 10) { $min = "0".$min; }
 		$msg = $hour."h".$min."m";
@@ -380,6 +380,7 @@ class Taraviza extends BaseActiveModule
 						}
 						if($faction!=''&&$expires>$now) {
 							$left = $expires - $now;
+							if($left<0) $left = abs($left);
 							$hour = floor($left/3600);
 							$left = $left - ($hour*3600);
 							$min = floor($left/60);
@@ -425,6 +426,7 @@ class Taraviza extends BaseActiveModule
 		if ($now<($timer-$this->tcycle+1800)) $still = "should be up since ".floor(($now-($timer-$this->tcycle))/60)."m and then would";
 		else $still = "should";
         $left = $timer - $now;
+		if($left<0) $left = abs($left);
         $hour = floor($left/3600);
         $left = $left - ($hour*3600);
         $min = floor($left/60);
@@ -447,6 +449,7 @@ class Taraviza extends BaseActiveModule
         $now = time();
         while ($timer <= $now) { $timer = $timer + $this->vcycle; }
         $left = $timer - $now;
+		if($left<0) $left = abs($left);
         $hour = floor($left/3600);
         $left = $left - ($hour*3600);
         $min = floor($left/60);
