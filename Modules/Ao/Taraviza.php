@@ -239,6 +239,7 @@ class Taraviza extends BaseActiveModule
 						$cycle = 3*3600; // 3H cycle randomized (15=immortality)
 						$title = 'Winged <a href="chatcmd:///waypoint 1900 3000 650">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss);
+						$perce = " [30% chance]";
 						$rperc = " [30%]";
 						$immor = 15*60;
 						break;										
@@ -348,11 +349,12 @@ class Taraviza extends BaseActiveModule
         if($cycle>0) { while ($timer <= $now) { $timer = $timer + $cycle; }}
         if($cycle>0) $left = $timer - $now;
 		else $left = $now-$timer;
+		if($left<0) $left = abs($left);
         $hour = floor($left/3600);
         $left = $left - ($hour*3600);
         $min = floor($left/60);
-        $sec = $left - ($min*60);
-        if ($sec < 10) { $sec = "0".$sec; }
+        /*$sec = $left - ($min*60);
+        /if ($sec < 10) { $sec = "0".$sec; }*/
         if ($hour < 10) { $hour = "0".$hour; }
         if ($min < 10) { $min = "0".$min; }
 		$msg = $hour."h".$min."m";
