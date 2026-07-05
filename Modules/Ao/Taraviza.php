@@ -292,7 +292,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 15*60;
 						break;										
 					case 'tara':
-						$cycle = $this->tcycle;  // 9H30 tara cycle (30=immortality)
+						$cycle = 9*3600;  // 9H30 tara cycle (30=immortality)
 						$title = 'Camelot <a href="chatcmd:///waypoint 2092 3797 505">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss);
 						$perce = " [99% sure]";
@@ -300,7 +300,7 @@ class Taraviza extends BaseActiveModule
 						$immor = 30*60;
 						break;
 					case 'vizaresh':
-						$cycle = $this->vcycle; // 17H07 viza cycle (7=immortality)
+						$cycle = 17*3600; // 17H07 viza cycle (7=immortality)
 						$title = 'Gauntlet <a href="chatcmd:///waypoint 310 25 4328">'.ucfirst($boss).'</a>';
 						$rtitl = ucfirst($boss);
 						$perce = " [99% sure]";
