@@ -332,8 +332,14 @@ class Taraviza extends BaseActiveModule
 					else $updown = "prolly ##red##down##end##";
 				}
 				if (time()-$last<172800) { // after 48h without spawn, boss event is prolly over
-					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($this->nextpop($last,0),0,-1).' pop in '.substr($this->nextpop($last,$immor+30+$cycle),0,-1).$rperc.". ";
-					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$this->nextpop($last,0).' ago, may pop in '.$this->nextpop($last,$immor+30+$cycle).$perce;
+					$seenpop = $this->calcpop($last,0); // last pop strictly
+					$seentime = $this->calctime($seenpop);
+					$seen = $seentime['hour']."h".$seentime['min']."m";
+					$nextpop = $this->calcpop($last+$immor+30,$cycle); // last kill cycled
+					$nexttime = $this->calctime($nextpop);
+					$next = $nexttime['hour']."h".$nexttime['min']."m";					
+					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($seen,0,-1).' pop in '.substr($next,0,-1).$rperc.". ";
+					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$seen.' ago, may pop in '.$next.$perce;
 					$total++;
 				}
 			}
@@ -343,12 +349,17 @@ class Taraviza extends BaseActiveModule
 		else return $total." world boss(es) currently found : ".$this->bot->core("tools")->make_blob("click to view", $inside);	
 	}
 	
-	function nextpop($timer,$cycle)
+	function calcpop($timer,$cycle)
 	{
         $now = time();
         if($cycle>0) { while ($timer <= $now) { $timer = $timer + $cycle; }}
         if($cycle>0) $left = $timer - $now;
 		else $left = $now-$timer;
+		return $left;
+    }
+	
+	function calctime($left)
+	{
 		if($left<0) $left = abs($left);
         $hour = floor($left/3600);
         $left = $left - ($hour*3600);
@@ -357,9 +368,9 @@ class Taraviza extends BaseActiveModule
         if ($sec < 10) { $sec = "0".$sec; }
         if ($hour < 10) { $hour = "0".$hour; }
         if ($min < 10) { $min = "0".$min; }
-		$msg = $hour."h".$min."m";
-		return $msg;
-    }	
+		$aret = array("hour" => $hour, "min" => $min, "sec" => $sec);
+		return $aret;
+    }		
 
 	function show_buff()
 	{
@@ -380,15 +391,8 @@ class Taraviza extends BaseActiveModule
 						}
 						if($faction!=''&&$expires>$now) {
 							$left = $expires - $now;
-							if($left<0) $left = abs($left);
-							$hour = floor($left/3600);
-							$left = $left - ($hour*3600);
-							$min = floor($left/60);
-							$sec = $left - ($min*60);
-							if ($sec < 10) { $sec = "0".$sec; }
-							if ($hour < 10) { $hour = "0".$hour; }
-							if ($min < 10) { $min = "0".$min; }
-							$return .= " Currently RK".$buff->dimension." ".$faction." buff is up and expires in about ".$hour."h".$min."m ";						
+							$calctime = $this->calctime($left);
+							$return .= " Currently RK".$buff->dimension." ".$faction." buff is up and expires in about ".$calctime['hour']."h".$calctime['min']."m ";						
 						}
 					}					
 				} else {
@@ -426,17 +430,10 @@ class Taraviza extends BaseActiveModule
 		if ($now<($timer-$this->tcycle+1800)) $still = "should be up since ".floor(($now-($timer-$this->tcycle))/60)."m and then would";
 		else $still = "should";
         $left = $timer - $now;
-		if($left<0) $left = abs($left);
-        $hour = floor($left/3600);
-        $left = $left - ($hour*3600);
-        $min = floor($left/60);
-        $sec = $left - ($min*60);
-        if ($sec < 10) { $sec = "0".$sec; }
-        if ($hour < 10) { $hour = "0".$hour; }
-        if ($min < 10) { $min = "0".$min; }
+		$calctime = $this->calctime($left);
 		$msg = "";
-        if($from=="user") $msg = "Tarasque ".$still." pop in about ".$hour."h".$min."m";
-		elseif($hour=="00") $msg = $min;
+        if($from=="user") $msg = "Tarasque ".$still." pop in about ".$calctime['hour']."h".$calctime['min']."m";
+		elseif($calctime['hour']=="00") $msg = $calctime['min'];
 		return $msg;
     }
 
@@ -449,17 +446,10 @@ class Taraviza extends BaseActiveModule
         $now = time();
         while ($timer <= $now) { $timer = $timer + $this->vcycle; }
         $left = $timer - $now;
-		if($left<0) $left = abs($left);
-        $hour = floor($left/3600);
-        $left = $left - ($hour*3600);
-        $min = floor($left/60);
-        $sec = $left - ($min*60);
-        if ($sec < 10) { $sec = "0".$sec; }
-        if ($hour < 10) { $hour = "0".$hour; }
-        if ($min < 10) { $min = "0".$min; }
+		$calctime = $this->calctime($left);
 		$msg = "";
-		if($from=="user") $msg = "Gauntlet should start in about ".$hour."h".$min."m";
-		elseif($hour=="00") $msg = $min;
+		if($from=="user") $msg = "Gauntlet should start in about ".$calctime['hour']."h".$calctime['min']."m";
+		elseif($calctime['hour']=="00") $msg = $calctime['min'];
 		return $msg;
     }
 
