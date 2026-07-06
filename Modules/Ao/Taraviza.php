@@ -352,6 +352,7 @@ class Taraviza extends BaseActiveModule
 	function calcpop($timer,$cycle)
 	{
         $now = time();
+		$timer = $timer + $cycle;
         if($cycle>0) { while ($timer <= $now) { $timer = $timer + $cycle; }}
         if($cycle>0) $left = $timer - $now;
 		else $left = $now-$timer;
@@ -426,6 +427,7 @@ class Taraviza extends BaseActiveModule
         $take = $this -> bot -> db -> select("SELECT * FROM tara");
         foreach ($take as $line){ $timer = $line[0]; }
         $now = time();
+		$timer = $timer + $this->tcycle;
         while ($timer <= $now) { $timer = $timer + $this->tcycle; }
 		if ($now<($timer-$this->tcycle+1800)) $still = "should be up since ".floor(($now-($timer-$this->tcycle))/60)."m and then would";
 		else $still = "should";
@@ -444,6 +446,7 @@ class Taraviza extends BaseActiveModule
         $take = $this -> bot -> db -> select("SELECT * FROM viza");
         foreach ($take as $line){ $timer = $line[0]; }
         $now = time();
+		$timer = $timer + $this->vcycle;
         while ($timer <= $now) { $timer = $timer + $this->vcycle; }
         $left = $timer - $now;
 		$calctime = $this->calctime($left);
