@@ -47,7 +47,15 @@ class Gmi extends BaseActiveModule
 		$this -> register_command("all", "gmi", "GUEST");
 		$this -> help['description'] = "Offers pure chat GMI search based on Nadyita's API";
         $this->bot->core("settings")
-            ->create("Gmi", "ApiUrl", "https://gmi.nadybot.org", "What's the GMI search API URL we should use (Nadybot's by default) ?");	
+            ->create("Gmi", "ApiUrl", "https://gmi.nadybot.org", "What's the GMI search API URL we should use (Nadybot's by default) ?");
+        $this->bot->core("settings")
+            ->create(
+                "Gmi",
+                "MaxCount",
+                500,
+                "What's the limit number of items displayed from search result (500 default) ?",
+                "100;250;500;750;1000"
+            );		
 		$this->apiver='v1.0';
 	}
 	
@@ -90,8 +98,9 @@ class Gmi extends BaseActiveModule
 			} else {
 				$inside .= "No searchable item(s) found corresponding to your keyword(s)";
 			}
-		}
-		return $count." searchable item(s) : ".$this->bot->core("tools")->make_blob("click to view", $inside);
+		}		
+		if ($count<=$this->bot->core("settings")->get("Gmi", "MaxCount")) return $count." searchable item(s) : ".$this->bot->core("tools")->make_blob("click to view", $inside);
+		else return "Too many results (".$count."), please retry more accurate keyword(s)";
 	}
 
 	function gmi_search($name, $info, $channel)

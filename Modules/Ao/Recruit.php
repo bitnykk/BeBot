@@ -46,6 +46,7 @@ class Recruit extends BaseActiveModule
 		$this -> verify = array();
 
 		$this -> register_command('tell', 'recruit', 'ANONYMOUS');
+		$this -> register_command('tell', 'sendrecruit', 'ADMIN');
 		$this -> help['description'] = 'Allows a person to send a tell to the bot to start the recruitment process. Uses the !news system to warn offline officers.';
 		$this -> register_event("cron", "59min");
 		$this -> bot -> core("settings") -> create("Recruit", "GuildName", "", "Guild Name to use for all messages (tells, public, etc).");
@@ -63,7 +64,11 @@ class Recruit extends BaseActiveModule
 		switch($com['com'])
 		{
 		    case 'recruit':
-			return $this->do_recruit($name);		
+			return $this->do_recruit($name);
+			break;
+			
+		    case 'sendrecruit':
+			return $this->send_recruit($com['args']);
 			break;
 
 		    case 'default':
@@ -238,6 +243,29 @@ class Recruit extends BaseActiveModule
 			$this->bot->log("RECRUIT", "NOTICE", "Sent recruit message on ".$channel);
 		}
     }
+	
+	function send_recruit($msg)
+	{
+		if ($this->bot->core("settings")->get("Recruit", "SpamPublic")) {
+			$whatchan = $this->bot->core("settings")->get("Recruit", "WhatChan");
+			switch($whatchan) {
+				case 'Neutral':
+					$channel = "Neu. OOC";
+					break;
+				case 'Omni':
+					$channel = "OT OOC";
+					break;			
+				case 'Clan':
+					$channel = "Clan OOC";
+					break;
+				default:
+					$channel = "Neu. Newbie OOC";
+					break;					
+			}
+			$this -> bot -> aoc -> send_group($channel,$msg);
+			$this->bot->log("RECRUIT", "RELAY", "Relayed sendcom message on ".$channel);			
+		}
+	}		
 	
 }
 ?>

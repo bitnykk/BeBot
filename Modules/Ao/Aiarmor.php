@@ -55,7 +55,7 @@ class Aiarmor extends BaseActiveModule
 		else if(preg_match("/^aiarmor (strong|supple|enduring|observant|arithmetic|spiritual) ([0-9]+)/i", $msg, $info) || preg_match("/^aiarmor (strong|supple|enduring|observant|arithmetic|spiritual)/i", $msg, $info))
 			return $this -> single($name, $info);
 		else if(preg_match("/^aiarmor/i", $msg))
-			return "Unknown Syntax or wrong Armor specified! Use one of the following: cc, cm, co, cp, cs, ss, strong, supple, enduring, observant, arithmetic or spiritual. $command";
+			return "Unknown Syntax or wrong Armor specified! Use one of the following: cc, cm, co, cp, cs, ss, strong, supple, enduring, observant, arithmetic or spiritual.";
 		else
 		return false;
 	} // End function handler()		
@@ -63,7 +63,7 @@ class Aiarmor extends BaseActiveModule
 	function combined($name, $arr)
 	{
 		$armortype = strtolower($arr[1]);
-		if($arr[2] >= 1 && $arr[2] <= 300)
+		if(isset($arr[2]) && $arr[2] >= 1 && $arr[2] <= 300)
 			$ql = $arr[2];
 		else
 			$ql = 300;

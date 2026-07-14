@@ -74,23 +74,23 @@ class Skills extends BaseActiveModule
 
 	function command_handler($name, $msg, $origin)
 	{
-		 if (preg_match('/^aimedshot ([0-9]+) (.+) (.+)/i', $msg, $info)) {
+		 if (preg_match('/^aimedshot ([0-9]+) (.+) (.+)/i', $msg, $info)&&is_numeric($info[1])&&is_numeric($info[2])&&is_numeric($info[3])) {
 			return $this -> aimed($info[1], $info[2], $info[3]);
-		 } elseif (preg_match('/^burst ([0-9]+) (.+) (.+) (.+)/i', $msg, $info)) {
+		 } elseif (preg_match('/^burst ([0-9]+) (.+) (.+) (.+)/i', $msg, $info)&&is_numeric($info[1])&&is_numeric($info[2])&&is_numeric($info[3])) {
 			return $this -> burst($info[1], $info[2], $info[3], $info[4]);
-		 } elseif (preg_match('/^brawl ([0-9]+)/i', $msg, $info)) {
+		 } elseif (preg_match('/^brawl ([0-9]+)/i', $msg, $info)&&is_numeric($info[1])) {
 			return $this -> brawl($info[1]);
-		 } elseif (preg_match('/^dimach ([0-9]+) (.+)/i', $msg, $info)) {
+		 } elseif (preg_match('/^dimach ([0-9]+) (.+)/i', $msg, $info)&&is_numeric($info[1])) {
 			return $this -> dimach($info[1], $info[2]);
-		 } elseif (preg_match('/^fullauto ([0-9]+) (.+) (.+) (.+)/i', $msg, $info)) {
+		 } elseif (preg_match('/^fullauto ([0-9]+) (.+) (.+) (.+)/i', $msg, $info)&&is_numeric($info[1])&&is_numeric($info[2])&&is_numeric($info[3])&&is_numeric($info[4])) {
 			return $this -> full($info[1], $info[2], $info[3], $info[4]);
-		 } elseif (preg_match('/^fastattack ([0-9]+) (.+)/i', $msg, $info)) {
+		 } elseif (preg_match('/^fastattack ([0-9]+) (.+)/i', $msg, $info)&&is_numeric($info[1])&&is_numeric($info[2])) {
 			return $this -> fast($info[1], $info[2]);
-		 } elseif (preg_match('/^flingshot ([0-9]+) (.+)/i', $msg, $info)) {
+		 } elseif (preg_match('/^flingshot ([0-9]+) (.+)/i', $msg, $info)&&is_numeric($info[1])&&is_numeric($info[2])) {
 			return $this -> fling($info[1], $info[2]);
-		 } elseif (preg_match('/^mafist ([0-9]+) (.+)/i', $msg, $info)) {
+		 } elseif (preg_match('/^mafist ([0-9]+) (.+)/i', $msg, $info)&&is_numeric($info[1])) {
 			return $this -> mafist($info[1], $info[2]);
-		 } elseif (preg_match('/^nanoinit ([0-9]+) (.+)/i', $msg, $info)) {
+		 } elseif (preg_match('/^nanoinit ([0-9]+) (.+)/i', $msg, $info)&&is_numeric($info[1])&&is_numeric($info[2])) {
 			return $this -> nanoi($info[1], $info[2]);
 		 } elseif (preg_match('/^weapon \<a href\=\"itemref\:\/\/([0-9]+)\/([0-9]+)\/([0-9]+)\"\>([^<]+)\<\/a\>/i', $msg, $info)) {
 			return $this -> weapon($info[1], $info[2], $info[3], $info[4], $name, $origin);
@@ -209,7 +209,7 @@ class Skills extends BaseActiveModule
         return $this -> bot -> core("tools") -> make_blob("Brawl Information", $inside);
 	}
 
-	function dimach($Dimach, $Prof)
+	function dimach($Dimach, $Prof="")
 	{
 		$skill_list 	= array(   1, 1000, 1001, 2000, 2001, 3000);
 		$gen_dmg_list	= array(   1, 2000, 2001, 2500, 2501, 2850);
@@ -232,25 +232,25 @@ class Skills extends BaseActiveModule
 		}
 		$info = "";
 		switch ($Prof) {
-			case "martial artist";
-			case "ma";
-			case "martial";
+			case "martial artist":
+			case "ma":
+			case "martial":
 				$MA_dmg 	 = $this->interpolate($skill_list[$i], $skill_list[($i+1)], $MA_dmg_list[$i],  $MA_dmg_list[($i+1)],  $Dimach);
 				$MA_dim_rech = $this->interpolate($skill_list[$i], $skill_list[($i+1)], $MA_rech_list[$i], $MA_rech_list[($i+1)], $Dimach);
 				$info .= "Damage: ".$MA_dmg."-".$MA_dmg."(1)\n";
 				$info .= "Recharge ".$this->timestamp($MA_dim_rech)."\n";
 				$class_name = "Martial Artist";
 			break;
-			case "keep";
-			case "keeper";
+			case "keep":
+			case "keeper":
 				$keep_heal 	= $this->interpolate($skill_list[$i], $skill_list[($i+1)], $keep_heal_list[$i],$keep_heal_list[($i+1)], $Dimach);
 				$info .= "Self heal: ".$keep_heal." HP\n";
 				$info .= "Recharge: 1 hour (constant)\n";
 				$class_name = "Keeper";
 			break;
-			case "sh";
-			case "shad";
-			case "shade";
+			case "sh":
+			case "shad":
+			case "shade":
 				$shad_dmg 	= $this->interpolate($skill_list[$i], $skill_list[($i+1)], $shad_dmg_list[$i], $shad_dmg_list[($i+1)],  $Dimach);
 				$shad_rec 	= $this->interpolate($skill_list[$i], $skill_list[($i+1)], $shad_rec_list[$i], $shad_rec_list[($i+1)],  $Dimach);
 				$shad_dim_rech	= $this->interpolate($skill_list[$i], $skill_list[($i+1)], $shad_rech_list[$i], $shad_rech_list[($i+1)], $Dimach);
@@ -259,7 +259,7 @@ class Skills extends BaseActiveModule
 				$info .= "Recharge ".$this->timestamp($shad_dim_rech)."\n";
 				$class_name = "Shade";
 			break;
-			default;
+			default:
 				$gen_dmg = $this->interpolate($skill_list[$i], $skill_list[($i+1)], $gen_dmg_list[$i],  $gen_dmg_list[($i+1)], $Dimach);
 				$info .= "Damage: ".$gen_dmg."-".$gen_dmg."(1)\n";
 				$info .= "Recharge: 30 minutes (constant)\n";
@@ -334,7 +334,7 @@ class Skills extends BaseActiveModule
 		return $this -> bot -> core("tools") -> make_blob("Fling Shot Information", $inside);
 	}
 
-	function mafist($MaSkill, $class)
+	function mafist($MaSkill, $class="")
 	{
 		$skill_list = array(1,200,1000,1001,2000,2001,3000);
 		$MA_min_list = array (3,25,90,91,203,204,425);
@@ -361,17 +361,17 @@ class Skills extends BaseActiveModule
 		}
 
 		switch ($class) {
-			case "martial artist";
-			case "ma";
-			case "martial";
+			case "martial artist":
+			case "ma":
+			case "martial":
 				$min_list = $MA_min_list; $max_list = $MA_max_list; $crit_list = $MA_crit_list; $class_name = "Martial Artist";
 			break;
-			case "sh";
-			case "shad";
-			case "shade";
+			case "sh":
+			case "shad":
+			case "shade":
 				$min_list = $shade_min_list; $max_list = $shade_max_list; $crit_list = $shade_crit_list; $class_name = "Shade";
 			break;
-			default;
+			default:
 				$min_list = $gen_min_list; $max_list = $gen_max_list; $crit_list = $gen_crit_list; $class_name = "All classes besides MA and Shade";
 			break;
 		}

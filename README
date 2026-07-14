@@ -42,7 +42,7 @@ PREREQUISITES (WHAT DO YOU NEED?)
 To install and run BeBot you need the following: 
 
 * Anarchy Online (free or paid) or Age of Conan
-* PHP version from 5.4 (minimally but 7+ advised) upto 8.3 ("Max Tested So Far" aka MTSF)
+* PHP version from 7.1 (minimally as older crashes) upto 8.5 ("Max Tested So Far" aka MTSF)
 * database server of either Mysql (from 4.1 upto 8.0 MTSF) or MariaDB (10.0 upto 11.2 MTSF)
 * either "Official" files at https://github.com/J-Soft/BeBot/archive/master.zip (stable)
   or "Beta" files from https://github.com/bitnykk/BeBot/archive/master.zip (sandbox)
@@ -118,8 +118,10 @@ On windows, according to the PHP version you'd want Bebot to run into, you may
 need to copy a php.exe file right into bot's root folder (where StartBot.bat is).
 Unless windows PATH and/or php.ini are well set so the exe can locate required
 libraries alone, you may have to copy correct .dll files for this specific PHP.
-For 5.4/5.6 : libeay32, libmysql, php5ts and ssleay32, php_mysqli & php_sockets.
-For 7/8 : libcrypt, libssl, libssh2, sockets, nghttp2, curl & phpX(ts).
+From 7 base : libcrypt, libssl, libssh2, sockets, nghttp2, curl & phpX(ts).
+From 8 adds : brotli (common+dec) & libzstd.
+
+Activate 6 extensions : curl, mbstring, mysqli, openssl, pdo_mysql, sockets.
 
 You also should look after the value of the parameter "memory_limit" in php.ini.
 It could be set at -1 (unlimited) which is fine if you got lot of RAM.
@@ -383,7 +385,7 @@ DEFREEZING BOT ACCOUNT (AO ONLY)
 ---------------------------------------
 
 Sometimes an AO account, even a froob, could turn frozen state ...
-You could manually defreeze it by logging at register.funcom.com with browser.
+You could manually fix it by logging at https://account.anarchy-online.com/
 
 Or another option is to setup the bot self defreezer triggered at logon !
 If account password is different than chat login password do this :
@@ -395,6 +397,7 @@ In case of several accounts, as for bot proxy, repeat upper steps for whole netw
 From there, the bot will try to log, notice the frozen error, fix it and restart.
 If you don't change anything in the config, it will redo it everytime necessary.
 But BEWARE : this can only work 5 times per 24 hours from same computer (must wait for more)
+Can also force a defreeze attempt by creating a temp .defreeze file at root of the bot folder
 
 PLAYING WHILE RUNNING THE BOT (AO ONLY)
 ---------------------------------------
@@ -484,18 +487,27 @@ Anarchy Online
 --------------
 
 To bypass that annoying limit for AO :
-
 First create all needed slaves in one or several account(s).
-
-Then download AOCP at https://github.com/Budabot/AOChatProxy
-If none yet, you may also need to install Java JDK for your OS
-
-Configure AOCP within its config.properties (copied from template) with :
+From there you have 2 solutions with same range of settings :
 - proxy local port (9993 by default, advised unless you know why you change)
 - server distant adress & port (according to what game/dimension you need)
 - all the slaves you want starting at number one (with user, pass, name)
-Once ready, run the service (run.bat on windows, run.sh on linux/mac).
-Then the service should be waiting for main bot connection ...
+
+1/ Tyrence's Scala/java AOCP (older, obsolete)
+Download AOCP at https://github.com/Budabot/AOChatProxy
+You may also need to install Java JDK for your OS https://www.oracle.com/java/technologies/downloads/
+Configure AOCP within its config.properties (copied from template) with wanted settings.
+Once ready, run the executable of the service :
+run.bat (on windows) | run.sh (on linux/mac)
+
+2/ Nady's Rust AOCP v2 (newer, adviced)
+The source is forked at https://github.com/bitnykk/aochatproxy2
+You first may have to install Docker for your OS https://wiki.bebot.link/index.php/Docker
+Then create the .env file as explained in Nady's README with wanted settings.
+Endly, run container with exposed port, eg :
+docker run --rm -it -p 9993:9993 --env-file /path/to/.env quay.io/nadyita/aochatproxy:stable
+
+In both cases, the Proxy service should now be waiting for main bot connection ...
 
 Now edit you Conf/Bot.conf and set $dimension to the correct value :
 For AO its a number, e.g. for Live Proxy : $dimension = "95";

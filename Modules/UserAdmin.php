@@ -701,8 +701,8 @@ class UserAdmin extends BaseActiveModule {
 	function to_db_value(&$value, $numeric_padding = false) {
 		if (is_null($value)) return 'NULL';
 		if (is_numeric($value)) return ($numeric_padding) ? "'". $value ."'" : $value;
-		if (get_magic_quotes_gpc()) $value = stripslashes($value);
-		return "'". mysql_escape_string($value) ."'";
+		if (function_exists("get_magic_quotes_gpc")&&get_magic_quotes_gpc()) $value = stripslashes($value);
+		return "'". mysqli_real_escape_string($value) ."'";
 	}
 
 	/* $conditions = assoc array, $k=>$v becomes "WHERE $k='$v' [AND $k1='$v1']...",
@@ -730,7 +730,7 @@ class UserAdmin extends BaseActiveModule {
 				if (!$k) die("where_sql called with empty key");
 				$l = $k[strlen($k) - 1];
 				if ($l=='%') {
-					$sql .= ' '. substr($k, 0, -1) ." LIKE '%". mysql_escape_string($v) ."%'";
+					$sql .= ' '. substr($k, 0, -1) ." LIKE '%". mysqli_real_escape_string($v) ."%'";
 				}
 				else {
 					if (is_null($v)) $l = ' IS ';

@@ -108,7 +108,7 @@ class sfEvent implements ArrayAccess
      */
     public function setProcessed($processed)
     {
-        $this->processed = (boolean)$processed;
+        $this->processed = (bool)$processed;
     }
 
 

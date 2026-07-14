@@ -310,7 +310,7 @@ class Gemcut extends BaseActiveModule
         } elseif (preg_match('/^gem/i', $msg, $info)) {
             $words = trim(substr($msg, strlen('item')));
             if (!empty($words)) {
-                return $this->identify($words);
+                return $this->identify($words, $name);
             } else {
                 return "Usage: gem [itemref]";
             }
@@ -321,7 +321,7 @@ class Gemcut extends BaseActiveModule
 
 
     /* Identifies a gem. */
-    function identify($msg)
+    function identify($msg, $name)
     {
         $items = $this->bot->core('items')->parse_items($msg);
         if (empty($items)) {

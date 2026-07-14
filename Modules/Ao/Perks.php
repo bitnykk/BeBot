@@ -220,21 +220,21 @@ class Perks extends BaseActiveModule
 		$path = "./Extras/Perks/";
 		$skill = array();
 		if (($handle = fopen($path."skill.csv", "r")) !== FALSE) {
-			while (($line = fgetcsv($handle, 1000, ";")) !== FALSE) {
+			while (($line = fgetcsv($handle, 1000, ";", "\"", "\\")) !== FALSE) {
 				$skill[$line[0]] = $line[1];
 			}
 			fclose($handle);
 		}
 		$abil = array();
 		if (($handle = fopen($path."abil.csv", "r")) !== FALSE) {
-			while (($line = fgetcsv($handle, 1000, ";")) !== FALSE) {
+			while (($line = fgetcsv($handle, 1000, ";", "\"", "\\")) !== FALSE) {
 				if(isset($line[1])) $abil[$line[0]] = $line[1];
 			}
 			fclose($handle);
 		}
 		$perk = array(); $slxclud=array(94055,94056,94057,94058,94059,94060,94203,94204,94205,94206,94207,94208,94209,94210,94211,94212,94394,94395,129456,129457,129458,129459,129460,94085,94086,94087,94088,94089,94090,94091,94092,94093,94097);
 		if (($handle = fopen($path."perk.csv", "r")) !== FALSE) {
-			while (($line = fgetcsv($handle, 1000, ";")) !== FALSE) {
+			while (($line = fgetcsv($handle, 1000, ";", "\"", "\\")) !== FALSE) {
 				if( ($exten=="sl"&&($line[0]<=108173||($line[0]>=125093&&$line[0]<=129460))&&!in_array($line[0],$slxclud)) // rebalance & mistaken
 				 || ($exten=="ai"&&$line[0]>=110277&&$line[0]<=114645)
 				 || ($exten=="le"&&($line[0]>=130019||($line[0]>=115778&&$line[0]<=119537))&&substr($line[1],0,19)!="Global Advantage - ") ) { // rebalance & globals
@@ -245,7 +245,7 @@ class Perks extends BaseActiveModule
 		}
 		$req = array();
 		if (($handle = fopen($path."req.csv", "r")) !== FALSE) {
-			while (($line = fgetcsv($handle, 1000, ";")) !== FALSE) {
+			while (($line = fgetcsv($handle, 1000, ";", "\"", "\\")) !== FALSE) {
 				foreach($perk AS $id => $name) {
 					if($id==$line[0]&&($line[3]==2||$line[3]==0)) {
 						$req[$line[0]][] = array($line[1],$line[2],$line[3]);
@@ -256,7 +256,7 @@ class Perks extends BaseActiveModule
 		}
 		$eff = array();
 		if (($handle = fopen($path."eff.csv", "r")) !== FALSE) {
-			while (($line = fgetcsv($handle, 1000, ";")) !== FALSE) {
+			while (($line = fgetcsv($handle, 1000, ";", "\"", "\\")) !== FALSE) {
 				foreach($perk AS $id => $name) {
 					if($id==$line[0]) {
 						$eff[$line[0]][] = array($line[1],$line[2],$line[3],$line[4]);
@@ -267,7 +267,7 @@ class Perks extends BaseActiveModule
 		}
 		$ext = array();
 		if (($handle = fopen($path."ext.csv", "r")) !== FALSE) {
-			while (($line = fgetcsv($handle, 1000, ";")) !== FALSE) {
+			while (($line = fgetcsv($handle, 1000, ";", "\"", "\\")) !== FALSE) {
 				foreach($eff AS $id => $effs) {
 					foreach($effs AS $group) {
 						if($group[0]==190) {

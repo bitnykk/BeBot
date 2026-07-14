@@ -72,6 +72,8 @@ class Com extends BaseActiveModule
         );
 		$this -> bot -> core("settings") -> create("Com", "RaidRunStr", "Raid is running:", "What's the string start for a running raid (default: 'Raid is running:'");
 		$this -> bot -> core("settings") -> create("Com", "RaidLockStr", "raid is locked", "What's the string end for a locked raid (default: 'raid is locked'");
+		$this -> bot -> core("settings") -> create("Com", "SendcomRelay", false, "Should we ask surveyed bot(s) to relay sendcom messages to their recruit channel ?", "On;Off");
+		$this -> bot -> core("settings") -> create("Com", "RelayCom", "sendrecruit", "What's the relay command on the surveyed bot(s) (sendrecruit by default).");
 		$this->register_event("logon_notify");
     }
 	
@@ -186,6 +188,18 @@ class Com extends BaseActiveModule
 			if(strlen($msg)>0) {
 				if ($this->bot->exists_module("massmsg")) {
 					$this->bot->core("massmsg")->mass_msg($name, $msg, $pgroup);
+				}
+				if ($this->bot->core("settings")->get("Com", "SendcomRelay")) {
+					if($this->bot->core("settings")->get("Com", "Channels")!="") {
+						$bots = explode(",", $this->bot->core("settings")->get("Com", "Channels"));
+							foreach($bots as $bot) {
+								if(ucfirst($bot)!=""&&ucfirst($bot)!=$this->bot->botname) {
+									if($this->bot->core("settings")->get("Com", "RelayCom")!="") $relaycom = $this->bot->core("settings")->get("Com", "RelayCom");
+									else $relaycom = "sendrecruit";	
+									$this->bot->send_tell(ucfirst($bot), $relaycom." ".$msg, 1, false);
+								}
+							}
+					}
 				}
 			} else {
 				$this->bot->send_tell($name, $help);

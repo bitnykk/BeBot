@@ -155,7 +155,7 @@ class sfEventDispatcher
             $this->listeners[$name] = array();
         }
 
-        return (boolean)count($this->listeners[$name]);
+        return (bool)count($this->listeners[$name]);
     }
 
 

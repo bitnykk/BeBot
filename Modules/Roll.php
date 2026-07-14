@@ -38,7 +38,7 @@ The Class itself...
 class Roll extends BaseActiveModule
 {
     var $bot;
-    var $roll_info;
+    var $roll_info = array();
     /*
         $roll_info is a two-dimentional indexed/associative array with these fields
         $roll_info[$index]['name'] == the name of the person performing the roll

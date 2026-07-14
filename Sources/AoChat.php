@@ -462,10 +462,17 @@ class AOChat
                                                            ));
         $this->send_packet($pak);
         $packet = $this->get_packet();
+		$this->bot->log("LOGIN", "AUTH", "Received packet Type :".gettype($packet));
+		if(gettype($packet)!="object") print_r($packet);
         /* If the account was wrongly frozen we may attempt bot self defreeze ...
-			But BEWARE : this can only work 5 times per 24 hours from same computer (must wait for more) */
-        if ($packet->type == AOCP_LOGIN_ERROR && substr($packet->args[0],-28) == "/Account system denies login") {
+			But BEWARE : this can only work 5 times per 24 hours from same computer (must wait for more)
+			Can also force a defreeze attempt by creating a temp .defreeze file at root of the bot folder
+		*/
+		$forced = false;
+		if (file_exists('.defreeze')) $forced = true;
+        if ($forced || ($packet->type == AOCP_LOGIN_ERROR && substr($packet->args[0],-28) == "/Account system denies login")) {
             $this->bot->log("LOGIN", "AUTH", "AO account seems to be frozen, trying self defreezer");
+			if ($forced) unlink('.defreeze');
 			$this->defreeze();
 		}
 		// If we receive anything but the character list, something's wrong.
@@ -554,7 +561,7 @@ class AOChat
         $c = array();
         $sec = (int)$time;
         if (is_float($time)) {
-            $usec = (int)($time * 1000000 % 1000000);
+            $usec = (int)((int)($time * 1000000) % 1000000);
         } else {
             $usec = 0;
         }

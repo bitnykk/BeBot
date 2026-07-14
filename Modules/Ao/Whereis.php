@@ -658,6 +658,7 @@ class Whereis extends BaseActiveModule
 		$results = array();
 		$words = explode(" ",$keywords);
 		foreach($elements as $element) {
+			if(is_null($element[2])) $element[2] = "";
 			foreach($words as $word) {
 				if(strpos(strtolower($element[2]),strtolower($word))!==false||strpos(strtolower($element[1]),strtolower($word))!==false||strpos(strtolower($element[0]),strtolower($word))!==false) {
 					if(!isset($results[$element[0]])) {

@@ -221,103 +221,147 @@ class Taraviza extends BaseActiveModule
 		}
 	}
 	
-	function show_world()
+	function show_world($relay=false)
 	{
 		$inside = ''; $total = 0;
 		foreach ($this -> wlist AS $dim => $bosses) {
 			foreach (array_reverse($bosses) AS $boss => $last) {
 				switch($boss) {
 					case 'abmouth':
-						$cycle = 10800; // 3H cycle randomized (15=immortality)
+						$cycle = 3*3600; // 3H cycle randomized (15=immortality)
 						$title = 'Mutated <a href="chatcmd:///waypoint 3150 1550 556">'.ucfirst($boss).'</a>';
+						$rtitl = ucfirst($boss); // for relay
 						$perce = " [5% chance]";
+						$rperc = " [5%]"; // same
 						$immor = 15*60;
 						break;										
 					case 'atma':
-						$cycle = 10800; // 3H cycle randomized (15=immortality)
+						$cycle = 3*3600; // 3H cycle randomized (15=immortality)
 						$title = 'Winged <a href="chatcmd:///waypoint 1900 3000 650">'.ucfirst($boss).'</a>';
+						$rtitl = ucfirst($boss);
 						$perce = " [30% chance]";
+						$rperc = " [30%]";
 						$immor = 15*60;
 						break;										
 					case 'cerubin':
-						$cycle = 32400; // 9h cycle randomized (15=immortality)
+						$cycle = 9*3600; // 9h cycle randomized (15=immortality)
 						$title = 'Rejected <a href="chatcmd:///waypoint 2100 280 505">'.ucfirst($boss).'</a>';
+						$rtitl = ucfirst($boss);
 						$perce = " [85% chance]";
+						$rperc = " [85%]";
 						$immor = 15*60;
 						break;
 						case 'desert-rider':
-						$cycle = 21600; // 6h cycle randomized (5=immortality)
+						$cycle = 6*3600; // 6h cycle randomized (5=immortality)
 						$title = 'Nomad <a href="chatcmd:///waypoint 2232 1586 565">'.ucfirst($boss).'</a>';
+						$rtitl = ucfirst($boss);
 						$perce = " [unpredictable]";
+						$rperc = " [???]";
 						$immor = 5*60;
 						break;									
 					case 'father-time':
-						$cycle = 33300; // 9H15 cycle (15=immortality)
+						$cycle = 9*3600; // 9H15 cycle (15=immortality)
 						$title = 'Timed <a href="chatcmd:///waypoint 2900 300 615">'.ucfirst($boss).'</a>';
+						$rtitl = ucfirst($boss);
 						$perce = " [99% sure]";
+						$rperc = " [99%]";
 						$immor = 15*60;
 						break;					
 					case 'loren':
-						$cycle = 33300; // 9H15 cycle (15=immortality)
+						$cycle = 9*3600; // 9H15 cycle (15=immortality)
 						$title = 'Mercenary <a href="chatcmd:///waypoint 350 500 567">'.ucfirst($boss).'</a>';
+						$rtitl = ucfirst($boss);
 						$perce = " [99% sure]";
+						$rperc = " [99%]";
 						$immor = 15*60;
 						break;					
 					case 'reaper':
-						$cycle = 33300; // 9H15 cycle (15=immortality)
+						$cycle = 9*3600; // 9H15 cycle (15=immortality)
 						$title = 'Dark <a href="chatcmd:///waypoint 1760 2840 595">'.ucfirst($boss).'</a>';
+						$rtitl = ucfirst($boss);
 						$perce = " [99% sure]";
+						$rperc = " [99%]";
 						$immor = 15*60;
 						break;
 					case 'tam':
-						$cycle = 21600; // 6H cycle randomized (15=immortality)
+						$cycle = 6*3600; // 6H cycle randomized (15=immortality)
 						$title = 'Automaton <a href="chatcmd:///waypoint 1130 1530 795">'.ucfirst($boss).'</a>';
+						$rtitl = ucfirst($boss);
 						$perce = " [60% chance]";
+						$rperc = " [60%]";
 						$immor = 15*60;
 						break;										
 					case 'tara':
-						$cycle = $this->tcycle;  // 9H30 tara cycle (30=immortality)
+						$cycle = 9*3600;  // 9H30 tara cycle (30=immortality)
 						$title = 'Camelot <a href="chatcmd:///waypoint 2092 3797 505">'.ucfirst($boss).'</a>';
+						$rtitl = ucfirst($boss);
 						$perce = " [99% sure]";
+						$rperc = " [99%]";
 						$immor = 30*60;
 						break;
 					case 'vizaresh':
-						$cycle = $this->vcycle; // 17H07 viza cycle (7=immortality)
+						$cycle = 17*3600; // 17H07 viza cycle (7=immortality)
 						$title = 'Gauntlet <a href="chatcmd:///waypoint 310 25 4328">'.ucfirst($boss).'</a>';
+						$rtitl = ucfirst($boss);
 						$perce = " [99% sure]";
+						$rperc = " [99%]";
 						$immor = 7*60;
 						break;			
 					case 'zaal':
-						$cycle = 21600; // 6H cycle randomized (15=immortality)
+						$cycle = 6*3600; // 6H cycle randomized (15=immortality)
 						$title = 'Deity <a href="chatcmd:///waypoint 1730 1200 610">'.ucfirst($boss).'</a>';
+						$rtitl = ucfirst($boss);
 						$perce = " [75% chance]";
+						$rperc = " [75%]";
 						$immor = 15*60;
 						break;																
 					default:
-						$cycle = 21600; // 6H default common cycle, assumed for any other
+						$cycle = 6*3600; // 6H default common cycle, assumed for any other
 						$title = "Unknown ".ucfirst($boss); // no coordinates by default
+						$rtitl = ucfirst($boss);
 						$perce = " [no details]"; // unpredictable chance
+						$rperc = " [xxx]";
 						$immor = 15*60; // default 15 min immortality
 						break;
 				}
-				if (time()<$last+$immor+30) $updown = "could be ##green##up##end##"; //
-				else $updown = "prolly ##red##down##end##";
+				if (time()<$last+$immor+30||(time()>$last+$immor+30+$cycle&&time()<$last+$immor+30+$cycle+$immor+30)) { // 30 sec kill margin
+					if($relay) $updown = "up?";
+					else $updown = "could be ##green##up##end##";
+				} else {
+					if($relay) $updown = "off";
+					else $updown = "prolly ##red##down##end##";
+				}
 				if (time()-$last<172800) { // after 48h without spawn, boss event is prolly over
-					$inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / last seen '.$this->nextpop($last,0).' ago, may repop in '.$this->nextpop($last,$cycle).$perce;
+					$seenpop = $this->calcpop($last,0); // last pop strictly
+					$seentime = $this->calctime($seenpop);
+					$seen = $seentime['hour']."h".$seentime['min']."m";
+					$nextpop = $this->calcpop($last+$immor+30,$cycle); // last kill cycled
+					$nexttime = $this->calctime($nextpop);
+					$next = $nexttime['hour']."h".$nexttime['min']."m";					
+					if($relay) $inside .= $rtitl.'('.$dim.') '.$updown.' since '.substr($seen,0,-1).' pop in '.substr($next,0,-1).$rperc.". ";
+					else $inside .= '<br>'.$title.' (RK'.$dim.') : '.$updown.' / seen '.$seen.' ago, may pop in '.$next.$perce;
 					$total++;
 				}
 			}
 			$inside .= '<br>';
 		}
-		return $total." world boss(es) currently found : ".$this->bot->core("tools")->make_blob("click to view", $inside);	
+		if($relay) return $total." wb found. ".$inside;
+		else return $total." world boss(es) currently found : ".$this->bot->core("tools")->make_blob("click to view", $inside);	
 	}
 	
-	function nextpop($timer,$cycle)
+	function calcpop($timer,$cycle)
 	{
         $now = time();
+		$timer = $timer + $cycle;
         if($cycle>0) { while ($timer <= $now) { $timer = $timer + $cycle; }}
         if($cycle>0) $left = $timer - $now;
 		else $left = $now-$timer;
+		return $left;
+    }
+	
+	function calctime($left)
+	{
+		if($left<0) $left = abs($left);
         $hour = floor($left/3600);
         $left = $left - ($hour*3600);
         $min = floor($left/60);
@@ -325,9 +369,9 @@ class Taraviza extends BaseActiveModule
         if ($sec < 10) { $sec = "0".$sec; }
         if ($hour < 10) { $hour = "0".$hour; }
         if ($min < 10) { $min = "0".$min; }
-		$msg = $hour."h".$min."m";
-		return $msg;
-    }	
+		$aret = array("hour" => $hour, "min" => $min, "sec" => $sec);
+		return $aret;
+    }		
 
 	function show_buff()
 	{
@@ -348,14 +392,8 @@ class Taraviza extends BaseActiveModule
 						}
 						if($faction!=''&&$expires>$now) {
 							$left = $expires - $now;
-							$hour = floor($left/3600);
-							$left = $left - ($hour*3600);
-							$min = floor($left/60);
-							$sec = $left - ($min*60);
-							if ($sec < 10) { $sec = "0".$sec; }
-							if ($hour < 10) { $hour = "0".$hour; }
-							if ($min < 10) { $min = "0".$min; }
-							$return .= " Currently RK".$buff->dimension." ".$faction." buff is up and expires in about ".$hour."h".$min."m ";						
+							$calctime = $this->calctime($left);
+							$return .= " Currently RK".$buff->dimension." ".$faction." buff is up and expires in about ".$calctime['hour']."h".$calctime['min']."m ";						
 						}
 					}					
 				} else {
@@ -389,20 +427,15 @@ class Taraviza extends BaseActiveModule
         $take = $this -> bot -> db -> select("SELECT * FROM tara");
         foreach ($take as $line){ $timer = $line[0]; }
         $now = time();
+		$timer = $timer + $this->tcycle;
         while ($timer <= $now) { $timer = $timer + $this->tcycle; }
 		if ($now<($timer-$this->tcycle+1800)) $still = "should be up since ".floor(($now-($timer-$this->tcycle))/60)."m and then would";
 		else $still = "should";
         $left = $timer - $now;
-        $hour = floor($left/3600);
-        $left = $left - ($hour*3600);
-        $min = floor($left/60);
-        $sec = $left - ($min*60);
-        if ($sec < 10) { $sec = "0".$sec; }
-        if ($hour < 10) { $hour = "0".$hour; }
-        if ($min < 10) { $min = "0".$min; }
+		$calctime = $this->calctime($left);
 		$msg = "";
-        if($from=="user") $msg = "Tarasque ".$still." pop in about ".$hour."h".$min."m";
-		elseif($hour=="00") $msg = $min;
+        if($from=="user") $msg = "Tarasque ".$still." pop in about ".$calctime['hour']."h".$calctime['min']."m";
+		elseif($calctime['hour']=="00") $msg = $calctime['min'];
 		return $msg;
     }
 
@@ -413,18 +446,13 @@ class Taraviza extends BaseActiveModule
         $take = $this -> bot -> db -> select("SELECT * FROM viza");
         foreach ($take as $line){ $timer = $line[0]; }
         $now = time();
+		$timer = $timer + $this->vcycle;
         while ($timer <= $now) { $timer = $timer + $this->vcycle; }
         $left = $timer - $now;
-        $hour = floor($left/3600);
-        $left = $left - ($hour*3600);
-        $min = floor($left/60);
-        $sec = $left - ($min*60);
-        if ($sec < 10) { $sec = "0".$sec; }
-        if ($hour < 10) { $hour = "0".$hour; }
-        if ($min < 10) { $min = "0".$min; }
+		$calctime = $this->calctime($left);
 		$msg = "";
-		if($from=="user") $msg = "Gauntlet should start in about ".$hour."h".$min."m";
-		elseif($hour=="00") $msg = $min;
+		if($from=="user") $msg = "Gauntlet should start in about ".$calctime['hour']."h".$calctime['min']."m";
+		elseif($calctime['hour']=="00") $msg = $calctime['min'];
 		return $msg;
     }
 

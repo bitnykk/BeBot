@@ -62,7 +62,8 @@ class Cluster extends BaseActiveModule
 			switch($com['com'])
 			{
 				case'cluster':
-					Return($this -> cluster_blob($com['ql'], $com['type']));
+					if(is_numeric($com['ql'])&&$com['type']!='') Return($this -> cluster_blob($com['ql'], $com['type']));
+					else return "Wrong input, usage: !cluster ql type";
 				break;
 				Default:
 					Return "##error##Error : Broken plugin, received unhandled command: ".$vars[0]."##end##";
