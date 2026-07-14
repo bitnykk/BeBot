@@ -1,5 +1,5 @@
 ------------------------
-Release 0.8.5 - ??? 202?
+Release 0.8.5 - Jul 2026
 ------------------------
 - For both: PHP 8.5 fixes
 - For AO: Twink, Skills, Oe, Gmi, Aggdef, Cluster, Wb, Defreeze, Recruit & (Send)Com improved
