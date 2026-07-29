@@ -255,6 +255,8 @@ class AOChat
                     "Received invalid greeting packet from " . strtoupper(AOCHAT_GAME) . " Chat server.",
                     E_USER_WARNING
                 );
+				// if the AO bot is proxied while any of its accounts is frozen this will occur ...
+				if ($this->bot->port>9000) { $this->defreeze(); }
                 $this->disconnect();
                 return false;
             }
