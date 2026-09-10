@@ -304,7 +304,7 @@ class Bot
         $bot = $this;
         $section = ucfirst(strtolower($section));
         $this->log(strtoupper($section), "LOAD", "Loading $section-modules from '$directory'");
-        $folder = dir("./$directory");
+        $folder = dir($directory);
         $filelist = array();
         //Create an array of files loadable.
         while ($module = $folder->read()) {
@@ -312,7 +312,7 @@ class Bot
 			if($is_disabled == "") {
 				$is_disabled = $this->ini->get($module, "Custom_Modules");
 			}
-            if (!is_dir($module) && !preg_match("/^_/", $module) && preg_match(
+            if (!is_dir($directory . "/" . $module) && !preg_match("/^_/", $module) && preg_match(
                     "/\.php$/i",
                     $module
                 ) && $is_disabled != "FALSE"
@@ -323,7 +323,7 @@ class Bot
         if (!empty($filelist)) {
             sort($filelist);
             foreach ($filelist as $file) {
-                require_once("$directory/$file");
+                require_once($directory . "/" . $file);
                 $this->log(strtoupper($section), "LOAD", $file);
             }
         }
@@ -951,6 +951,10 @@ class Bot
     {
         $match = false;
         $this->command_error_text = false;
+        if ($msg === null || trim((string)$msg) === "") {
+            return false;
+        }
+        $msg = (string)$msg;
         if (!empty($this->commands[$channel])) {
             if ($this->core("security")->is_banned($user)) {
                 $this->send_ban($user);
@@ -1043,6 +1047,7 @@ class Bot
     */
     function hand_to_chat($found, $user, $msg, $channel, $group = null)
     {
+        $registered = array();
         if ($found) {
             return true;
         }
@@ -1391,6 +1396,7 @@ class Bot
         if (!$this->cron_activated) {
             return;
         }
+        $cron_start = microtime(true);
         $time = time();
         // Check timers:
         $this->core("timer")->check_timers();
@@ -1400,6 +1406,10 @@ class Bot
         foreach ($this->cron_times as $interval) {
             $this->cronjob($time, $interval);
         }
+		$cron_duration = microtime(true) - $cron_start;
+		if ($cron_duration >= 0.5) {
+			$this->log("CORE", "CRON", "Cron cycle took " . round($cron_duration, 3) . " seconds.");
+		}
     }
 
 
@@ -1612,7 +1622,7 @@ class Bot
     {
         $channel = strtolower($channel);
         $command = strtolower($command);
-        $exists = false;
+        $exists = true;
         $allchannels = array(
             "gc",
             "tell",
@@ -1631,7 +1641,7 @@ class Bot
 
     public function get_all_commands()
     {
-        Return $commands;
+        return $this->commands;
     }
 
 
@@ -1648,11 +1658,15 @@ class Bot
         if ($channel == "all") {
             $handlers = array();
             foreach ($allchannels as $cnl) {
-                $handlers[] = get_class($this->commands[$cnl][$command]);
+                if (isset($this->commands[$cnl][$command])) {
+                    $handlers[] = get_class($this->commands[$cnl][$command]);
+                }
             }
-            $handler = implode(", ", $handles);
+            $handler = implode(", ", $handlers);
         } else {
-            $handler = get_class($this->commands[$channel][$command]);
+            if (isset($this->commands[$channel][$command])) {
+                $handler = get_class($this->commands[$channel][$command]);
+            }
         }
         return $handler;
     }

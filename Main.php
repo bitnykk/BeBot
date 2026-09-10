@@ -35,6 +35,10 @@ define('BOT_VERSION', "0.8.6");
 define('BOT_VERSION_INFO', ".git(official)");
 define('BOT_VERSION_NAME', "BeBot");
 
+// Make all legacy relative paths resolve from the bot installation directory,
+// even when the process is started from another working directory.
+chdir(__DIR__);
+
 // Overriding some ini values for compatibility
 ini_set("default_socket_timeout", 600);
 ini_set("max_input_time", 600);

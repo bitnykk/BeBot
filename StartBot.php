@@ -34,6 +34,7 @@
 /*
 Take a decent stab at what OS we run on and try using some sane defaults
 */
+chdir(__DIR__);
 $os = getenv("OSTYPE");
 if (empty($os)) {
     $os = getenv("OS");

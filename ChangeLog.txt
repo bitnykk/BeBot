@@ -1,8 +1,8 @@
 ------------------------
 Release 0.8.6 - ??? 202?
 ------------------------
-- For both: ...
-- For AO: Defreeze improved
+- For both: Core modernized
+- For AO: Defreeze, Orgs improved
 - For AoC: ...
 
 ------------------------
@@ -249,7 +249,7 @@ Removed Modules:
 Release 0.6.9 - May 2010
 ------------------------
 - Removed the now defunct !items module for Age of Conan.
-  An alternative third party items database is available at http://bebot.shadow-realm.org/aoc-0-6-x-customunofficial-modules/alternative-central-itemdb-%28!item!items!itemreg%28auto%29%29/
+  An alternative third party items database is available
 - Fixed a bug in !massmsg/!massinvite reported by bitnykk @ Forum
 - Added a setting for Raffle Output
 - Fixes following AO server merges
@@ -1021,11 +1021,11 @@ Important:
 - Updated History module.
 
 Updated Modules:
-- Updated Time module, see: http://bebot.shadow-realm.org/wiki/doku.php?id=time_module  
+- Updated Time module
 - Updated Items module
 
 New Modules:
-- Added settings managment and interface: http://bebot.shadow-realm.org/wiki/doku.php?id=settings
+- Added settings managment and interface
 
 ---------------------
 Beta 0.3.3 - May 2006

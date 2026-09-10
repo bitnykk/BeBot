@@ -45,80 +45,36 @@ if ((float)phpversion() < 5.4) {
 if ((float)phpversion() < 8.0) {
     echo "BeBot recommends PHP version 8.0.0 or later to run.\n";
 }
+
+// Extensions must normally be enabled in php.ini. Runtime loading via dl()
+// is unavailable or restricted on modern PHP versions and was previously
+// attempted because the OS check used a non-empty string literal.
+function bebot_require_extension($extension, $label = null)
+{
+    if (!extension_loaded($extension)) {
+        $label = $label ?: $extension;
+        die("The PHP extension '$label' is required to run BeBot. Enable it in php.ini.\n");
+    }
+}
+
 /*
 Load extentions we need
 */
-if (!extension_loaded("sockets")) {
-    if ('OS_WINDOWS') {
-        if (!dl("php_sockets.dll")) {
-            die("Loading php_sockets.dll failed. Sockets extention required to run this bot");
-        }
-    } else {
-        if (!dl("sockets.so")) {
-            die("Loading sockets.so failed. Sockets extention required to run this bot");
-        }
-    }
-}
-if (!extension_loaded("mysqli")) {
-    if ('OS_WINDOWS') {
-        if (!dl("php_mysqli.dll")) {
-            die("Loading php_mysqli.dll failed. MySQLi extention required to run this bot");
-        }
-    } else {
-        if (!dl("mysqli.so")) {
-            die("Loading mysqli.so failed. MySQLi extention required to run this bot");
-        }
-    }
-}
-if (!extension_loaded("mbstring")) {
-    if ('OS_WINDOWS') {
-        if (!dl("php_mbstring.dll")) {
-            die("Loading php_mbstring.dll failed. MbString extention required to run this bot");
-        }
-    } else {
-        if (!dl("mbstring.so")) {
-            die("Loading mbstrin.so failed. MbString extention required to run this bot");
-        }
-    }
-}
-if (!extension_loaded("bcmath")) {
-    if ('OS_WINDOWS') {
-        if (!dl("php_bcmath.dll")) {
-            die("Loading php_bcmath.dll failed. BcMath extention required to run this bot");
-        }
-    } else {
-        if (!dl("bcmath.so")) {
-            die("Loading bcmath.so failed. BcMath extention required to run this bot");
-        }
-    }
-}
+bebot_require_extension("sockets", "Sockets");
+bebot_require_extension("mysqli", "MySQLi");
+bebot_require_extension("mbstring", "MbString");
+bebot_require_extension("bcmath", "BCMath");
 //From AOChat.php
 // The minimum required PHP version to run.
 if ((float)phpversion() < 5.2) {
     die("AOChat class needs PHP version >= 5.2.0 to work.\n");
 }
 // We need sockets to work
-if (!extension_loaded("sockets")) {
-    die("AOChat class needs the Sockets extension to work.\n");
-}
+// Already checked above.
 // For Authentication we need gmp or bcmath
-if (!extension_loaded("bcmath")) {
-    die("AOChat class needs the BCMath extension to work.\n");
-}
+// Already checked above.
 // Check if we have curl available
 if (!extension_loaded("curl")) {
-    if ('OS_WINDOWS') {
-        if (@!dl("php_curl.dll")) {
-            echo "Curl not available\n";
-        } else {
-            echo "Curl extension loaded\n";
-        }
-    } else {
-        if (function_exists('curl_init')) {
-            echo "Curl extension loaded\n";
-        } else {
-            echo "Curl not available\n";
-        }
-    }
+    echo "Curl not available; optional HTTP integrations may be disabled.\n";
 }
 ?>

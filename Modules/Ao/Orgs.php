@@ -52,11 +52,8 @@ class Orgs extends BaseActiveModule
 		$this -> register_alias("searchorg", "orgsearch");
 		$this -> register_alias("searchorg", "searchorgs");
 		$this->help['command']['searchorg <keyword(s)>'] = "Search for an Org in local Orgs cache.";
-		$this->debug = false; // true for beta ; false for release
-		if ($this->debug)
-			$this->register_event("cron", "1min");
-		else
-			$this->register_event("cron", "1hour");
+		$this->register_event("cron", "1min");
+		$this->register_event("cron", "1hour");
 	}
 	
 	function update_table()
@@ -113,26 +110,21 @@ class Orgs extends BaseActiveModule
 	
 	function get_orgs($origin, $name)
 	{ 	
-		if ($this->debug) echo " orgs ";
 		if(isset($this->active) && $this->active)
 		{
 			Return "Please wait : GetOrgs is already running!";
 		}
 		$this->added = 0; $this->updated = 0; $this->updatedm = 0; $this->checked = 0;
-		$msg = "Getting Org names & ids from Funcom :: MAY TAKE AWHILE so please Wait ... ";
+		$msg = "Updating Org names & ids from Funcom :: All will be done in 27 minutes";
 		$this->bot->send_output($name, $msg, $origin);
 		$this->next = 0; $this->active = true;
 		$this->info = array($name, $origin);
-		if ($this->debug) echo " ... ";
-		$this->get_orgs_letter();
 	}
 
 	function get_orgs_letter()
 	{
 		$this->geterror = false;
-		if ($this->debug) echo " letter ";
 		$letter = $this->letters[$this->next];
-		if ($this->debug) echo " (".$letter.") ";
 		if($letter == "others")
 		{
 			$sql = "";
@@ -154,10 +146,8 @@ class Orgs extends BaseActiveModule
 		}
 		$result = $this->get_orgs_funcom($letter);
 		if(!is_array($result)) {
-			if ($this->debug) echo " noresult ";
 			$this->geterror = true;
 		} elseif (!empty($result)) {
-			if ($this->debug) echo " results ";
 			$updatetime = time();
 			foreach ($result as $ID => $org)
 			{
@@ -178,7 +168,6 @@ class Orgs extends BaseActiveModule
 						$insert[$ID] = $org;
 				}
 			}
-			if ($this->debug) echo " updates ";
 			if (!empty($update))
 				foreach ($update as $key => $value)
 				{
@@ -195,7 +184,6 @@ class Orgs extends BaseActiveModule
 						$this->updatedm++;
 					}
 				}
-			if ($this->debug) echo " inserts ";
 			$inpre = "INSERT INTO #___orgs (dim, org_id, org, last_update, members, faction) VALUES ";
 			$incur = 0; $inlim = 19; $inreq = ""; $instr = "";
 			if (!empty($insert))
@@ -228,15 +216,13 @@ class Orgs extends BaseActiveModule
 			$this->active = false;
 		} elseif($this->next < 26) {
 			$this->next++;
-			$this->get_orgs_letter();
-		} else {	
+		} else {
 			$this->get_orgs_done();
 		}
 	}
 
 	function get_orgs_done()
 	{   
-		if ($this->debug) echo " done ";	
 		if ($this->checked > 0)
 		{
 			$inside = "  ::: Org list Update :::\n\n";
@@ -254,7 +240,6 @@ class Orgs extends BaseActiveModule
 	
 	function get_orgs_funcom($letter)
 	{   
-		if ($this->debug) echo " gofc ";
 		if (substr($this->bot->core("settings")->get("Orgs", "OrgsUrl"),0,4) != "http") return "Error in the Orgs interface URL ... ";
 		$dim = $this->bot->dimension;
 		$getorgs = $this->bot->core("tools")->get_site($this->bot->core("settings")->get("Orgs", "OrgsUrl")."?l=".$letter."&dim=".$dim);
@@ -268,25 +253,19 @@ class Orgs extends BaseActiveModule
 			foreach ($getorgs as $org)
 			{
 				if (strpos($org, '/d/') !== false) {
-					if ($this->debug) echo " org ";
 					$tmp = explode('/d/', $org);
 					$tmp = explode('/name/', $tmp[1]);
 					$d = $tmp[0];
 					$tmp = explode('"> ', $tmp[1]);
 					$id = $tmp[0]; 
-					if ($this->debug) echo " id : ".$id." / ";
 					$tmp = explode('</a>', $tmp[1]);
 					$orgname = $tmp[0];
-					if ($this->debug) echo " orgname : ".$orgname." / ";
 					$tmp = explode('<td align="right">', $tmp[1], 2);
 					$tmp = explode('</td>', $tmp[1], 2);
 					$members = $tmp[0];
-					if ($this->debug) echo " members : ".$members." / ";
 					$tmp = explode('<td align="left">', $tmp[1]);
 					$tmp = explode('</td>', $tmp[1]);
 					$faction = $tmp[0];
-					if ($this->debug) echo " faction : ".$faction." / ";
-					if ($this->debug) usleep(500000);					
 					if ($members !== "<span>-</span>")
 						if ($d == $this->bot->dimension)
 							if ($id !== 0)
@@ -301,17 +280,22 @@ class Orgs extends BaseActiveModule
 		}
 	}
 
-	function cron()
+	function cron($cron)
 	{
-	    if ($this->bot->core("settings")->get ("Orgs", "GetOrgs") !== 0)
-		{
-			if ($this->bot->core("settings")->get ("Orgs", "LastGetOrgs") + ($this->bot->core("settings")->get ("Orgs", "GetOrgs") * 24 * 60 * 60) < time()) {
-				$this->get_orgs("both", "Automated");
+		if ($cron == 3600) {
+			if ($this->bot->core("settings")->get ("Orgs", "GetOrgs") !== 0)
+			{
+				if ($this->bot->core("settings")->get ("Orgs", "LastGetOrgs") + ($this->bot->core("settings")->get ("Orgs", "GetOrgs") * 24 * 60 * 60) < time()) {
+					$this->get_orgs("both", "Automated");
+				} else {
+					$this->bot->log("ORGS", "DEBUG", "Orgs update stopped as cache isn't ".$this->bot->core("settings")->get ("Orgs", "GetOrgs")." day(s) old yet.");
+				}
 			} else {
-				if ($this->debug) $this->bot->log("ORGS", "DEBUG", "Orgs update stopped as cache isn't ".$this->bot->core("settings")->get ("Orgs", "GetOrgs")." day(s) old yet.");
+				$this->bot->log("ORGS", "DEBUG", "Orgs update disabled (day set at 0) ; enable it under !settings orgs");
 			}
-		} else {
-			if ($this->debug) $this->bot->log("ORGS", "DEBUG", "Orgs update disabled (day set at 0) ; enable it under !settings orgs");
+		}
+		if ($cron == 60) {
+			if($this->active) $this->get_orgs_letter();
 		}
 	}
 	
@@ -319,21 +303,17 @@ class Orgs extends BaseActiveModule
 	{   
 		$msg = substr($msg,10); $list = array();
 		$dim = $this->bot->dimension;		
-		if ($this->debug) echo "\n".$name." search_org (RK".$dim.") : ".$msg." -> ".$origin."\n";		
 		$words = explode(' ', $msg); $orglike = "";
 		foreach ($words as $word) { $orglike = "org LIKE '%" . mysqli_real_escape_string($this->bot->db->CONN,$word) . "%' OR ";  }
 		$results = $this->bot->db->select("SELECT org_id, org FROM #___orgs WHERE dim = ".$dim." AND (" . $orglike . "org LIKE '%" . mysqli_real_escape_string($this->bot->db->CONN,$msg) . "%') AND org_id !=0");
 		$countres = count($results);
 		if (!empty($results))
 		{
-			if ($this->debug) echo "Found ".$countres." Org(s) matching:\n";
 			foreach ($results as $org)
 			{
 				$id = $org[0];
 				$orgname = $org[1];
 				$list[$id] = $orgname;
-				if ($this->debug) echo "[name:".$orgname.", ";
-				if ($this->debug) echo "id:".$id."] ";
 			}
 		}
 		$countl = count($list); $sent = ""; $blob = "";
