@@ -264,8 +264,7 @@ class Rolls extends BaseActiveModule
 			$multiloots = html_entity_decode($blob);
 			if(preg_match_all("/<a href='itemref:\/\/([0-9]+)\/([0-9]+)\/([0-9]+)'>([^<]+)<\/a>/i", $multiloots, $matches)||preg_match_all('/<a href="itemref:\/\/([0-9]+)\/([0-9]+)\/([0-9]+)">([^<]+)<\/a>/i', $multiloots, $matches)||preg_match_all('/([^ ]+)/i', $multiloots, $matches)) {
 				foreach($matches[0] as $match) {
-				$this->loot($match,$name);
-				usleep(100000);
+				    $this->loot($match,$name,true);
 				}
 				$this -> bot -> send_pgroup("Multiple loot(s) added by ".$name);
 				$this->rlist();
@@ -276,7 +275,7 @@ class Rolls extends BaseActiveModule
 
 	}	
 
-    function loot($msg, $name)
+    function loot($msg, $name, $silent=false)
     {
         $notyet = true;
         for ($i = 1; $i <= $this->count; $i++) {
@@ -294,9 +293,11 @@ class Rolls extends BaseActiveModule
             $this->loot[$numslot]['item'] = $msg;
             $this->loot[$numslot]['num'] = 1;
         }
-        $this->bot->send_pgroup(
-            "##loot_highlight##" . $num . "x " . $msg . "##end## being rolled in slot##loot_highlight## #" . $numslot
-        );
+        if(!$silent) {
+            $this->bot->send_pgroup(
+                "##loot_highlight##" . $num . "x " . $msg . "##end## being rolled in slot##loot_highlight## #" . $numslot
+            );
+        }
         if ($this->count == 1) {
             unset($this->leftovers); $this->leftovers = array();
         }
