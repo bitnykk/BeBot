@@ -120,26 +120,6 @@ class Gsp extends BaseActiveModule
 		$datas = json_decode($content);
 		if (!$datas || !isset($datas->live, $datas->name, $datas->info)) {
 			return;
-		}
-		$count = count($datas->history);
-		if ($count>0) {
-			$durat = floor($datas->history[0]->duration/1000);
-			$left = $durat;
-			$hour = floor($left/3600);
-			$left = $left - ($hour*3600);
-			$min = floor($left/60);
-			$sec = $left - ($min*60);
-			if ($sec < 10) { $sec = "0".$sec; }
-			if ($hour < 10) { $hour = "0".$hour; }
-			if ($min < 10) { $min = "0".$min; }
-			if($hour=="00") {
-				$hms = $min.":".$sec;
-			} else {
-				$hms = $hour.":".$min.":".$sec;
-			}
-			$artist = $datas->history[0]->artist;
-			$title = "'".$datas->history[0]->title."'";
-			$this->last = $artist."\n ".$title." (".$hms.")";
 		}		
 		$live = $datas->live;
 		$name = $datas->name;
@@ -168,6 +148,28 @@ class Gsp extends BaseActiveModule
 				$this->name = "";
 				$this->info = "";
 			}
+		}
+		if (isset($datas->history)) {
+		$count = count($datas->history);
+			if ($count>0) {
+				$durat = floor($datas->history[0]->duration/1000);
+				$left = $durat;
+				$hour = floor($left/3600);
+				$left = $left - ($hour*3600);
+				$min = floor($left/60);
+				$sec = $left - ($min*60);
+				if ($sec < 10) { $sec = "0".$sec; }
+				if ($hour < 10) { $hour = "0".$hour; }
+				if ($min < 10) { $min = "0".$min; }
+				if($hour=="00") {
+					$hms = $min.":".$sec;
+				} else {
+					$hms = $hour.":".$min.":".$sec;
+				}
+				$artist = $datas->history[0]->artist;
+				$title = "'".$datas->history[0]->title."'";
+				$this->last = $artist."\n ".$title." (".$hms.")";
+			}		
 		}
 	}
 
