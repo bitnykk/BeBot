@@ -295,7 +295,7 @@ class Orgs extends BaseActiveModule
 			}
 		}
 		if ($cron == 60) {
-			if($this->active) $this->get_orgs_letter();
+			if(isset($this->active) && $this->active) $this->get_orgs_letter();
 		}
 	}
 	
