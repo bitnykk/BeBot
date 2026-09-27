@@ -103,9 +103,6 @@ class Gsp extends BaseActiveModule
 	function cron()
     {
 		$channels = $this->bot->core("settings")->get("Gsp", "Channels");
-		if ($channels == "none") {
-			return;
-		}
 		$this->process_gsp_content(
 			$this->bot->core("tools")->get_site("https://gsp.torontocast.stream/streaminfo/"),
 			$channels
