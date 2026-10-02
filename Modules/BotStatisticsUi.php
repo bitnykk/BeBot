@@ -67,7 +67,9 @@ class BotStatisticsUI extends BaseActiveModule
     function check_environ($name, $origin, $msg)
     {
 		$php_version = phpversion();
-		$sql_version = mysqli_get_server_info($this->bot->db->CONN);
+		$sql_version = method_exists($this->bot->db, "serverVersion")
+			? $this->bot->db->serverVersion()
+			: "unknown";
 		$msg = BOT_VERSION_NAME . " v." . BOT_VERSION." -- OS: ".BOT_OPERATING_SYSTEM." -- PHP: ".$php_version." -- SQL: ".$sql_version;
 		Return $msg;		
 	}

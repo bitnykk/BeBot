@@ -115,6 +115,7 @@ AOChat.php: Interface to communicate with AO chat servers
 Bot.php: The actual bot itself.
 */
 require_once "./Sources/RequirementsCheck.php";
+require_once "./Sources/Database.php";
 require_once "./Sources/Mysql.php";
 require_once "./Sources/AoChat.php";
 require_once "./Sources/ConfigMagik.php";

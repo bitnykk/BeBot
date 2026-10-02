@@ -41,13 +41,20 @@ class ShortCuts_Core extends BasePassiveModule
     function __construct(&$bot)
     {
         parent::__construct($bot, get_class($this));
-        $this->bot->db->query(
-            "CREATE TABLE IF NOT EXISTS " . $this->bot->db->define_tablename(
-                "shortcuts",
-                "false"
-            ) . " (id INT NOT NULL AUTO_INCREMENT UNIQUE, "
-            . " shortcut VARCHAR(20) NOT NULL PRIMARY KEY, " . " long_desc VARCHAR(255) NOT NULL UNIQUE)"
-        );
+        $shortcut_table = $this->bot->db->define_tablename("shortcuts", "false");
+        if (method_exists($this->bot->db, "driverName") && $this->bot->db->driverName() === "sqlite") {
+            $this->bot->db->query(
+                "CREATE TABLE IF NOT EXISTS " . $shortcut_table
+                . " (id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                . "shortcut VARCHAR(20) NOT NULL UNIQUE, "
+                . "long_desc VARCHAR(255) NOT NULL UNIQUE)"
+            );
+        } else {
+            $this->bot->db->query(
+                "CREATE TABLE IF NOT EXISTS " . $shortcut_table . " (id INT NOT NULL AUTO_INCREMENT UNIQUE, "
+                . " shortcut VARCHAR(20) NOT NULL PRIMARY KEY, " . " long_desc VARCHAR(255) NOT NULL UNIQUE)"
+            );
+        }
         $this->bot->db->query(
             "INSERT IGNORE INTO #___shortcuts (`shortcut`, `long_desc`) VALUES "
             . "('Pres', 'President'), ('Gen', 'General'), ('SC', 'Squad Commander'), ('UC', 'Unit Commander'), "

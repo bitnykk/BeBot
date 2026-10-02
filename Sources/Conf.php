@@ -273,6 +273,28 @@ class Conf
     function mysql_set_conf($botname)
     {
         echo "\nCreating Mysql Conf File\n";
+        if (function_exists('bebot_sql_available_drivers')) {
+            $available = bebot_sql_available_drivers();
+        } else {
+            // StartBot loads this class before Main loads RequirementsCheck.
+            // Do not assume MySQL in that first-run path.
+            $available = array();
+            if (extension_loaded('mysqli')) $available[] = 'mysql';
+            if (extension_loaded('pdo_sqlite')) $available[] = 'sqlite';
+        }
+        if (empty($available)) {
+            Die("No SQL driver is available in this PHP installation.\n");
+        }
+        echo "Available SQL drivers: " . implode(', ', $available) . "\n";
+        $driver = '';
+        while ($driver == '') {
+            $driver = strtolower($this->ask("SQL driver (" . implode('/', $available) . "):") );
+            if ($driver == 'mariadb') $driver = 'mysql';
+            if (!in_array($driver, $available)) {
+                echo "This SQL driver is not available in the current PHP installation.\n";
+                $driver = '';
+            }
+        }
         echo "Would u like to use botname like botname.Mysql.conf  (y/yes or n/no)\n";
 		$filename = false;
         while (!$filename) {
@@ -284,11 +306,42 @@ class Conf
                 $filename = "Mysql.conf";
             }
         }
+        if ($driver == 'sqlite') {
+            $path = $this->ask("SQLite database path (empty for Custom/Core/" . strtolower($botname) . ".sqlite):");
+            if ($path == '') $path = 'Custom/Core/' . strtolower($botname) . '.sqlite';
+            $file 
+				= '<?php
+	/*
+	Db driver
+	*/					
+	$db_driver = "sqlite";
+	
+	/*
+	Database path
+	*/	
+	$dpath = array("driver" => "sqlite", "path" => "' . addslashes($path) . '");
+	
+	/*
+	Database table prefix
+	*/	
+	$table_prefix = "' . strtolower($botname) . '";
+	
+	/*
+	Master prefix table.
+	*/	
+	$master_tablename = "' . strtolower($botname) . '_tablenames";
+?>';
+            $fp = fopen('./Conf/' . $filename, 'w');
+            fwrite($fp, $file);
+            fclose($fp);
+            echo $filename . " Created\n";
+            Return;
+        }
         echo "MySQL Details:\n";
         $dbase = $this->ask("Database name:");
         $user = $this->ask("Username:");
         $pass = $this->ask("Password:");
-        echo "Database server (usually localhost) Enter nothing for localhost";
+        echo "Database server (usually localhost) Enter nothing for localhost\n";
         $server = $this->ask("Server:");
         if ($server == "") {
             $server = "localhost";
@@ -325,6 +378,11 @@ class Conf
         }
         $file
             = '<?php
+	/*
+	Db driver
+	*/			
+	$db_driver = "mysql";
+	
 	/*
 	Database name
 	*/

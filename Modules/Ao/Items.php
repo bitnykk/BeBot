@@ -77,13 +77,15 @@ class VhItems extends BaseActiveModule
 					$handle = fopen($filename, "r");
 					$used = round((memory_get_usage(true)/1048576),2);
 					if (preg_match("/^windows/i", BOT_OPERATING_SYSTEM)) {
-						$winMemory = array();
-						exec('wmic OS get FreePhysicalMemory', $winMemory);
-						$total = round(array_sum($winMemory)/1024);
+						$total = $this->get_windows_free_memory_mb();
 					} else {
-						$total = intval(exec("grep '^MemFree' /proc/meminfo | sed -E 's/MemFree:| kB|  \ ?//g'"));
-						$total = round($total/1024);
+						$total = intval(exec("grep '^MemFree' /proc/meminfo | sed -E 's/MemFree:| kB|  \ ?//g'"));						
 					}
+					if ($total > 0) $total = round($total/1024);
+					if ($total <= 0) {
+						$this->bot->log("ITEMS", "AOREFS", "Unable to determine total memory; using conservative import mode.");
+						$total = $used;
+					}					
 					$free = floor($total-$used);
 					if($free<$used) {
 						$this->bot->log("ITEMS", "AOREFS", "Too few RAM available, going (slow) ram-saving mode ...");
@@ -159,6 +161,30 @@ class VhItems extends BaseActiveModule
 		} else {
 			return "Usage: items [quality] [item]";
 		}
+	}
+
+	function get_windows_free_memory_mb()
+	{
+		$output = array();
+		$wmic = array();
+		@exec('where wmic 2>NUL', $wmic);
+		if (!empty($wmic)) {
+			@exec('wmic OS get FreePhysicalMemory 2>NUL', $output);
+		} else {
+			$command = 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory" 2>NUL';
+			@exec($command, $output);
+			if (empty($output)) {
+				$command = 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "(Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory" 2>NUL';
+				@exec($command, $output);
+			}
+		}
+		foreach ($output as $line) {
+			$line = trim($line);
+			if (preg_match('/^[0-9]+$/', $line)) {
+				return (float)$line;
+			}
+		}
+		return 0;
 	}
 	
 	
