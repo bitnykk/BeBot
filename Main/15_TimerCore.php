@@ -608,7 +608,16 @@ class Timer_Core extends BasePassiveModule
         if (empty($id)) {
             return -1;
         }
-        return $id[0][0];
+        // PDO drivers may return numeric or associative rows depending on
+        // the selected result mode. Never propagate a NULL id into the next
+        // timer query, where it would produce: `class_id =  AND ...`.
+        if (isset($id[0][0])) {
+            return (int)$id[0][0];
+        }
+        if (isset($id[0]['id'])) {
+            return (int)$id[0]['id'];
+        }
+        return -1;
     }
 
 

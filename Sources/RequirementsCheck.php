@@ -57,11 +57,70 @@ function bebot_require_extension($extension, $label = null)
     }
 }
 
+/* SQL drivers are detected here, but the selected driver is validated only
+ * after the database configuration has been loaded. */
+function bebot_sql_driver_available($driver)
+{
+    $driver = strtolower(trim($driver));
+    if ($driver === 'mariadb') $driver = 'mysql';
+    // The current MySQL implementation is still mysqli-based. PDO MySQL is
+    // reported separately until the PDO MySQL driver is wired into the factory.
+    if ($driver === 'mysql') return extension_loaded('mysqli');
+    if ($driver === 'sqlite') return extension_loaded('pdo_sqlite');
+    return false;
+}
+
+function bebot_sql_driver_details()
+{
+    return array(
+        'mysql' => array(
+            'available' => extension_loaded('mysqli'),
+            'extensions' => array('mysqli' => extension_loaded('mysqli'), 'pdo_mysql' => extension_loaded('pdo_mysql'))
+        ),
+        'sqlite' => array(
+            'available' => extension_loaded('pdo_sqlite'),
+            'extensions' => array('pdo_sqlite' => extension_loaded('pdo_sqlite'))
+        )
+    );
+}
+
+function bebot_sql_available_drivers()
+{
+    $available = array();
+    foreach (bebot_sql_driver_details() as $driver => $details) {
+        if ($details['available']) $available[] = $driver;
+    }
+    return $available;
+}
+
+function bebot_require_sql_driver($driver)
+{
+    $driver = strtolower(trim($driver));
+    $lookup = $driver === 'mariadb' ? 'mysql' : $driver;
+    if (!bebot_sql_driver_available($driver)) {
+        $details = bebot_sql_driver_details();
+        $missing = array();
+        if (isset($details[$lookup])) {
+            foreach ($details[$lookup]['extensions'] as $extension => $loaded) {
+                if (!$loaded) $missing[] = $extension;
+            }
+        }
+        die("The configured SQL driver '$driver' is unavailable. Missing PHP extension(s): " . implode(', ', $missing) . ".\n");
+    }
+}
+
+// Informational only: the user has not selected a database backend yet.
+foreach (bebot_sql_driver_details() as $bebot_sql_driver => $bebot_sql_details) {
+    echo "SQL driver {$bebot_sql_driver}: " . ($bebot_sql_details['available'] ? 'available' : 'not available') . ".\n";
+}
+
 /*
 Load extentions we need
 */
 bebot_require_extension("sockets", "Sockets");
-bebot_require_extension("mysqli", "MySQLi");
+if (!extension_loaded('mysqli') && !extension_loaded('pdo_sqlite')) {
+    die("No usable SQL driver is available. Enable mysqli for MySQL/MariaDB or pdo_sqlite for SQLite.\n");
+}
 bebot_require_extension("mbstring", "MbString");
 bebot_require_extension("bcmath", "BCMath");
 //From AOChat.php

@@ -44,6 +44,22 @@ class MySQL
 	var $master_tablename, $table_prefix, $tablenames;
     public static $instance;
 
+    function driverName()
+    {
+        return "mysql";
+    }
+
+    function serverVersion()
+    {
+        $this->connect();
+        return mysqli_get_server_info($this->CONN);
+    }
+
+    function affectedRows()
+    {
+        return $this->CONN ? mysqli_affected_rows($this->CONN) : 0;
+    }
+
 
     public static function get_instance($bothandle)
     {

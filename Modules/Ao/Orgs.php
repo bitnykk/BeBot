@@ -58,7 +58,20 @@ class Orgs extends BaseActiveModule
 	
 	function update_table()
 	{
-		$this->bot->db->query("CREATE TABLE IF NOT EXISTS " . $this->bot->db->define_tablename("orgs", "false") . "
+		$orgs_table = $this->bot->db->define_tablename("orgs", "false");
+		if (method_exists($this->bot->db, "driverName") && $this->bot->db->driverName() === "sqlite") {
+			$this->bot->db->query("CREATE TABLE IF NOT EXISTS " . $orgs_table . "
+					(id INTEGER PRIMARY KEY AUTOINCREMENT,
+					 dim INTEGER NOT NULL,
+					 org_id INTEGER NOT NULL,
+					 org VARCHAR(50),
+					 members INTEGER DEFAULT 0,
+					 faction VARCHAR(7),
+					 whois_update INTEGER DEFAULT 0,
+					 last_update INTEGER DEFAULT 0,
+					 UNIQUE (dim, org_id))");
+		} else {
+		$this->bot->db->query("CREATE TABLE IF NOT EXISTS " . $orgs_table . "
 					(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 					 dim INT NOT NULL,
 					 org_id INT NOT NULL,
@@ -67,7 +80,8 @@ class Orgs extends BaseActiveModule
 					 faction VARCHAR(7) NULL,
 					 whois_update INT(11) DEFAULT '0',
 				     last_update INT(11) DEFAULT '0',
-					 UNIQUE index (dim, org_id))"); 
+					 UNIQUE index (dim, org_id))");
+		}
 
 		if($this->bot->core("settings")->exists("Orgs", "Schemaversion"))
 		{
@@ -173,7 +187,7 @@ class Orgs extends BaseActiveModule
 				{
 					if ($value[0] !== $value[2])
 					{
-						$this->bot->db->query("UPDATE #___orgs SET org = '".mysqli_real_escape_string($this->bot->db->CONN,$value[0])."', members = ".$value[1].", last_update = ".$updatetime." WHERE org_id = ".$key." AND dim = ".$value[4]);
+						$this->bot->db->query("UPDATE #___orgs SET org = '".$this->bot->db->real_escape_string($value[0])."', members = ".$value[1].", last_update = ".$updatetime." WHERE org_id = ".$key." AND dim = ".$value[4]);
 						$this->updated++;
 						if ($value[1] !== $value[3])
 							$this->updatedm++;
@@ -190,7 +204,7 @@ class Orgs extends BaseActiveModule
 			{
 				foreach ($insert as $key => $value)
 				{
-					$instr = "('".mysqli_real_escape_string($this->bot->db->CONN,$value[3])."', '".$key."', '".mysqli_real_escape_string($this->bot->db->CONN,$value[0])."', ".time().", ".mysqli_real_escape_string($this->bot->db->CONN,$value[1]).", '".mysqli_real_escape_string($this->bot->db->CONN,$value[2])."')";
+					$instr = "('".$this->bot->db->real_escape_string($value[3])."', '".$key."', '".$this->bot->db->real_escape_string($value[0])."', ".time().", ".$this->bot->db->real_escape_string($value[1]).", '".$this->bot->db->real_escape_string($value[2])."')";
 					if($incur==0) {
 						$inreq = $inpre.$instr;
 						$incur ++;
@@ -304,8 +318,8 @@ class Orgs extends BaseActiveModule
 		$msg = substr($msg,10); $list = array();
 		$dim = $this->bot->dimension;		
 		$words = explode(' ', $msg); $orglike = "";
-		foreach ($words as $word) { $orglike = "org LIKE '%" . mysqli_real_escape_string($this->bot->db->CONN,$word) . "%' OR ";  }
-		$results = $this->bot->db->select("SELECT org_id, org FROM #___orgs WHERE dim = ".$dim." AND (" . $orglike . "org LIKE '%" . mysqli_real_escape_string($this->bot->db->CONN,$msg) . "%') AND org_id !=0");
+		foreach ($words as $word) { $orglike = "org LIKE '%" . $this->bot->db->real_escape_string($word) . "%' OR ";  }
+		$results = $this->bot->db->select("SELECT org_id, org FROM #___orgs WHERE dim = ".$dim." AND (" . $orglike . "org LIKE '%" . $this->bot->db->real_escape_string($msg) . "%') AND org_id !=0");
 		$countres = count($results);
 		if (!empty($results))
 		{
