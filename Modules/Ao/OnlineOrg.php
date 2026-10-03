@@ -279,9 +279,9 @@ class OnlineOrg extends BaseActiveModule
 							}
 						}
 						if ($update)
-							$this -> bot -> db -> query("UPDATE #___orgs SET members = ".$membercount.", org = '".mysqli_real_escape_string($this->bot->db->CONN,$orgname)."', whois_update = ".time()." WHERE dim = ".$dim." AND org_id = ".$this -> id);
+							$this -> bot -> db -> query("UPDATE #___orgs SET members = ".$membercount.", org = '".$this->bot->db->real_escape_string($orgname)."', whois_update = ".time()." WHERE dim = ".$dim." AND org_id = ".$this -> id);
 						else
-							$this -> bot -> db -> query("INSERT INTO #___orgs (dim, org_id, org, members, faction, whois_update) VALUES ('".$dim."', '".$this -> id."', '".mysqli_real_escape_string($this->bot->db->CONN,$orgname)."', '".$membercount."', '".$faction."', ".time().")");
+							$this -> bot -> db -> query("INSERT INTO #___orgs (dim, org_id, org, members, faction, whois_update) VALUES ('".$dim."', '".$this -> id."', '".$this->bot->db->real_escape_string($orgname)."', '".$membercount."', '".$faction."', ".time().")");
 						$this -> org_cache[$this -> id] = array("id" => $this -> id, "time" => time(), "orgname" => $orgname, "faction" => $faction, "membercount" => $membercount, "data" => $verified);
 						return true;
 					} else {

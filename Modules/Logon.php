@@ -334,7 +334,7 @@ class Logon extends BaseActiveModule
     {
         $id = $this->bot->core('player')->id($name);
 		if(mb_detect_encoding($message, 'UTF-8', false)) $message = mb_convert_encoding($message, 'UTF-8', mb_list_encodings());
-        $message = mysqli_real_escape_string($this->bot->db->CONN,$message);
+        $message = $this->bot->db->real_escape_string($message);
         $this->bot->db->query("REPLACE INTO #___logon (id, message) VALUES ('" . $id . "', '" . $message . "')");
         return "Thank you " . $name . ". You logon message has been set.";
     }

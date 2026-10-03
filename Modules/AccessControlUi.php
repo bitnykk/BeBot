@@ -422,7 +422,7 @@ class AccessControlGUI extends BaseActiveModule
     function save($name, $desc)
     {
         $result = $this->bot->db->select(
-            "SELECT name FROM #___access_control_saves WHERE name = '" . mysqli_escape_string($name) . "'"
+            "SELECT name FROM #___access_control_saves WHERE name = '" . $this->bot->db->real_escape_string($name) . "'"
         );
         if (!empty($result)) {
             Return ("##error##Error: ##highlight##" . $name . "##end## Already Exists, Please Choose a Different name or Delete old one##end##");
@@ -436,7 +436,7 @@ class AccessControlGUI extends BaseActiveModule
     function load($name)
     {
         $result = $this->bot->db->select(
-            "SELECT name FROM #___access_control_saves WHERE name = '" . mysqli_escape_string($name) . "'"
+            "SELECT name FROM #___access_control_saves WHERE name = '" . $this->bot->db->real_escape_string($name) . "'"
         );
         if (empty($result)) {
             Return ("##error##Error: ##highlight##" . $name . "##end## does not Exist##end##");
@@ -471,13 +471,13 @@ class AccessControlGUI extends BaseActiveModule
     function del_save($name)
     {
         $result = $this->bot->db->select(
-            "SELECT name FROM #___access_control_saves WHERE name = '" . mysqli_escape_string($name) . "'"
+            "SELECT name FROM #___access_control_saves WHERE name = '" . $this->bot->db->real_escape_string($name) . "'"
         );
         if (empty($result)) {
             Return ("##error##Error: ##highlight##" . $name . "##end## does not Exist##end##");
         } else {
             $this->bot->db->query(
-                "DELETE FROM #___access_control_saves WHERE name = '" . mysqli_escape_string($name) . "'"
+                "DELETE FROM #___access_control_saves WHERE name = '" . $this->bot->db->real_escape_string($name) . "'"
             );
             Return ("##highlight##" . $name . "##end## Deleted.");
         }

@@ -357,7 +357,7 @@ class SQLiteDatabase
         // already receives rowid auto-increment semantics.
         $sql = preg_replace(
             '/(\b[A-Za-z_][A-Za-z0-9_]*\b)\s+(?:INTEGER|BIGINT|INT)(?:\s*\(\s*\d+\s*\))?\s+(?:UNSIGNED\s+)?(?:NOT\s+NULL\s+)?AUTO_INCREMENT\b/i',
-            '$1 INTEGER',
+            '$1 INTEGER PRIMARY KEY AUTOINCREMENT',
             $sql
         );
         $sql = preg_replace('/\s+UNSIGNED\b/i', '', $sql);
@@ -379,6 +379,12 @@ class SQLiteDatabase
         // key, so keep the generated id as that key and preserve the former
         // primary constraint as a UNIQUE constraint.
         if (stripos($sql, 'AUTOINCREMENT') !== false) {
+            // Protect the PRIMARY KEY belonging to the generated id, then
+            // convert any other inline PRIMARY KEY declaration (for example
+            // `shortcut ... PRIMARY KEY`) into UNIQUE.
+            $sql = preg_replace('/\bPRIMARY\s+KEY\s+AUTOINCREMENT\b/i', '__SQLITE_AUTOPK__', $sql);
+            $sql = preg_replace('/\bPRIMARY\s+KEY\b/i', 'UNIQUE', $sql);
+            $sql = str_replace('__SQLITE_AUTOPK__', 'PRIMARY KEY AUTOINCREMENT', $sql);
             $sql = preg_replace('/\bPRIMARY\s+KEY\s*\(([^)]*)\)/i', 'UNIQUE ($1)', $sql);
         }
         // Catch legacy declarations where UNIQUE or another modifier appears
@@ -397,6 +403,7 @@ class SQLiteDatabase
         $sql = preg_replace('/,?\s*KEY\s+[A-Za-z_][A-Za-z0-9_`]*\s*\([^)]*\)/i', '', $sql);
         $sql = preg_replace('/,?\s*(?<!PRIMARY\s)KEY\s*\([^)]*\)/i', '', $sql);
         $sql = preg_replace('/,?\s*UNIQUE\s*\(\s*\)/i', '', $sql);
+        $sql = preg_replace('/,?\s*UNIQUE\s*\)/i', ')', $sql);
         $sql = preg_replace('/,?\s*INDEX\s*\(\s*\)/i', '', $sql);
         $sql = preg_replace('/,\s*,/', ',', $sql);
         $sql = preg_replace('/,\s*\)/', ')', $sql);

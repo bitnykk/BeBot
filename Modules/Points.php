@@ -662,7 +662,7 @@ class Points extends BaseActiveModule
         $who = $this->bot->core('tools')->sanitize_player($who);
         $this->bot->db->query(
             "INSERT INTO #___raid_points_log (name, points, by_who, time, why) VALUES ('$who', $num, '$name', " . time(
-            ) . ", '" . mysqli_real_escape_string($this->bot->db->CONN,$why) . "')"
+            ) . ", '" . $this->bot->db->real_escape_string($why) . "')"
         );
     }
 

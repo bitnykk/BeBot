@@ -121,8 +121,8 @@ class TimerAA extends BaseActiveModule
         $arr  =  explode(" ", $args);
         $firstspace = strpos($args, ' ');
 
-        $timeraa_username = mysqli_real_escape_string($this->bot->db->CONN,$name);
-        $timeraa_cooldown = strtolower(mysqli_real_escape_string($this->bot->db->CONN,$arr[0]));
+        $timeraa_username = $this->bot->db->real_escape_string($name);
+        $timeraa_cooldown = strtolower($this->bot->db->real_escape_string($arr[0]));
         $timeraa_start    = time();
         $timeraa_name     = "";
 
@@ -161,7 +161,7 @@ class TimerAA extends BaseActiveModule
 
     function timer_show($name, $args) {
         if (!empty($args)) {
-          $name = ucfirst(mysqli_real_escape_string($this->bot->db->CONN,$args));
+          $name = ucfirst($this->bot->db->real_escape_string($args));
         }
 
         $chk_time = $this -> bot -> db -> select("SELECT * FROM #___timer_aa WHERE timeraa_username='$name'");
@@ -183,7 +183,7 @@ class TimerAA extends BaseActiveModule
 
     function timer_show_all($name, $args) {
         if (!empty($args)) {
-          $name = ucfirst(mysqli_real_escape_string($this->bot->db->CONN,$args));
+          $name = ucfirst($this->bot->db->real_escape_string($args));
         }
 
         $findmain = $this -> bot -> db -> select("SELECT main FROM alts WHERE alts.alt='$name'");
@@ -274,7 +274,7 @@ class TimerAA extends BaseActiveModule
 
     function notify($name, $startup = false) {
 
-		$user = mysqli_real_escape_string($this->bot->db->CONN,$name);
+		$user = $this->bot->db->real_escape_string($name);
 		$timeraa_end = 0; $timeraa_finished = 0; $output = "Nothing found.";
 		$time = time();
 		$endtime = $this -> bot -> db -> select("SELECT timeraa_end, finished FROM #___timer_aa WHERE timeraa_username='$user' LIMIT 1");

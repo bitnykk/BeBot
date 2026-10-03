@@ -516,7 +516,7 @@ class Relay extends BaseActiveModule
                 }
                 $this->bot->db->query(
                     "INSERT INTO #___relay (time, type, botname, msg) VALUES (" . time(
-                    ) . ", '$prefix', '" . $this->bot->botname . "', '" . mysqli_real_escape_string($this->bot->db->CONN,$msg) . "')"
+                    ) . ", '$prefix', '" . $this->bot->botname . "', '" . $this->bot->db->real_escape_string($msg) . "')"
                 );
                 break;
             case 'tells':
