@@ -988,7 +988,7 @@ class Raid extends BaseActiveModule
                 $this->description = $desc;
                 $this->start = time();		
 				$this->bot->db->query(
-					"INSERT INTO #___raid_details (name, description, time) VALUES ('$name', '" . mysqli_real_escape_string($this->bot->db->CONN,$this->description) . "', " . $this->start . ")"
+					"INSERT INTO #___raid_details (name, description, time) VALUES ('$name', '" . $this->bot->db->real_escape_string($this->description) . "', " . $this->start . ")"
 				);				
                 $this->announce = true;
                 $this->minlevel = $this->bot->core("settings")
@@ -1057,7 +1057,7 @@ class Raid extends BaseActiveModule
 				}
 				$this->bot->db->query(
 					"UPDATE #___raid_details SET end = " . time(
-					) . ", description = '" . mysqli_real_escape_string($this->bot->db->CONN,$this->description) . "', note = '" . mysqli_real_escape_string($this->bot->db->CONN,$note) . "' WHERE time = " . $this->start
+					) . ", description = '" . $this->bot->db->real_escape_string($this->description) . "', note = '" . $this->bot->db->real_escape_string($note) . "' WHERE time = " . $this->start
 				);				
                 $this->bot->db->query("UPDATE #___raid_points SET raiding = 0");                
 				$this->limit = 0;

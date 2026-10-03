@@ -146,9 +146,9 @@ class Blacklist extends BaseActiveModule
     {
         $source = $this->bot->core('tools')->sanitize_player($source);
         $target = $this->bot->core('tools')->sanitize_player($target);
-        $source = mysqli_real_escape_string($this->bot->db->CONN,$source);
-        $target = mysqli_real_escape_string($this->bot->db->CONN,$target);
-        $reason = mysqli_real_escape_string($this->bot->db->CONN,$reason);
+        $source = $this->bot->db->real_escape_string($source);
+        $target = $this->bot->db->real_escape_string($target);
+        $reason = $this->bot->db->real_escape_string($reason);
         if ($this->bot->core("player")->id($target)) {
             if ($this->bot->core("security")->is_banned($target)) {
                 return $target . " is already active on the blacklist.";

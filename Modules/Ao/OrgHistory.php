@@ -235,11 +235,9 @@ class OrgHistory extends BaseActiveModule
             $infos["organization"] = $this->bot->guildid;
 			$this->bot->db->query(
 				"INSERT INTO #___org_history (actor, action, actee, organization, time) VALUES (
-				'" . mysqli_real_escape_string($this->bot->db->CONN,
-					$infos["actor"]
+				'" . $this->bot->db->real_escape_string($infos["actor"]
 				) . "', '" . $infos["action"] . "',
-				'" . mysqli_real_escape_string($this->bot->db->CONN,
-					$infos["actee"]
+				'" . $this->bot->db->real_escape_string($infos["actee"]
 				) . "', " . $infos["organization"] . ", '"
 				. $infos["time"] . "')"
 			);
