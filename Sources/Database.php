@@ -133,8 +133,13 @@ class SQLiteDatabase
         // Mysql.php historically defaults to MYSQLI_NUM. Preserve that
         // shape for existing modules unless MYSQLI_ASSOC (or 'assoc') is
         // explicitly requested.
-        $numeric = $result_form === null || (defined('MYSQLI_NUM') && $result_form === MYSQLI_NUM);
-        if ($result_form === 'assoc' || (defined('MYSQLI_ASSOC') && $result_form === MYSQLI_ASSOC)) {
+        // Keep the historical BeBot contract independently of whether the
+        // mysqli extension is loaded: default results are numeric, while
+        // associative rows must be explicitly requested.
+        $numeric = true;
+        if ($result_form === 'assoc'
+            || (defined('MYSQLI_ASSOC') && $result_form === MYSQLI_ASSOC)
+        ) {
             $numeric = false;
         }
         $rows = $stmt->fetchAll($numeric ? PDO::FETCH_NUM : PDO::FETCH_ASSOC);
@@ -215,7 +220,15 @@ class SQLiteDatabase
         }
         try {
             $stmt = $this->prepare($sql, $params);
-            $this->affected_rows = $stmt->rowCount();
+            // PDOStatement::rowCount() is driver-dependent for SQLite. The
+            // SQLite changes() function reports the number of rows affected
+            // by the immediately preceding INSERT, UPDATE or DELETE on this
+            // connection, which is the closest equivalent to
+            // mysqli_affected_rows(). Keep this query immediately after
+            // execute so its value cannot be displaced by another statement.
+            $this->affected_rows = (int)$this->CONN
+                ->query('SELECT changes()')
+                ->fetchColumn();
             return true;
         } catch (Exception $e) {
             $this->error($sql . " [SQLite normalized: " . $this->normalize_sql($sql) . "]", false, true, $e);
