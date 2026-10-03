@@ -58,20 +58,7 @@ class Orgs extends BaseActiveModule
 	
 	function update_table()
 	{
-		$orgs_table = $this->bot->db->define_tablename("orgs", "false");
-		if (method_exists($this->bot->db, "driverName") && $this->bot->db->driverName() === "sqlite") {
-			$this->bot->db->query("CREATE TABLE IF NOT EXISTS " . $orgs_table . "
-					(id INTEGER PRIMARY KEY AUTOINCREMENT,
-					 dim INTEGER NOT NULL,
-					 org_id INTEGER NOT NULL,
-					 org VARCHAR(50),
-					 members INTEGER DEFAULT 0,
-					 faction VARCHAR(7),
-					 whois_update INTEGER DEFAULT 0,
-					 last_update INTEGER DEFAULT 0,
-					 UNIQUE (dim, org_id))");
-		} else {
-		$this->bot->db->query("CREATE TABLE IF NOT EXISTS " . $orgs_table . "
+		$this->bot->db->query("CREATE TABLE IF NOT EXISTS " . $this->bot->db->define_tablename("orgs", "false") . "
 					(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 					 dim INT NOT NULL,
 					 org_id INT NOT NULL,
@@ -81,7 +68,6 @@ class Orgs extends BaseActiveModule
 					 whois_update INT(11) DEFAULT '0',
 				     last_update INT(11) DEFAULT '0',
 					 UNIQUE index (dim, org_id))");
-		}
 
 		if($this->bot->core("settings")->exists("Orgs", "Schemaversion"))
 		{
