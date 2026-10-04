@@ -1812,29 +1812,47 @@ class Bot
 
     function debug_bt()
     {
-        $trace = debug_backtrace();
-        $r = '';
-		// decomment below for detailed debugging
-        /*foreach ($trace as $i => $call) {
-            if (is_object($call['object'])) {
-                $call['object'] = 'CONVERTED OBJECT OF CLASS ' . get_class($call['object']);
+        // Avoid collecting a backtrace when debug output is disabled.
+        if (!$this->debug) {
+            return '';
+        }
+
+        $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
+        $output = '';
+
+        foreach ($trace as $index => $call) {
+            $object = '';
+            if (isset($call['object'])) {
+                $object = is_object($call['object'])
+                    ? 'OBJECT OF CLASS ' . get_class($call['object'])
+                    : (string)$call['object'];
             }
 
-            if (is_array($call['args'])) {
-                foreach ($call['args'] AS &$arg) {
-                    if (is_object($arg)) {
-                        $arg = 'CONVERTED OBJECT OF CLASS ' . get_class($arg);
-                    }
+            $type = isset($call['type']) ? $call['type'] : '';
+            $arguments = array();
+            foreach (($call['args'] ?? array()) as $argument) {
+                if (is_object($argument)) {
+                    $arguments[] = 'OBJECT OF CLASS ' . get_class($argument);
+                } elseif (is_array($argument)) {
+                    $arguments[] = 'ARRAY';
+                } elseif (is_resource($argument)) {
+                    $arguments[] = 'RESOURCE(' . get_resource_type($argument) . ')';
+                } elseif ($argument === null) {
+                    $arguments[] = 'NULL';
+                } elseif (is_bool($argument)) {
+                    $arguments[] = $argument ? 'TRUE' : 'FALSE';
+                } else {
+                    $arguments[] = (string)$argument;
                 }
             }
 
-            $r .= "#" . $i . " " . (isset($call['file']) ? $call['file'] : '') . '(' . (isset($call['line']) ? $call['line'] : '') . ') ';
-            $r .= (!empty($call['object']) ? $call['object'] . $call['type'] : '');
-            $r .= $call['function'] . '(' . implode(', ', $call['args']) . ')';
-            $r .= "\n";
-        }*/
+            $output .= '#' . $index . ' '
+                . ($call['file'] ?? '') . '(' . ($call['line'] ?? '') . ') '
+                . ($object !== '' ? $object . $type : '')
+                . ($call['function'] ?? '') . '(' . implode(', ', $arguments) . ')\n';
+        }
 
-        return $r;
+        return $output;
     }
 
 }

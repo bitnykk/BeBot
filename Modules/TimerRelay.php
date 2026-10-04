@@ -62,7 +62,7 @@ class TimerRelay extends BaseActiveModule
             ) == strtolower($name)
         ) {
             if (preg_match(
-                "/^relaytimer class:(.*) endtime:(.*) owner:(.*) repeat:(.*) channel:(.*) name:(.*)/$i",
+                "/^relaytimer class:(.*) endtime:(.*) owner:(.*) repeat:(.*) channel:(.*) name:(.*)$/i",
                 $msg,
                 $info
             )
@@ -76,7 +76,7 @@ class TimerRelay extends BaseActiveModule
 
     function add_timer($owner, $endtime, $name, $class, $repeat, $channel)
     {
-        $this->bot->core("timer")
+		$this->bot->core("timer")
             ->add_timer(true, $owner, $endtime - time(), $name, $channel, $repeat, $class);
     }
 }

@@ -84,7 +84,7 @@ class Scripts Extends BaseActiveModule
 		foreach ($files as $key => $value) {			
 			$path = realpath($dir . DIRECTORY_SEPARATOR . $value);
 			if (!is_dir($path) && $value != ".gitkeep") {
-				$content .= $this -> bot -> core("tools") -> chatcmd("scripts ".$value, $value)." \n";
+				$content .= $this -> bot -> core("tools") -> chatcmd("script ".$value, $value)." \n";
 				$total++;
 			}					
 		}

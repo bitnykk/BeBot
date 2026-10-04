@@ -63,18 +63,17 @@ class PlayerList extends BasePassiveModule
     {
         //$data = $signal->getNotificationObject();
         //list ($uid, $uname) = $data->message;
-
-        /*
-        echo "Debug core.on_player_name and on_player_id ";
-        var_dump($data['id']);
-        echo " " . $data['name'];
-        echo "\n";
-         */
-        //echo "signal_handle: id: " . $data['id'] . " name: " . $data['name'] . "\n";
+		if($this->bot->debug) {
+            echo "Debug core.on_player_name and on_player_id ";
+			var_dump($data['id']);
+			echo " " . $data['name'];
+			echo "\n";        
+		}
+        if($this->bot->debug) echo "signal_handle: id: " . $data['id'] . " name: " . $data['name'] . "\n";
         if (($data['id'] > 1) && !empty($data['name'])) {
             $this->add($data['id'], $data['name']);
         } else {
-            //  echo "Was NOT added due to invalid userID\n";
+            if($this->bot->debug) echo "Was NOT added due to invalid userID\n";
         }
 
         return true;
@@ -85,10 +84,10 @@ class PlayerList extends BasePassiveModule
     {
         $name = $this->bot->core('tools')->sanitize_player($name);
 
-        //echo "Debug caching $name ($id)\n";
+        if($this->bot->debug) echo "Debug caching $name ($id)\n";
         if ($id == 0 || $id == -1) {
             $this->bot->log("DEBUG", "PlayerList", "Debug " . $name . " has an userid less than 1!!!\n");
-            //$this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
+            if($this->bot->debug) $this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
             return false;
         }
 
@@ -114,7 +113,7 @@ class PlayerList extends BasePassiveModule
                 "FIXME: Core/PlayerList.php function id receiving BotError as " . $uname . "\nError is: " . $uname->get(
                 ) . "\n"
             );
-            //$this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
+            if($this->bot->debug) $this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
             return $uname;
         }
 
@@ -122,7 +121,7 @@ class PlayerList extends BasePassiveModule
             // This is normal and can happen, if the user just types "!whois" etc.
             $this->error->set("Tried to get user id for an empty user name.");
             $this->bot->log("DEBUG", "PlayerList", "Tried to get user id for an empty user name.");
-            //$this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
+            if($this->bot->debug) $this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
             return $this->error;
         }
 		$uname = $this->bot->core('tools')->sanitize_player($uname);
@@ -170,16 +169,16 @@ class PlayerList extends BasePassiveModule
     */
     public function name($uid)
     {
-        //echo "Looking up uname for $uid!\n";
+        if($this->bot->debug) echo "Looking up uname for $uid!\n";
         if (!is_numeric($uid)) {
             $this->bot->log("DEBUG", "PlayerList", "Attempting to look up a username for a username (" . $uid . ")");
-            //$this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
+            if($this->bot->debug) $this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
             return $uid;
         }
         if (empty($uid)) {
             $this->error->set("name() called with empty string");
             $this->bot->log("DEBUG", "PlayerList", "name() called with empty string");
-            //$this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
+            if($this->bot->debug) $this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
             return ($this->error);
         }
         //Check if we need to ask the server about the user
@@ -216,7 +215,7 @@ class PlayerList extends BasePassiveModule
                 return $return;
             }
         }
-        //$this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
+        if($this->bot->debug) $this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
         $this->error->set("name() unable to find player with userid: $uid");
         return ($this->error);
     }
@@ -228,7 +227,7 @@ class PlayerList extends BasePassiveModule
         if (empty($user)) {
             $this->error->set("exist() called with empty string.");
             $this->bot->log("DEBUG", "PlayerList", "exist() called with empty string.");
-            //$this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
+            if($this->bot->debug) $this->bot->log("DEBUG", "PlayerList", $this->bot->debug_bt());
             return $this->error;
         }
         if (is_numeric($user)) {

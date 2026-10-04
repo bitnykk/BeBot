@@ -42,16 +42,34 @@ class SetDebug extends BaseActiveModule
     {
         parent::__construct($bot, get_class($this));
         $this->register_command('tell', 'setdebug', 'OWNER');
+        $this->register_command('tell', 'getdebug', 'OWNER');
     }
 
 
     function command_handler($name, $msg, $origin)
     {
-        $this->bot->debug = !$this->bot->debug;
-        if ($this->bot->debug) {
-            return "Debugging output enabled!";
-        }
-        return "Debugging output disabled!";
+		if (preg_match("/^getdebug$/i", $msg)) {
+			if ($this->bot->debug) return "Debugging is currently on";
+			else return "Debugging is currently off";
+		} else {
+			$this->bot->debug = !$this->bot->debug;
+			if ($this->bot->debug) {
+				$debug_file = rtrim($this->bot->log_path, "/\\")
+					. "/aoc-debug-" . gmdate("Y-m-d-His") . ".bin";
+				$this->bot->aoc->debug = @fopen($debug_file, "ab");
+				if (!is_resource($this->bot->aoc->debug)) {
+					$this->bot->debug = false;
+					$this->bot->aoc->debug = null;
+					return "Debugging could not be enabled: unable to open the AO packet log.";
+				}
+				return "Debugging output enabled!";
+			}
+			if (is_resource($this->bot->aoc->debug)) {
+				fclose($this->bot->aoc->debug);
+			}
+			$this->bot->aoc->debug = null;
+			return "Debugging output disabled!";
+		}
     }
 }
 
