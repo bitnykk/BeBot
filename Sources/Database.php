@@ -103,7 +103,7 @@ class SQLiteDatabase
             $this->underscore = '';
         }
 
-        $path = isset($config['path']) ? $config['path'] : 'Data/' . strtolower($this->bot->botname) . '.sqlite';
+        $path = isset($config['path']) ? $config['path'] : 'Custom/Core/' . strtolower($this->bot->botname) . '-'.$this->bot->dimension.'.sqlite';
         $directory = dirname($path);
         if ($directory !== '.' && !is_dir($directory)) {
             mkdir($directory, 0777, true);

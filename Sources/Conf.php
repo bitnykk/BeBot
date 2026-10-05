@@ -307,8 +307,9 @@ class Conf
             }
         }
         if ($driver == 'sqlite') {
-            $path = $this->ask("SQLite database path (empty for Custom/Core/" . strtolower($botname) . ".sqlite):");
-            if ($path == '') $path = 'Custom/Core/' . strtolower($botname) . '.sqlite';
+			include("./Conf/" . $this->cf);
+            $path = $this->ask("SQLite database path (empty for Custom/Core/" . strtolower($botname) . "-".$dimension.".sqlite):");
+            if ($path == '') $path = 'Custom/Core/' . strtolower($botname) . '-'.$dimension.'.sqlite';
             $file 
 				= '<?php
 	/*
