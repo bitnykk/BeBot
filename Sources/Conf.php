@@ -310,6 +310,52 @@ class Conf
 			include("./Conf/" . $this->cf);
             $path = $this->ask("SQLite database path (empty for Custom/Core/" . strtolower($botname) . "-".$dimension.".sqlite):");
             if ($path == '') $path = 'Custom/Core/' . strtolower($botname) . '-'.$dimension.'.sqlite';
+			echo "The bot will use " . $botname . " as prefix on default, Do you want to use Default? (y/yes or n/no)\n";
+			$prefix = false;
+			while (!$prefix) {
+				$ubn = $this->ask("Use default prefix:");
+				$ubn = strtolower($ubn);
+				if ($ubn == "y" || $ubn == "yes") {
+					$prefix = '//$table_prefix = "";';
+				} elseif ($ubn == "n" || $ubn == "no") {
+					$prefix = "ask";
+				}
+			}
+			$gonu = true;
+			if ($prefix == "ask") {
+				$prefix = $this->ask("Prefix:");
+				if ($prefix == "") $gonu = false;
+				$prefix = '$table_prefix = "' . $prefix . '";';
+			}
+			$nu = '//$nounderscore = TRUE;';
+			if ($gonu) {
+				echo "Do you want an underscore _ separator into table_names ? (y/yes or n/no)\n";
+				$nu = false;
+				while (!$nu) {
+					$nuq = $this->ask("Use underscore:");
+					$nuq = strtolower($nuq);
+					if ($nuq == "y" || $nuq == "yes") {
+						$nu = '//$nounderscore = TRUE;';
+					} elseif ($nuq == "n" || $nuq == "no") {
+						$nu = '$nounderscore = TRUE;';
+					}
+				}
+			}
+			echo "The bot will use " . $botname . "_tablenames for tablename table on default, Do you want to use Default? (y/yes or n/no)\n";
+			$mt = false;
+			while (!$mt) {
+				$mtq = $this->ask("Use default prefix:");
+				$mtq = strtolower($mtq);
+				if ($mtq == "y" || $mtq == "yes") {
+					$mt = '//$master_tablename = "botname_tablenames";';
+				} elseif ($mtq == "n" || $mtq == "no") {
+					$mt = "ask";
+				}
+			}
+			if ($mt == "ask") {
+				$mt = $this->ask("Table name for tablenames:");
+				$mt = '$master_tablename = "' . $mt . '";';
+			}			
             $file 
 				= '<?php
 	/*
@@ -318,19 +364,34 @@ class Conf
 	$db_driver = "sqlite";
 	
 	/*
-	Database path
+	Database path [for sqlite]
 	*/	
 	$dpath = array("driver" => "sqlite", "path" => "' . addslashes($path) . '");
 	
 	/*
 	Database table prefix
-	*/	
-	$table_prefix = "' . strtolower($botname) . '";
+	The bot will use <botname> as prefix on default, you only need to change this entry if you
+	want a different prefix or none at all, in which case you have to set it to an empty
+	string ("").
+	If you want a different or no prefix you will have to uncomment the line below by removing
+	the // in front of it and set it to the wished value.
+	you may also use <botname> as part of the string and it will be replaces with the botname in lowercase
+	*/
+	' . $prefix . '
+	
+	/*
+	If you have $table_prefix Defined your tables will be prefixed as above with a _ added on
+	if you dont want the _ added uncomment below
+	*/
+	' . $nu . '
 	
 	/*
 	Master prefix table.
-	*/	
-	$master_tablename = "' . strtolower($botname) . '_tablenames";
+	This is the mastertable containing information about all tablenames and whether those use
+	or don\'t use a prefix. Only uncomment the line below by removing the // in front of it if
+	you want to use a different mastertable then botname_tablenames, which is used on default.
+	*/
+	' . $mt . '
 ?>';
             $fp = fopen('./Conf/' . $filename, 'w');
             fwrite($fp, $file);
@@ -358,10 +419,26 @@ class Conf
                 $prefix = "ask";
             }
         }
+		$gonu = true;
         if ($prefix == "ask") {
             $prefix = $this->ask("Prefix:");
+			if ($prefix == "") $gonu = false;
             $prefix = '$table_prefix = "' . $prefix . '";';
         }
+		$nu = '//$nounderscore = TRUE;';
+		if ($gonu) {
+			echo "Do you want an underscore _ separator into table_names ? (y/yes or n/no)\n";
+			$nu = false;
+			while (!$nu) {
+				$nuq = $this->ask("Use underscore:");
+				$nuq = strtolower($nuq);
+				if ($nuq == "y" || $nuq == "yes") {
+					$nu = '//$nounderscore = TRUE;';
+				} elseif ($nuq == "n" || $nuq == "no") {
+					$nu = '$nounderscore = TRUE;';
+				}
+			}
+		}
         echo "The bot will use " . $botname . "_tablenames for tablename table on default, Do you want to use Default? (y/yes or n/no)\n";
         $mt = false;
 		while (!$mt) {
@@ -385,22 +462,22 @@ class Conf
 	$db_driver = "mysql";
 	
 	/*
-	Database name
+	Database name [for mysql]
 	*/
 	$dbase = "' . $dbase . '";
 
 	/*
-	Database username
+	Database username [for mysql]
 	*/
 	$user = "' . $user . '";
 
 	/*
-	Database password
+	Database password [for mysql]
 	*/
 	$pass = "' . $pass . '";
 
 	/*
-	Database server (usually localhost)
+	Database server (usually localhost) [for mysql]
 	*/
 	$server = "' . $server . '";
 
@@ -418,7 +495,7 @@ class Conf
 	If you have $table_prefix Defined your tables will be prefixed as above with a _ added on
 	if you dont want the _ added uncomment below
 	*/
-	//$nounderscore = TRUE;
+	' . $nu . '
 	
 	/*
 	Master prefix table.

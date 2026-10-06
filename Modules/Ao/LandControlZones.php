@@ -1,5 +1,6 @@
 <?php
 /*
+* LC Zones - required by Rally module.
 * Database of the land control zones, based on code by Wolfbiter, modified by Pharexys.
 * Improved by Bitnykk first using Tyrence's API courtesy of Unk & Draex, then Nady's API
 * BeBot - An Anarchy Online & Age of Conan Chat Automaton

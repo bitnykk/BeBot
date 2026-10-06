@@ -1,6 +1,6 @@
 <?php
 /*
-* Bid.php - Raid point bidding.
+* Bid.php - Raid point bidding - requires Points module.
 *
 * BeBot - An Anarchy Online & Age of Conan Chat Automaton
 * Copyright (C) 2004 Jonas Jax

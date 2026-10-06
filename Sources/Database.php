@@ -57,9 +57,12 @@ class DatabaseFactory
         include $config_file;
         if (isset($db_driver)) {
             $driver = strtolower($db_driver);
-        } elseif (isset($database['driver'])) {
-            $driver = strtolower($database['driver']);
+        } elseif (isset($dpath['driver'])) { // Sqlite only
+            $driver = strtolower($dpath['driver']);
         }
+		if (isset($table_prefix)) $dpath['table_prefix']=$table_prefix;
+		if (isset($nounderscore)) $dpath['nounderscore']=$nounderscore;
+		if (isset($master_tablename)&&$master_tablename!="") $dpath['master_tablename']=$master_tablename;
 
         if (function_exists('bebot_require_sql_driver')) {
             bebot_require_sql_driver($driver);
@@ -102,7 +105,6 @@ class SQLiteDatabase
         if (isset($config['nounderscore']) && $config['nounderscore']) {
             $this->underscore = '';
         }
-
         $path = isset($config['path']) ? $config['path'] : 'Custom/Core/' . strtolower($this->bot->botname) . '-'.$this->bot->dimension.'.sqlite';
         $directory = dirname($path);
         if ($directory !== '.' && !is_dir($directory)) {

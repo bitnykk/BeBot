@@ -171,7 +171,16 @@ class Bot
         } else {
             die("Could not read config file Conf/" . $config_file);
         }
-
+		// Default Module Profile
+		if (!file_exists("./Conf/". ucfirst($bot_name) .".Modules.ini")) {
+			if($guildbot) {
+				if (file_exists("./Conf/Guildbot.Modules.profile")) copy("./Conf/Guildbot.Modules.profile", "./Conf/". ucfirst($bot_name) .".Modules.ini");
+				else echo "Could no find guildbot modules profile\n";
+			} else { 
+				if (file_exists("./Conf/Raidbot.Modules.profile")) copy("./Conf/Raidbot.Modules.profile", "./Conf/". ucfirst($bot_name) .".Modules.ini");
+				else echo "Could no find raidbot modules profile\n";
+			}
+		}
         if (empty($ao_password) || $ao_password == "") {
             $fp = fopen('./Conf/pw', 'r');
             if ($fp) {

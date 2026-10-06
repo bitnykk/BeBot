@@ -1,21 +1,31 @@
 <?php
 	/*
-	Database name
+	Db driver
+	*/			
+	$db_driver = "";
+	
+	/*
+	Database path [for sqlite]
+	*/	
+	$dpath = array();	
+	
+	/*
+	Database name [for mysql]
 	*/
 	$dbase = "";
 
 	/*
-	Database username
+	Database username [for mysql]
 	*/
 	$user = "";
 
 	/*
-	Database password
+	Database password [for mysql]
 	*/
 	$pass = "";
 
 	/*
-	Database server (usually localhost)
+	Database server (usually localhost) [for mysql]
 	*/
 	$server = "";
 
@@ -28,7 +38,7 @@
 	the // in front of it and set it to the wished value.
 	you may also use <botname> as part of the string and it will be replaces with the botname in lowercase
 	*/
-	// $table_prefix = "";
+	//$table_prefix = "";
 
 	/*
 	If you have $table_prefix Defined your tables will be prefixed as above with a _ added on
@@ -43,5 +53,5 @@
 	you want to use a different mastertable then botname_tablenames, which is used on default.
 	you may also use <botname> as part of the string and it will be replaces with the botname in lowercase
 	*/
-	// $master_tablename = "botname_tablenames";
+	//$master_tablename = "botname_tablenames";
 ?>

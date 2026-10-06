@@ -1,6 +1,6 @@
 <?php
 /*
-* Raid.php - Announces a raid.
+* Raid.php - Announces a raid - requires Points module.
 *
 * BeBot - An Anarchy Online & Age of Conan Chat Automaton
 * Copyright (C) 2004 Jonas Jax

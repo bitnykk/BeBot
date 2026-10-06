@@ -1,6 +1,6 @@
 <?php
 /*
-* Rally.php - Sets a rallying point for raids.
+* Rally.php - Sets a rallying point for raids - requires LandControlZones module.
 *
 * BeBot - An Anarchy Online & Age of Conan Chat Automaton
 * Copyright (C) 2004 Jonas Jax
