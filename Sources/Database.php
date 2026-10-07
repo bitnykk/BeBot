@@ -71,8 +71,7 @@ class DatabaseFactory
         if ($driver === 'sqlite') {
             $instances[$bothandle] = new SQLiteDatabase($bothandle, isset($dpath) ? $dpath : array());
         } else {
-            // Keep mysqli as the compatibility path until direct mysqli users
-            // in modules have been migrated.
+            // Keep mysqli as the default compatibility path
             $instances[$bothandle] = MySQL::get_instance($bothandle);
         }
 

@@ -133,6 +133,20 @@ class Conf
                 $guildbot = "FALSE";
             }
         }
+		if($guildbot=="TRUE") {
+			$guild_id = false;
+			while (!$guild_id) {
+				 echo "Enter Guild ID (See ReadMe for how to find out the id)\n";
+				 $gi = $this->ask("Guild ID:");
+				if(is_numeric($gi)&&$gi>0) {
+					$guild_id = $gi;
+				} else {
+					$guild_id = false;
+				}
+			}
+		} else {
+			$guild_id = "00000001";
+		}
         echo "Superadmins enter nothing when done.\n";
         $sa[0]
             = '
@@ -187,7 +201,8 @@ class Conf
 
 
 	$guildbot = ' . $guildbot . ';				// false if its a raidbot.
-	$guild_id = 00000001;			// only if its a guildbot.
+	$guild_id = ' . $guild_id . ';			// Only for AO guildbots! See ReadMe for how to find out the id.
+	$raid_id = -1;			// Reserved for AOR raidbots!
 
 
 	$log = "chat";					 // logging all/chat/off
@@ -390,6 +405,7 @@ class Conf
 	This is the mastertable containing information about all tablenames and whether those use
 	or don\'t use a prefix. Only uncomment the line below by removing the // in front of it if
 	you want to use a different mastertable then botname_tablenames, which is used on default.
+	you may also use <botname> as part of the string and it will be replaces with the botname in lowercase
 	*/
 	' . $mt . '
 ?>';
@@ -502,6 +518,7 @@ class Conf
 	This is the mastertable containing information about all tablenames and whether those use
 	or don\'t use a prefix. Only uncomment the line below by removing the // in front of it if
 	you want to use a different mastertable then botname_tablenames, which is used on default.
+	you may also use <botname> as part of the string and it will be replaces with the botname in lowercase
 	*/
 	' . $mt . '
 ?>';

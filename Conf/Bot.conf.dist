@@ -30,7 +30,8 @@
 
 
   $guildbot = true;                // false if its a raidbot.
-  $guild_id = 00000001;            // Only for AO guildbots! See ReadMe.txt on how to find out the id.
+  $guild_id = 00000001;            // Only for AO guildbots! See ReadMe for how to find out the id.
+  $raid_id = -1;            // Reserved for AOR raidbots!
 
 
   $log = "chat";                     // logging all/chat/off

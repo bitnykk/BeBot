@@ -19,6 +19,7 @@ Text/Recruit.txt
 Text/Raidhelp.txt
 Text/Loot.txt
 Custom/Core/*
+!Custom/Core/SQLite-Express.sqlite
 Custom/Modules/*
 Extras/Scripts/*
 Extras/History/*

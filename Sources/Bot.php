@@ -125,6 +125,7 @@ class Bot
     var $reconnecttime;
     var $guildbot;
     var $guildid;
+    var $raidid;
     var $guild;
     var $log;
     var $log_path;
@@ -239,6 +240,7 @@ class Bot
         self::$instance[$bothandle]->reconnecttime = $reconnect_time;
         self::$instance[$bothandle]->guildbot = $guildbot;
         self::$instance[$bothandle]->guildid = $guild_id;
+        self::$instance[$bothandle]->raidid = $raid_id;
         self::$instance[$bothandle]->guildname = $guild;
         self::$instance[$bothandle]->log = $log;
         self::$instance[$bothandle]->log_path = $logpath;

@@ -564,7 +564,7 @@ class Raid extends BaseActiveModule
 		if( $user=="" && $this->topcache!="" && $this->toptime!="" && (($this->toptime<time()&&time()-$this->toptime<$timeout*60)||$this->raid) ) {
 				$output = $this->topcache;
 		} else {
-			if($this->bot->core("settings")->get("Raid", "Morebots")!="") {
+			if($this->bot->db->driverName()!='sqlite'&&$this->bot->core("settings")->get("Raid", "Morebots")!="") {
 				$bots = explode(",", $this->bot->core("settings")->get("Raid", "Morebots"));
 			} else {
 				$bots = array();
@@ -601,12 +601,14 @@ class Raid extends BaseActiveModule
 				$mains = array();
 				if($load['type']=='Leaders') $leaders = array();
 				foreach($bots as $bot) {
+					if($this->bot->db->table_prefix=='') $reqpre = '#__';
+					else $reqpre = strtolower($bot);
 					if($load['type']=='Raiders') {
-						$raids = $this->bot->db->select("SELECT DISTINCT(time)".$load['other']." FROM ".strtolower($bot)."_".$load['table']."".$load['where']." ORDER BY time DESC");
+						$raids = $this->bot->db->select("SELECT DISTINCT(time)".$load['other']." FROM ".$reqpre."_".$load['table']."".$load['where']." ORDER BY time DESC");
 						if (!empty($raids)) {
 							foreach($raids as $raid) {
 								$done = array();
-								$players = $this->bot->db->select("SELECT name".$load['other']." FROM ".strtolower($bot)."_".$load['table']." WHERE time = ".$raid[0]);
+								$players = $this->bot->db->select("SELECT name".$load['other']." FROM ".$reqpre."_".$load['table']." WHERE time = ".$raid[0]);
 								foreach($players as $player) {
 									$name = $player[0];
 									$checka = $this->bot->db->select("SELECT main FROM #___alts WHERE confirmed = 1 AND alt ='".$name."'");
@@ -634,7 +636,7 @@ class Raid extends BaseActiveModule
 							}
 						}					
 					} else {
-						$players = $this->bot->db->select("SELECT name, COUNT(*) as cnt".$load['other']." FROM ".strtolower($bot)."_".$load['table']."".$load['where']." GROUP BY name ORDER BY cnt DESC");
+						$players = $this->bot->db->select("SELECT name, COUNT(*) as cnt".$load['other']." FROM ".$reqpre."_".$load['table']."".$load['where']." GROUP BY name ORDER BY cnt DESC");
 						if (!empty($players)) {
 							foreach($players as $player) {
 								$name = $player[0];
