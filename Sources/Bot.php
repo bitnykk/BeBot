@@ -1389,6 +1389,9 @@ class Bot
                 $crons = array_keys($this->cron[$duration]);
                 for ($i = 0; $i < count($crons); $i++) {
                     if ($this->cron[$duration][$crons[$i]] != null) {
+						if ($this->exists_module("setdebug")&&$this->core("settings")->get("SetDebug", "Verbosity")>1) {
+							$this->log("CORE", "CRON", "Cronjob : ".get_class($this->cron[$duration][$crons[$i]]));
+						}						
                         $this->cron[$duration][$crons[$i]]->cron($duration);
                     }
                 }
@@ -1414,11 +1417,12 @@ class Bot
         if (empty($this->cron)) {
             return;
         }
+	
         foreach ($this->cron_times as $interval) {
             $this->cronjob($time, $interval);
         }
 		$cron_duration = microtime(true) - $cron_start;
-		if ($cron_duration >= 0.5) {
+		if ($this->exists_module("setdebug")&&$this->core("settings")->get("SetDebug", "Verbosity")>0&&$cron_duration > 0.1) {
 			$this->log("CORE", "CRON", "Cron cycle took " . round($cron_duration, 3) . " seconds.");
 		}
     }

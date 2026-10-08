@@ -53,9 +53,12 @@ class tools extends BasePassiveModule
             ->create(
                 "tools",
                 "connect_timeout",
-                25,
+                3,
                 "How long in seconds should we wait for data to be returned from the webserver when making get_data calls?"
             );
+		if($this->bot->core("settings")->get("tools", "connect_timeout")==25) {
+			$this->bot->core("settings")->save("tools", "connect_timeout", 3); // 3 sec new default as 25 was slowing
+		}			
         // Please do not change this string.
         $this->useragent = BOT_VERSION_NAME . "/" . BOT_VERSION . " (Originating bot: " . $this->bot->botname . "; Dimension: " . $this->bot->dimension . ";)";
         $this->randomsource = "";

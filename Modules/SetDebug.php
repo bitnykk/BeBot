@@ -43,6 +43,9 @@ class SetDebug extends BaseActiveModule
         parent::__construct($bot, get_class($this));
         $this->register_command('tell', 'setdebug', 'OWNER');
         $this->register_command('tell', 'getdebug', 'OWNER');
+		$this->register_module("setdebug");
+		$this->bot->core("settings")
+            ->create("SetDebug", "Verbosity", 0, "Sets the debugger verbosity mode from 0 to 3.", '0;1;2;3');
     }
 
 
@@ -53,7 +56,7 @@ class SetDebug extends BaseActiveModule
 			else return "Debugging is currently off";
 		} else {
 			$this->bot->debug = !$this->bot->debug;
-			if ($this->bot->debug) {
+			if ($this->bot->debug&&$this->bot->core("settings")->get("SetDebug", "Verbosity")==3) {
 				$debug_file = rtrim($this->bot->log_path, "/\\")
 					. "/aoc-debug-" . gmdate("Y-m-d-His") . ".bin";
 				$this->bot->aoc->debug = @fopen($debug_file, "ab");
