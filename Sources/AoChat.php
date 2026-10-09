@@ -433,7 +433,7 @@ class AOChat
 								$tasks["task"][2]["data"] = "";
 								$tasks["task"][3]["url"] = "https://account.anarchy-online.com/log_out"; // to logoff
 								$tasks["task"][3]["data"] = "";
-								$defreezer = $this->bot->core("tools")->multi_site($tasks,9);
+								$defreezer = $this->bot->core("tools")->multi_site($tasks,$this->bot->core("settings")->get("tools", "connect_timeout"));
 								$counter++;
 								//file_put_contents($file."_defreezer.txt", $defreezer, FILE_APPEND | LOCK_EX); // uncomment for testing purposes only
 							}

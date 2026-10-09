@@ -148,6 +148,7 @@ class tools extends BasePassiveModule
 		foreach($tasks["task"] AS $exec) {
 			$fp = fsockopen("ssl://".$url['host'], $port, $errno, $errstr, $read_timeout);
 			if(!$fp) {
+				$this -> bot -> log("FSOCK", "ERROR", "Error ".$errno." on open : ".$errstr);
 				Return "Socket error : $errstr ($errno)\n";
 			}
 			$request = '';
@@ -197,6 +198,11 @@ class tools extends BasePassiveModule
 			}
 			while(!feof($fp)) {
 				$tmp = fgets($fp, 4096);
+				$meta = stream_get_meta_data($fp);
+				if ($meta['timed_out']) {
+					$this -> bot -> log("FSOCK", "ERROR", "Error timeout while getting.");
+					break;
+				}				
 				preg_match_all('/Set-Cookie:\s*(.*)\b/', $tmp, $cookie_v);
 				foreach($cookie_v[1] as &$v){
 					if(strpos($v,"deleted") === false) $cookie[] = $v;
@@ -224,6 +230,7 @@ class tools extends BasePassiveModule
 		
 		$fp = fsockopen("ssl://".$url['host'], $port, $errno, $errstr, $read_timeout);
 		if(!$fp) {
+			$this -> bot -> log("FSOCK", "ERROR", "Error ".$errno." on open : ".$errstr);
 			Return "Socket error : $errstr ($errno)\n";
 		} else {
 			$request = '';
@@ -248,6 +255,11 @@ class tools extends BasePassiveModule
 			fputs($fp, $request . "\r\n\r\n");		
 			while(!feof($fp)) {
 				$result .= fgets($fp, 4096);
+				$meta = stream_get_meta_data($fp);
+				if ($meta['timed_out']) {
+					$this -> bot -> log("FSOCK", "ERROR", "Error timeout while posting.");
+					break;
+				}
 			}
 			fclose($fp);
 		}
@@ -314,6 +326,7 @@ class tools extends BasePassiveModule
         // Check to see if the socket failed to create.
         if ($socket === false) {
             $this->error->set("Failed to create socket. Error was: " . socket_strerror(socket_last_error()));
+			$this -> bot -> log("SOCKET", "ERROR", "Error on create : ".$this->error);
             return $this->error;
         }
 
@@ -342,6 +355,7 @@ class tools extends BasePassiveModule
                     socket_last_error()
                 )
             );
+			$this -> bot -> log("SOCKET", "ERROR", "Error on connect : ".$this->error);
             return $this->error;
         }
         // Rebuild the full query after parse_url
@@ -357,6 +371,7 @@ class tools extends BasePassiveModule
         // Make sure we wrote to the server okay.
         if ($write_result === false) {
             $this->error->set("Failed to write to server: " . socket_strerror(socket_last_error()));
+			$this -> bot -> log("SOCKET", "ERROR", "Error on write : ".$this->error);
             return $this->error;
         }
         $return = "";
@@ -368,12 +383,14 @@ class tools extends BasePassiveModule
         // Make sure we got a response back from the server.
         if ($read_result === false) {
             $this->error->set("Failed to read response: " . socket_strerror(socket_last_error()));
+			$this -> bot -> log("SOCKET", "ERROR", "Error on read : ".$this->error);
             return $this->error;
         }
         $close_result = @socket_close($socket);
         // Make sure we closed our socket properly.  Open sockets are bad!
         if ($close_result === false) {
             $this->error->set("Failed to close socket: " . socket_strerror(socket_last_error()));
+			$this -> bot -> log("SOCKET", "ERROR", "Error on close : ".$this->error);
             return $this->error;
         }
         // Did the calling function want http headers stripped?
@@ -404,7 +421,7 @@ class tools extends BasePassiveModule
 		curl_setopt($ch, CURLOPT_COOKIESESSION, true);
 		curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie);
 		
-		$return = '';
+		$mreturn = '';
 		foreach($tasks["task"] AS $exec) {
 			curl_setopt($ch, CURLOPT_URL, $exec["url"]);
 			if($exec["data"]!="") {
@@ -414,12 +431,22 @@ class tools extends BasePassiveModule
 				curl_setopt($ch, CURLOPT_POST, false);
 				curl_setopt($ch,CURLOPT_POSTFIELDS, "");
 			}
-			$return .= curl_exec($ch);
+			$return = curl_exec($ch);
+			if ($return === false) {	
+				$errorNumber = curl_errno($ch);
+				if ($errorNumber === 28) {
+					$this -> bot -> log("MsCURL", "ERROR", "Timeout reached : ".$timeout);
+				} else {
+					$this -> bot -> log("MsCURL", "ERROR", "Error number : ".$errorNumber);
+				}
+			} else {
+				$mreturn .= $return;
+			}
 			sleep(1);
 		}				
 		@unlink($cookie);
 		
-        Return $return;
+        Return $mreturn;
     }
 
     function get_site_curl(
@@ -466,6 +493,14 @@ class tools extends BasePassiveModule
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         // The usual - get the data and close the session
         $return = curl_exec($ch);
+		if ($return === false) {		
+			$errorNumber = curl_errno($ch);
+			if ($errorNumber === 28) {
+				$this -> bot -> log("GsCURL", "ERROR", "Timeout reached : ".$timeout);
+			} else {
+				$this -> bot -> log("GsCURL", "ERROR", "Error number : ".$errorNumber);
+			}
+		}
         // Did the calling function want http headers stripped?
         //if ($strip_headers)// already stripped?
         //{

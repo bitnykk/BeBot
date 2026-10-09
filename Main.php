@@ -103,9 +103,6 @@ echo "
                                                    \n
 ";
 
-sleep(2);
-
-
 /*
 Load up the required files.
 RequirementsCheck.php: Check that we're running in a sane environment
