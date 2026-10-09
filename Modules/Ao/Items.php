@@ -68,10 +68,10 @@ class VhItems extends BaseActiveModule
 		$current = 18086200;
         Switch ($this->bot->db->get_version("aorefs")) {
             case 3:
-				$this->bot->log("ITEMS", "AOREFS", "DB is up to date with what this bot version expected: ".$current);
+				$this->bot->log("ITEMS", "NOTICE", "DB is up to date with what this bot version expected: ".$current);
 				break;
 			default:
-				$this->bot->log("ITEMS", "AOREFS", "DB is outdated/missing, trying to import: ".$current);
+				$this->bot->log("ITEMS", "WARNING", "DB is outdated/missing, trying to import: ".$current);
 				$filename = "./Extras/Items/"."aorefs-".$current."ep1.sql";
 				if(file_exists($filename)) {
 					$handle = fopen($filename, "r");
@@ -83,18 +83,18 @@ class VhItems extends BaseActiveModule
 					}
 					if ($total > 0) $total = round($total/1024);
 					if ($total <= 0) {
-						$this->bot->log("ITEMS", "AOREFS", "Unable to determine total memory; using conservative import mode.");
+						$this->bot->log("ITEMS", "INFO", "Unable to determine total memory; using conservative import mode.");
 						$total = $used;
 					}					
 					$free = floor($total-$used);
 					if($free<$used) {
-						$this->bot->log("ITEMS", "AOREFS", "Too few RAM available, going (slow) ram-saving mode ...");
+						$this->bot->log("ITEMS", "INFO", "Too few RAM available, going (slow) ram-saving mode ...");
 						$step = 9;
 					} elseif($free<($used*3)) {
-						$this->bot->log("ITEMS", "AOREFS", "Average RAM available, trying (moderate) ram-balanced mode.");
+						$this->bot->log("ITEMS", "INFO", "Average RAM available, trying (moderate) ram-balanced mode.");
 						$step = 99;
 					} else {
-						$this->bot->log("ITEMS", "AOREFS", "Much RAM available, rushing (fast) ram-costing mode!");
+						$this->bot->log("ITEMS", "INFO", "Much RAM available, rushing (fast) ram-costing mode!");
 						$step = 999;
 					}
 					$stack = ""; $main = ""; $init = false; $count = 0;
@@ -112,7 +112,7 @@ class VhItems extends BaseActiveModule
 					}
 				}
 				$this->bot->db->set_version("aorefs", 3);
-				$this->bot->log("ITEMS", "AOREFS", "DB has been updated, thanks for your patience, we're now in: ".$current);
+				$this->bot->log("ITEMS", "NOTICE", "DB has been updated, thanks for your patience, we're now in: ".$current);
 				break;
         }
     }

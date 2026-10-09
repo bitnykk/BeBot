@@ -1,6 +1,13 @@
 <?php
 /*
-* SetDebug.php - A simple module to change the debug flag.
+* SetDebug.php - A simple module to change the debug flag :
+	0 minimal verbosity LOG/LOGIN/FATAL/SECURITY/STATUS 
+	1 adds START/UPDATE/LOAD levels
+	2 adds ERROR level
+	3 adds WARNING/OUTGOING/INCOMING/RELAY level
+	4 adds NOTICE/INFO level (default)
+	5 adds DEBUG level
+	6 log backtrace & maximal verbosity
 *
 * BeBot - An Anarchy Online & Age of Conan Chat Automaton
 * Copyright (C) 2004 Jonas Jax
@@ -45,7 +52,7 @@ class SetDebug extends BaseActiveModule
         $this->register_command('tell', 'getdebug', 'OWNER');
 		$this->register_module("setdebug");
 		$this->bot->core("settings")
-            ->create("SetDebug", "Verbosity", 0, "Sets the debugger verbosity mode from 0 to 3.", '0;1;2;3');
+            ->create("SetDebug", "Verbosity", 4, "Sets the debugger verbosity mode from 0 to 6.", '0;1;2;3;4;5;6');
     }
 
 
@@ -56,7 +63,7 @@ class SetDebug extends BaseActiveModule
 			else return "Debugging is currently off";
 		} else {
 			$this->bot->debug = !$this->bot->debug;
-			if ($this->bot->debug&&$this->bot->core("settings")->get("SetDebug", "Verbosity")==3) {
+			if ($this->bot->debug&&$this->bot->core("settings")->get("SetDebug", "Verbosity")==6) {
 				$debug_file = rtrim($this->bot->log_path, "/\\")
 					. "/aoc-debug-" . gmdate("Y-m-d-His") . ".bin";
 				$this->bot->aoc->debug = @fopen($debug_file, "ab");

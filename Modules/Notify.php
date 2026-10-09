@@ -173,7 +173,7 @@ class Notify extends BaseActiveModule
 					if($this->bot->slave!=null) {
 						$this->bot->send_tell($this->bot->slave, "notify over ".$source."@".$user, 1, false, TRUE);
 					} else {
-						$this->bot->log("MODULE NOTIFY ADD","NULL SLAVE","No more slot available to add ".$user." on notify/friendlist but no slave(s) available. Check documentation to add some.");
+						$this->bot->log("MODULE NOTIFY ADD","WARNING","No more slot available to add ".$user." on notify/friendlist but no slave(s) available. Check documentation to add some.");
 					}
 				} else {
 					$ret = $this->bot->core("notify")->add($source, $user);

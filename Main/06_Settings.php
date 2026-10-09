@@ -280,7 +280,7 @@ class Settings_Core extends BasePassiveModule
             if ($this->get("Settings", "Log")) {
                 $this->bot->log(
                     "SETTINGS",
-                    "SAVED",
+                    "UPDATE",
                     $setting . " for module " . $module . " set to " . $value . " as datatype " . $datatype
                 );
             }
@@ -388,7 +388,7 @@ class Settings_Core extends BasePassiveModule
                 if ($this->get("Settings", "Log")) {
                     $this->bot->log(
                         "SETTINGS",
-                        "UPDATED",
+                        "UPDATE",
                         "Updated values for " . stripslashes($setting) . " for module " . stripslashes($module)
                     );
                 }
@@ -415,7 +415,7 @@ class Settings_Core extends BasePassiveModule
                     );
                 }
                 return $this->error;
-                // $this -> bot -> log("SETTINGS", "WARNING", $status['errordesc']); // FIXME: Comment this when done debugging.
+                $this -> bot -> log("SETTINGS", "DEBUG", $status['errordesc']); // FIXME: Comment this when done debugging.
             } else {
                 $this->settings_cache[strtolower($module)][strtolower($setting)] = $this->set_data_type(
                     $value,
@@ -424,7 +424,7 @@ class Settings_Core extends BasePassiveModule
                 if ($this->get("Settings", "Log")) {
                     $this->bot->log(
                         "SETTINGS",
-                        "Created",
+                        "LOAD",
                         "Created " . stripslashes($setting) . " for module " . stripslashes(
                             $module
                         ) . " with value of " . $value
@@ -457,7 +457,7 @@ class Settings_Core extends BasePassiveModule
     { // Start function update()
         $this->bot->log(
             "SETTINGS",
-            "Notice:",
+            "Notice",
             "Please note: update() is discontinued and may be removed in the future. create() does updates if changes to the definition of a setting is needed. Called for setting $module $setting"
         );
         $module = $this->remove_space($module);

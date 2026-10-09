@@ -56,9 +56,9 @@ class AOChatWrapper_Core extends BasePassiveModule
     {
         if (is_numeric($user)) { return $user; } // id provided
 		$user = ucfirst(strtolower($user));
-        /*echo "Depreciated AOChatWrapper::get_uid() called for $user. Backtrace:\n";
+        /*echo "Depreciated AOChatWrapper::get_uid() called for $user. Backtrace:\n";*/
         $this->bot->log("DEBUG", "BACKTRACE", $this->bot->debug_bt());
-        $this->debug_output("Deprecated call to core('chat')->get_uid(). Use bot->core('player')->id($user)\n");*/		
+        /*$this->debug_output("Deprecated call to core('chat')->get_uid(). Use bot->core('player')->id($user)\n");*/		
         return $this->bot->core('player')->id($user);
     }
 
@@ -71,8 +71,8 @@ class AOChatWrapper_Core extends BasePassiveModule
         if (!is_numeric($uid)) { return $uid; } // name provided
 		//$user = ucfirst(strtolower($user));
         /*$this->debug_output("Deprecated call to core('chat')->get_uname(). Use bot->core('player')->name($user)\n");
-        echo "Depreciated AOChatWrapper::get_uname() called for $user. Backtrace:\n";
-        $this->bot->log("DEBUG", "BACKTRACE", $this->bot->debug_bt());*/		
+        echo "Depreciated AOChatWrapper::get_uname() called for $user. Backtrace:\n";*/
+        $this->bot->log("DEBUG", "BACKTRACE", $this->bot->debug_bt());
         return $this->bot->core('player')->name($uid);
     }
 
@@ -96,7 +96,7 @@ class AOChatWrapper_Core extends BasePassiveModule
             if ($uid > 4294967294 && $uid < 4294967296) {
                 $this->bot->log(
                     "BUDDY",
-                    "BUDDY-ADD",
+                    "INFO",
                     "Received add request for " . $user . "(" . $uid . ") This user is likely in the userlist and might need to be manually removed if this error persists."
                 );
                 return false;
@@ -105,7 +105,7 @@ class AOChatWrapper_Core extends BasePassiveModule
             if ($uid < 1) {
                 $this->bot->log(
                     "BUDDY",
-                    "BUDDY-ADD",
+                    "INFO",
                     "Received add request for " . $user . " but user appears to not exist!!"
                 );
                 return false;
@@ -123,7 +123,7 @@ class AOChatWrapper_Core extends BasePassiveModule
                     $this->bot->aoc->buddy_add($uid);
                     $this->bot->log(
                         "BUDDY",
-                        "BUDDY-ADD",
+                        "INFO",
                         $this->bot
                             ->core('player')->name($uid)
                     );
@@ -152,7 +152,7 @@ class AOChatWrapper_Core extends BasePassiveModule
             if (($this->bot->aoc->buddy_exists($uid))) {
                 if ($this->bot->core("buddy_queue")->check_queue()) {
                     $this->bot->aoc->buddy_remove($uid);
-                    $this->bot->log("BUDDY", "BUDDY-DEL", $this->get_uname($uid));
+                    $this->bot->log("BUDDY", "INFO", $this->get_uname($uid));
                     return true;
                 } else {
                     $return = $this->bot->core("buddy_queue")
@@ -186,7 +186,7 @@ class AOChatWrapper_Core extends BasePassiveModule
         if ($group == null) {
             return false;
         }
-        $this->bot->log("PGRP", "ACCEPT", "Accepting Invite for Private Group [" . $group . "]");
+        $this->bot->log("PGRP", "INFO", "Accepting Invite for Private Group [" . $group . "]");
         return $this->bot->aoc->privategroup_join($group);
     }
 
@@ -199,7 +199,7 @@ class AOChatWrapper_Core extends BasePassiveModule
         if ($group == null) {
             return false;
         }
-        $this->bot->log("PGRP", "LEAVE", "Leaving Private Group [" . $group . "]");
+        $this->bot->log("PGRP", "INFO", "Leaving Private Group [" . $group . "]");
         return $this->bot->aoc->privategroup_leave($group);
     }
 
@@ -228,21 +228,21 @@ class AOChatWrapper_Core extends BasePassiveModule
 
     function pgroup_invite($user)
     {
-        $this->bot->log("PGRP", "INVITE", "Invited " . $user . " to private group");
+        $this->bot->log("PGRP", "INFO", "Invited " . $user . " to private group");
         return $this->bot->aoc->privategroup_invite($user);
     }
 
 
     function pgroup_kick($user)
     {
-        $this->bot->log("PGRP", "KICK", "Kicking " . $user . " from private group");
+        $this->bot->log("PGRP", "INFO", "Kicking " . $user . " from private group");
         return $this->bot->aoc->privategroup_kick($user);
     }
 
 
     function pgroup_kick_all()
     {
-        $this->bot->log("PGRP", "KICKALL", "Kicking all user from private group");
+        $this->bot->log("PGRP", "INFO", "Kicking all user from private group");
         return $this->bot->aoc->privategroup_kick_all();
     }
 

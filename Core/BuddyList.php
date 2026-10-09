@@ -81,7 +81,7 @@ class BuddyList extends BasePassiveModule
             if ($args['online'] == 1) {
                 // Do we have a logon for a user already logged on?
                 if (isset($this->bot->glob["online"][$user])) {
-                    // $this -> log("BUDDY", "ERROR", $user . " logged on despite of already being marked as logged on!!");
+                    $this -> log("BUDDY", "ERROR", $user . " logged on despite of already being marked as logged on!!");
                     return;
                 } else {
                     // Enter the user into the online buddy list
@@ -90,7 +90,7 @@ class BuddyList extends BasePassiveModule
             } else {
                 // Do we have a logoff without a prior login?
                 if (!isset($this->bot->glob["online"][$user])) {
-                    // $this -> log("BUDDY", "ERROR", $user . " logged off with no prior logon!!");
+                    $this -> log("BUDDY", "ERROR", $user . " logged off with no prior logon!!");
                     return;
                 } else {
                     unset($this->bot->glob["online"][$user]);

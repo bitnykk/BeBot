@@ -397,7 +397,7 @@ class Roster_Core extends BasePassiveModule
 						{
 							if($member["id"] == "0" || $member["id"] == "-1" || $member["id"] == "" || $member["id"] == NULL || empty($member["id"]) || strlen($id) < 5)
 							{
-								$this -> bot -> log("ROSTER", "ID", "Get ID Failed for $name (ID: ".$member["id"].")");
+								$this -> bot -> log("ROSTER", "ERROR", "Get ID Failed for $name (ID: ".$member["id"].")");
 							}
 							else
 							{
@@ -566,7 +566,7 @@ class Roster_Core extends BasePassiveModule
 											$id
 										) < 5
 									) {
-										$this->bot->log("ROSTER", "ID", "Get ID Failed for $name (ID: " . $id . ")");
+										$this->bot->log("ROSTER", "ERROR", "Get ID Failed for $name (ID: " . $id . ")");
 									}
 									$this->erase(
 										"Roster",
@@ -736,7 +736,7 @@ class Roster_Core extends BasePassiveModule
                                     $id
                                 ) < 5
                             ) {
-                                $this->bot->log("ROSTER", "ID", "Get ID Failed for $name (ID: " . $id . ")");
+                                $this->bot->log("ROSTER", "ERROR", "Get ID Failed for $name (ID: " . $id . ")");
                             } else {
                                 $this->erase(
                                     "Roster",
@@ -782,12 +782,12 @@ class Roster_Core extends BasePassiveModule
 				);
 			}			
             $this->bot->log(
-                "CRON",
+                "INFO",
                 "ROSTER",
                 "Done updating roster. Removed " . $this->removed . " members of which " . $this->rerolled . " was rerolled characters.",
                 true
             );
-            $this->bot->log("CRON", "ROSTER", "Cleaning buddylist...");
+            $this->bot->log("NOTICE", "ROSTER", "Cleaning buddylist...");
             /*
             cycle through anything still on our buddylist
             */
@@ -796,7 +796,7 @@ class Roster_Core extends BasePassiveModule
                 $num++;
             }
             $this->bot->core("settings")->save("members", "LastRosterUpdate", time());
-            $this->bot->log("CRON", "ROSTER", "Cleaning buddylist done. $num invalid buddies removed.");
+            $this->bot->log("NOTICE", "ROSTER", "Cleaning buddylist done. $num invalid buddies removed.");
             if (!$this->bot->core("settings")->get("Members", "QuietUpdate")) {
                 $this->bot->send_pgroup("##normal##Roster update completed ##end##");
             }
@@ -807,7 +807,7 @@ class Roster_Core extends BasePassiveModule
 
     function add($source, $id, $name, $reason)
     {
-        $this->bot->log("ROSTER", "ADD", "Adding $name $reason");
+        $this->bot->log("ROSTER", "NOTICE", "Adding $name $reason");
         $result = $this->bot->core("user")->add($source, $name, $id, 2, 1);
         if (!($result instanceof BotError)) {
             $this->added++;
@@ -818,7 +818,7 @@ class Roster_Core extends BasePassiveModule
 
     function del($source, $id, $name, $reason)
     {
-        $this->bot->log("ROSTER", "DEL", "Deleting $name $reason");
+        $this->bot->log("ROSTER", "NOTICE", "Deleting $name $reason");
         $result = $this->bot->core("user")->del($source, $name, $id, 1);
         if (!($result instanceof BotError)) {
             $this->removed++;
@@ -829,7 +829,7 @@ class Roster_Core extends BasePassiveModule
 
     function erase($source, $id, $nickname, $reason)
     {
-        $this->bot->log("ROSTER", "ERASE", "Erasing $nickname $reason");
+        $this->bot->log("ROSTER", "NOTICE", "Erasing $nickname $reason");
         $this->bot->core("user")->erase($source, $nickname, 1, $id);
         $this->bot->core("chat")->buddy_remove($id);
     }

@@ -127,7 +127,7 @@ class Guide extends BaseActiveModule
 		if (strpos($aousearch, '<section>') !== false) {
 			$sections = explode("<section>", $aousearch);
 		} else {
-			$this->bot->log("GUIDE", "AOU", "Error on distant XML search for ".$msg);
+			$this->bot->log("GUIDE", "ERROR", "Error on distant XML search for ".$msg);
 			$this->bot->send_output($name, "Error from AOU during your search ...", $origin);
 			return;
 		}
@@ -161,7 +161,7 @@ class Guide extends BaseActiveModule
 			$section = $this -> bot -> core("tools") -> xmlparse($aouread, "section");
 			$content = $this -> bot -> core("tools") -> xmlparse($section, "content");
 		} else {
-			$this->bot->log("GUIDE", "AOU", "Error on distant XML read for ".$msg);
+			$this->bot->log("GUIDE", "ERROR", "Error on distant XML read for ".$msg);
 			$this->bot->send_output($name, "Error from AOU during your read ...", $origin);
 			return;
 		}

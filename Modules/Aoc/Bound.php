@@ -408,7 +408,7 @@ class Bound extends BaseActiveModule
             ('CoJS', 'Diving Calling', 'PvP', 360),
             ('RoKW', 'Refuge Of the Apostate', 'Solo', 1200),
             ('IoIS', 'Isle of Iron Statues', 'Solo', 1200)");
-            $this->bot->log("Bound", "DB", "Updated all instances");
+            $this->bot->log("Bound", "UPDATE", "Updated all instances");
         }
     }
 

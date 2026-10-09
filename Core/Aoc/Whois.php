@@ -370,7 +370,7 @@ class Whois_Core extends BasePassiveModule
     function check_xml($xml)
     {
         if ($xml instanceof BotError) {
-            $this->bot->log("WHOIS", "CHECK_XML", "For some reason I was passed a BotError. This shouldn't happen!");
+            $this->bot->log("WHOIS", "ERROR", "For some reason I was passed a BotError. This shouldn't happen!");
             return $xml; // The XML is bad to start with, no more checking needed. Should not have made it this far!
         }
         $nickname = $this->bot->core("tools")->xmlparse($xml, "nick");

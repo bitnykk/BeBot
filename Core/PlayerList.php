@@ -200,7 +200,7 @@ class PlayerList extends BasePassiveModule
                         $age = $age / 60 / 60;
                         $this->bot->log(
                             "PLAYERLIST",
-                            "WARN",
+                            "WARNING",
                             "Username lookup for $uid failed, but using whois info that is $age hours old."
                         );
                         //cache in memory for future reference.

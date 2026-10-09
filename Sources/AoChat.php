@@ -771,7 +771,7 @@ class AOChat
         // For AOC they are not sending the OK packet anymore
         // So when you receive the first packet, you are logged in
         if (strtolower(AOCHAT_GAME) == 'aoc' && $this->state != "ok") {
-            // $bot->log("LOGIN", "RESULT", "Bot is now loggend in.");
+            $bot->log("LOGIN", "RESULT", "Bot is now logged in.");
             $this->state = "ok";
         }
         if (is_resource($this->debug)) {
@@ -1096,7 +1096,7 @@ class AOChat
             case AOCP_PING:
                 break;
             default:
-                $bot->log("MAIN", "TYPE", "Unhandled packet of type $type. Args: " . serialize($packet->args));
+                $bot->log("MAIN", "ERROR", "Unhandled packet of type $type. Args: " . serialize($packet->args));
                 if (is_resource($this->debug)) {
                     fwrite($this->debug, "<<<<<\n");
                     fwrite($this->debug, print_r($packet->args, true));

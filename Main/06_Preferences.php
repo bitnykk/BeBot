@@ -158,7 +158,7 @@ class Preferences_core extends BasePassiveModule
             $this->bot->db->query($query);
             $this->bot->log(
                 'PREFS',
-                'CREATE',
+                'LOAD',
                 "Created preference '$name' for module '$module' with default value '$default'"
             );
         } else {
@@ -170,7 +170,7 @@ class Preferences_core extends BasePassiveModule
                 );
                 $this->bot->log(
                     "PREFS",
-                    "UPDATED",
+                    "UPDATE",
                     "Updated values for " . stripslashes($name) . " for module " . stripslashes($module)
                 );
                 if ($prefs[2] != $possible_values) {
@@ -185,7 +185,7 @@ class Preferences_core extends BasePassiveModule
                         );
                         $this->bot->log(
                             "PREFS",
-                            "UPDATED",
+                            "UPDATE",
                             "Reset default value as it was invalid for " . stripslashes(
                                 $name
                             ) . " for module " . stripslashes($module)
@@ -205,7 +205,7 @@ class Preferences_core extends BasePassiveModule
                         if ($count > 0) {
                             $this->bot->log(
                                 "PREFS",
-                                "UPDATED",
+                                "UPDATE",
                                 "Reset $count user prefs as they were invalid for " . stripslashes(
                                     $name
                                 ) . " for module " . stripslashes($module)
@@ -350,7 +350,7 @@ class Preferences_core extends BasePassiveModule
 				}
 			}
         }
-        $this->bot->log("PREFS", "CHANGE", "$name changed the default value for setting $module -> $setting to $value");
+        $this->bot->log("PREFS", "UPDATE", "$name changed the default value for setting $module -> $setting to $value");
         return ("The default value for {$module}->{$setting} has been set to '$value'.");
     }
 

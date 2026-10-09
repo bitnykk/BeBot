@@ -749,7 +749,7 @@ class Bot
                 } else {
                     $to_name = $to;
                 }
-                $this->log("TELL", "OUT", "-> " . $to_name . ": " . $msg);
+                $this->log("TELL", "OUTGOING", "-> " . $to_name . ": " . $msg);
 				if(mb_detect_encoding($msg, 'UTF-8', false)) $msg = mb_convert_encoding($msg, 'UTF-8', mb_list_encodings());
                 $this->aoc->send_tell($to, $msg);
             } else {
@@ -1110,7 +1110,7 @@ class Bot
         // Ignore bot chat, no need to handle it's own output as input again
         if ($user == 'BOTNAME') {
             // Danger will robinson. We just sent a tell to ourselves!!!!!!!!!
-            $this->log("CORE", "INC_TELL", "Danger will robinson. Received tell from myself: $args[1]");
+            $this->log("CORE", "INCOMING", "Danger will robinson. Received tell from myself: $args[1]");
             return;
         }
         //Silently ignore tells from other bots.
@@ -1129,7 +1129,7 @@ class Bot
             return;
         }
 		if(mb_detect_encoding($args[1], 'UTF-8', true)) $args[1] = mb_convert_encoding($args[1], 'ISO-8859-1', 'UTF-8');
-        $this->log("TELL", "INC", $user . ": " . $args[1]);
+        $this->log("TELL", "INCOMING", $user . ": " . $args[1]);
         $found = $this->handle_command_input($user, $args[1], "tell");
         $found = $this->hand_to_chat($found, $user, $args[1], "tells");
         if (isset($this->command_error_text)&&$this->command_error_text!="") {
@@ -1165,7 +1165,7 @@ class Bot
         if(is_numeric($args[0])) $user = $this->core("player")->name($args[1]);
 		else $user = $args[1];
         if (strtolower($pgname) == strtolower($this->botname)) {
-            $this->log("PGRP", "JOIN", $user . " joined privategroup.");
+            $this->log("PGRP", "NOTICE", $user . " joined privategroup.");
             if (!empty($this->commands["pgjoin"])) {
                 $keys = array_keys($this->commands["pgjoin"]);
                 foreach ($keys as $key) {
@@ -1175,7 +1175,7 @@ class Bot
                 }
             }
         } else {
-            $this->log("PGRP", "JOIN", $user . " joined the exterior privategroup of " . $pgname . ".");
+            $this->log("PGRP", "NOTICE", $user . " joined the exterior privategroup of " . $pgname . ".");
             if (!empty($this->commands["extpgjoin"])) {
                 $keys = array_keys($this->commands["extpgjoin"]);
                 foreach ($keys as $key) {
@@ -1199,7 +1199,7 @@ class Bot
         }
         $user = $this->core("player")->name($args[1]);
         if (strtolower($pgname) == strtolower($this->botname)) {
-            $this->log("PGRP", "LEAVE", $user . " left privategroup.");
+            $this->log("PGRP", "NOTICE", $user . " left privategroup.");
             if (!empty($this->commands["pgleave"])) {
                 $keys = array_keys($this->commands["pgleave"]);
                 foreach ($keys as $key) {
@@ -1209,7 +1209,7 @@ class Bot
                 }
             }
         } else {
-            $this->log("PGRP", "LEAVE", $user . " left the exterior privategroup " . $pgname . ".");
+            $this->log("PGRP", "NOTICE", $user . " left the exterior privategroup " . $pgname . ".");
             if (!empty($this->commands["extpgleave"])) {
                 $keys = array_keys($this->commands["extpgleave"]);
                 foreach ($keys as $key) {
@@ -1246,7 +1246,7 @@ class Bot
             if ($this->core("settings")->get("Core", "LogPGOutput")) {
                 $this->log(
                     "PGRP",
-                    "MSG",
+                    "INCOMING",
                     "[" . $this->core("player")
                         ->name($args[0]) . "] " . $user . ": " . $args[2]
                 );
@@ -1255,7 +1255,7 @@ class Bot
         } else {
             $this->log(
                 "PGRP",
-                "MSG",
+                "INCOMING",
                 "[" . $this->core("player")
                     ->name($args[0]) . "] " . $user . ": " . $args[2]
             );
@@ -1287,7 +1287,7 @@ class Bot
     {
         if ($args[2] == 32772 && strtolower($this->game) == 'ao') {
             $this->guildname = $args[1];
-            $this->log("CORE", "INC_GANNOUNCE", "Detected org name as: $args[1]");
+            $this->log("CORE", "INCOMING", "Detected org name as: $args[1]");
         }
     }
 
@@ -1353,11 +1353,11 @@ class Bot
         // Ignore bot chat, no need to handle it's own output as input again
         if (strtolower($this->botname) == strtolower($user)) {
             if ($this->core("settings")->get("Core", "LogGCOutput")) {
-                $this->log("GROUP", "MSG", $msg);
+                $this->log("GROUP", "INCOMING", $msg);
             }
             return;
         } else {
-            $this->log("GROUP", "MSG", $msg);
+            $this->log("GROUP", "INCOMING", $msg);
         }
         if (!isset($this->other_bots[$user])) {
             if ($group == $this->guildname || (strtolower($this->game) == 'aoc' && $group == "~Guild")) {
@@ -1389,9 +1389,7 @@ class Bot
                 $crons = array_keys($this->cron[$duration]);
                 for ($i = 0; $i < count($crons); $i++) {
                     if ($this->cron[$duration][$crons[$i]] != null) {
-						if ($this->exists_module("setdebug")&&$this->core("settings")->get("SetDebug", "Verbosity")>1) {
-							$this->log("CORE", "CRON", "Cronjob : ".get_class($this->cron[$duration][$crons[$i]]));
-						}						
+						$this->log("CORE", "DEBUG", "Cronjob : ".get_class($this->cron[$duration][$crons[$i]]));
                         $this->cron[$duration][$crons[$i]]->cron($duration);
                     }
                 }
@@ -1422,8 +1420,8 @@ class Bot
             $this->cronjob($time, $interval);
         }
 		$cron_duration = microtime(true) - $cron_start;
-		if ($this->exists_module("setdebug")&&$this->core("settings")->get("SetDebug", "Verbosity")>0&&$cron_duration > 0.1) {
-			$this->log("CORE", "CRON", "Cron cycle took " . round($cron_duration, 3) . " seconds.");
+		if ($cron_duration > 0.1) {
+			$this->log("CORE", "INFO", "Cron cycle took " . round($cron_duration, 3) . " seconds.");
 		}
     }
 
@@ -1433,6 +1431,34 @@ class Bot
     */
     function log($first, $second, $msg, $write_to_db = false)
     {
+		// Unknown as max verbosity
+		$msglvl = 6;
+		// Debug without backtrace
+		if(strtolower($first)=='debug'||strtolower($second)=='debug') $msglvl = 5;
+		// Various messages (default)
+		if(strtolower($first)=='notice'||strtolower($second)=='notice') $msglvl = 4;
+		if(strtolower($first)=='info'||strtolower($second)=='info') $msglvl = 4;
+		// Major warnings
+		if(strtolower($first)=='warning'||strtolower($second)=='warning') $msglvl = 3;
+		// Escalated errors
+		if(strtolower($first)=='error'||strtolower($second)=='error') $msglvl = 2;
+		// Vital & communication
+		if(strtolower($first)=='start'||strtolower($second)=='start') $msglvl = 1;
+		if(strtolower($first)=='load'||strtolower($second)=='load') $msglvl = 1;
+		if(strtolower($first)=='update'||strtolower($second)=='update') $msglvl = 1;
+		if(strtolower($first)=='outgoing'||strtolower($second)=='outgoing') $msglvl = 1;
+		if(strtolower($first)=='incoming'||strtolower($second)=='incoming') $msglvl = 1;
+		if(strtolower($first)=='relay'||strtolower($second)=='relay') $msglvl = 1;
+		// Minimal verbosity
+		if(strtolower($first)=='fatal'||strtolower($second)=='fatal') $msglvl = 0;
+		if(strtolower($first)=='log'||strtolower($second)=='log') $msglvl = 0;
+		if(strtolower($first)=='login'||strtolower($second)=='login') $msglvl = 0;
+		if(strtolower($first)=='security'||strtolower($second)=='security') $msglvl = 0;
+		if(strtolower($first)=='status'||strtolower($second)=='status') $msglvl = 0;
+		// Verbosity level check
+		if ($this->exists_module("setdebug")) $verblvl = $this->core("settings")->get("SetDebug", "Verbosity");
+		else $verblvl = 4; // default level
+		if($msglvl>$verblvl) return;
         //Remove font tags
         $msg = preg_replace("/<font(.+)>/U", "", $msg);
         $msg = preg_replace("/<\/font>/U", "", $msg);

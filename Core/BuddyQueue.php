@@ -90,7 +90,7 @@ class Buddy_Queue_Core extends BasePassiveModule
                 $this->bot->aoc->buddy_add($uid);
                 $this->bot->log(
                     "BUDDY QUEUE",
-                    "BUDDY-ADD",
+                    "NOTICE",
                     $this->bot
                         ->core("player")->name($uid)
                 );
@@ -98,7 +98,7 @@ class Buddy_Queue_Core extends BasePassiveModule
         } else {
             $this->bot->log(
                 "BUDDY QUEUE",
-                "BUDDY-ERROR",
+                "ERROR",
                 "Tried to add " . $this->bot
                     ->core("player")
                     ->name($uid) . " as a buddy when they already are one."
@@ -118,14 +118,14 @@ class Buddy_Queue_Core extends BasePassiveModule
                 );
                 $this->bot->log(
                     "BUDDY QUEUE",
-                    "BUDDY-DEL",
+                    "NOTICE",
                     $this->bot
                         ->core("player")->name($uid)
                 );
             } else {
                 $this->bot->log(
                     "BUDDY QUEUE",
-                    "BUDDY-ERROR",
+                    "ERROR",
                     "Tried to remove " . $this->bot
                         ->core("player")
                         ->name($uid) . " as a buddy when they are not one."

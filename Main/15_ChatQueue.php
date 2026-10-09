@@ -67,7 +67,7 @@ class Chat_Queue_Core extends BasePassiveModule
         if ($info[2] == "tell") {
             $this->bot->log(
                 "TELL",
-                "OUT",
+                "INFO",
                 "-> " . $this->bot->core("chat")
                     ->get_uname($to) . ": " . $msg
             );

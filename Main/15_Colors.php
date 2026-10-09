@@ -387,7 +387,7 @@ class Colors_Core extends BasePassiveModule
             return false;
         }
         // Return default theme file
-        $this->bot->log("COLOR", "THEME", "Created default theme!");
+        $this->bot->log("COLOR", "INFO", "Created default theme!");
         return $theme_file;
     }
 

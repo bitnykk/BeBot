@@ -4,7 +4,7 @@
 *
 * BeBot - An Anarchy Online & Age of Conan Chat Automaton
 * Copyright (C) 2004 Jonas Jax
-* Copyright (C) 2005-2020 Thomas Juberg Stensås, ShadowRealm Creations and the BeBot development team.
+* Copyright (C) 2005-2020 Thomas Juberg StensÃ¥s, ShadowRealm Creations and the BeBot development team.
 *
 * Developed by:
 * - Alreadythere (RK2)
@@ -193,7 +193,7 @@ class Items_Core extends BasePassiveModule
 		
 		if ($this -> bot -> core("settings") -> get("Items", "LogURL"))
 		{
-			$this->bot->log("Items", "URL", "$url");
+			$this->bot->log("Items", "NOTICE", "$url");
 		}
 
         return $this -> bot -> core("tools") -> get_site($url, 1);
@@ -234,7 +234,7 @@ class Items_Core extends BasePassiveModule
 		
 		if ($this -> bot -> core("settings") -> get("Items", "LogURL"))
 		{
-			$this->bot->log("Items", "URL", "$url");
+			$this->bot->log("Items", "NOTICE", "$url");
 		}
 
         return $this -> bot -> core("tools") -> get_site($url, 1);
@@ -256,7 +256,7 @@ class Items_Core extends BasePassiveModule
 
 		if ($this -> bot -> core("settings") -> get("Items", "LogURL"))
 		{
-			$this->bot->log("Items", "URL", "$url");
+			$this->bot->log("Items", "NOTICE", "$url");
 		}
 
         $result = $this -> bot -> core("tools") -> get_site($url, 1);
@@ -287,7 +287,7 @@ class Items_Core extends BasePassiveModule
 
 		if ($this -> bot -> core("settings") -> get("Items", "LogURL"))
 		{
-			$this->bot->log("Items", "URL", "$url");
+			$this->bot->log("Items", "NOTICE", "$url");
 		}
 
         $result = $this -> bot -> core("tools") -> get_site($url, 1);

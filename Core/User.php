@@ -175,7 +175,7 @@ class User_Core extends BasePassiveModule
 				if($this->bot->slave!=null) {
 					$this->bot->send_tell($this->bot->slave, "notify over ".$this->bot->botname."@".$name, 1, false, TRUE);
 				} else {
-				    $this->bot->log("CORE USER ADD","NULL SLAVE","No more slot available to add ".$name." on notify/friendlist but no slave(s) available. Check documentation to add some.");
+				    $this->bot->log("CORE USER ADD","WARNING","No more slot available to add ".$name." on notify/friendlist but no slave(s) available. Check documentation to add some.");
 				}
 			}
 		}
