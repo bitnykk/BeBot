@@ -120,7 +120,9 @@ if (!file_exists($sqlite_file)) {
 			$INIT->query("UPDATE settings SET value='You are reinvited to ".ucfirst($botname)."!' WHERE module='Reinvite' AND setting='Notify'");
 		} catch (PDOException $e) {
 			echo "Update minor error: ".$e->getMessage().PHP_EOL;
-		}		
+		}
+		if (file_exists('SQLiteCustom.php')) include_once('SQLiteCustom.php');
+		else echo "No custom SQLite queries found".PHP_EOL;
 		$INIT = null;
 	} catch (PDOException $e) {
 		echo "Connexion critical error: ".$e->getMessage().PHP_EOL;

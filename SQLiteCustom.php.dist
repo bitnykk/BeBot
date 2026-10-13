@@ -1,0 +1,12 @@
+<?php
+// Custom SQL queries ; copy this file as SQLiteCustom.php then use/duplicate try+catch structure below
+if ($INIT) {
+		try {
+			$INIT->query("UPDATE settings SET value='NewVal' WHERE module='ModName' AND setting='SetName'");
+		} catch (PDOException $e) {
+			echo "Update minor error: ".$e->getMessage().PHP_EOL;
+		}
+} else {
+	echo "Could not execute custom SQLite queries".PHP_EOL;
+}
+?>
