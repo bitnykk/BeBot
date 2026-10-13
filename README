@@ -388,6 +388,7 @@ _Express way_
 This mode uses SQLite only, and most the bot is configured in one line, eg :
 Win : SQLitExpress.bat username password botname dimension owner guildbot guildID|raidID
 Linux : php SQLitExpress.php username password botname dimension owner guildbot guildID|raidID
+NB : you can add custom SQL queries by copying SQLiteCustom.php.dist as file SQLiteCustom.php & edit it
 
 The console should now state that the bot is loading the modules, 
 authenticating and connecting. Once this is done you can log onto a character
