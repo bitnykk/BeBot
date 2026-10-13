@@ -1,6 +1,6 @@
 <?php
 /*
-* Raid_Loot.php - Module to handle Raid Loot.
+* Raid_Loot.php - Module to handle Raid Loot. Requires Loot module.
 *  by Shelly - Updated by Bitnykk for 1.1
 *
 * BeBot - An Anarchy Online & Age of Conan Chat Automaton
@@ -192,8 +192,11 @@ class raidloot extends BaseActiveModule
         */
         function command_handler($source, $msg, $type)
         {
-                $vars = explode(' ', strtolower($msg));
-
+                if (!$this->bot->exists_module("loot")) {
+					$this->bot->log("RAIDLOOT", "ERROR", "Loot module needs to be also activated.");
+					return "Loot module is inactive.";
+				}
+				$vars = explode(' ', strtolower($msg));
                 $command = (strtoupper($vars[0]));
                 if(isset($vars[1])) { $subcom = (strtolower($vars[1])); } else { $subcom = ""; }
 				if(isset($vars[2])) { $subcom2 = (strtolower($vars[2])); } else { $subcom2 = ""; }

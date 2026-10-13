@@ -730,7 +730,7 @@ class TowerAttack extends BaseActiveModule
                     ->get("TowerAttack", "RelayTowerDamage")
             ) == "relay"
         ) {
-            $this->bot->core("relay")->relay_to_bot($msg);
+            if ($this->bot->exists_module("relay")) $this->bot->core("relay")->relay_to_bot($msg);
         }
         if (strtolower(
                 $this->bot->core("settings")

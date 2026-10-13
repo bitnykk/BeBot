@@ -169,6 +169,11 @@ class Bid extends BaseActiveModule
     */
     function place_bid($name, $ammount)
     {
+		if (!$this->bot->exists_module("points")) {
+			$this->bot->log("BID", "ERROR", "For bid to be placed, points module needs to be activated.");
+			$this->bot->send_tell($name, 'Points modules is disabled.');
+			return false;
+		}
         $update = true;
         if (strtolower($ammount) == "all") {
             $ammount = $this->bot->db->select(
@@ -293,8 +298,8 @@ class Bid extends BaseActiveModule
                     "both"
                 );
 				$this->bot->log("BID", "NOTICE", $this->highestbidder." has won bid on ".$this->bid." with ".$highest." points");
-                $this->bot->core("points")
-                    ->rem_points($this->name, $this->highestbidder, $highest, "Auction: " . $this->bid, true);
+                if ($this->bot->exists_module("points")) $this->bot->core("points")->rem_points($this->name, $this->highestbidder, $highest, "Auction: " . $this->bid, true);
+				else $this->bot->log("BID", "ERROR", "For points to be deducted, points module needs to be activated.");
                 $this->history[] = array(
                     time(),
                     $this->bid,
@@ -325,8 +330,7 @@ class Bid extends BaseActiveModule
         $inside .= "So if you bid 20 points and the second highest bidder bids 6, all others lower the bot will automaticaly bid 7 for you. If someone raises to 8 the bot will bid 9 for you.\n";
         $inside .= "Now someone bids 16. You will still remain in lead with 17 points. As soon as someone bids something higher then 20 however, this person will be in the lead.\n";
         $inside .= "If two people bid the same amount, the first of the two who placed a bid will get the item. ";
-        $inside .= "So it really does help bidding the max you're willing to spend right from the start instead of trying \n";
-        $inside .= "to correct later on.\n";
+        $inside .= "So it really does help bidding the max you're willing to spend right from the start instead of trying to correct later on.\n";
         $this->bot->send_tell(
             $name,
             "Information about bidding :: " . $this->bot
@@ -443,7 +447,8 @@ class Bid extends BaseActiveModule
     */
     function points_to($name)
     {
-        return $this->bot->commands["tell"]["points"]->points_to($name);
+        if ($this->bot->exists_module("points")) return $this->bot->commands["tell"]["points"]->points_to($name);
+		else return 'Points modules is inactive.';
     }
 }
 

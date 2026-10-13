@@ -305,7 +305,7 @@ class Logon extends BaseActiveModule
                 $pre = "##relay_channel##[" . $this->bot->core("settings")
                         ->get("Relay", "Gcname") . "]##end## ";
             }
-            $this->bot->core("relay")->relay_to_bot($pre . $txt);
+            if ($this->bot->exists_module("relay")) $this->bot->core("relay")->relay_to_bot($pre . $txt);
         }
 		$txt = preg_replace("/##end##/U", "", $txt);
 		$txt = preg_replace("/##([^#]+)##/U", "", $txt);

@@ -210,7 +210,7 @@ class Rolls extends BaseActiveModule
         if ($this->bot->core("settings")->get('Loot','Addlock')=="On" && !$this->bot->core("online")->in_chat($name)) {
 			return $this->bot->send_tell($name, "You must be in the PrivGroup of ##highlight##<botname>##end## to join a Roll.");
 		}
-        if ($this->bot->core("settings")->get('Loot','Raidlock')=="On" && $this->bot->core("raid")->raid && !isset($this->bot->core("raid")->user[$name])) {
+        if ($this->bot->core("settings")->get('Loot','Raidlock')=="On" && $this->bot->exists_module("raid") && $this->bot->core("raid")->raid && !isset($this->bot->core("raid")->user[$name])) {
 			return $this->bot->send_tell($name, "You must first !raid join before being allowed to join any further Roll.");
 		}
 		$who = $this->bot->core("whois")->lookup($name, true);
