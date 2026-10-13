@@ -377,7 +377,7 @@ class Conf
 	/*
 	Db driver
 	*/					
-	$db_driver = "sqlite";
+	$db_driver = "sqlite"; // mysql (mysqli), pdo_mysql, or sqlite
 	
 	/*
 	Database path [for sqlite]
@@ -476,7 +476,7 @@ class Conf
 	/*
 	Db driver
 	*/			
-	$db_driver = "' . $driver . '";
+	$db_driver = "' . $driver . '"; // mysql (mysqli), pdo_mysql, or sqlite
 	
 	/*
 	Database name [for mysql]
