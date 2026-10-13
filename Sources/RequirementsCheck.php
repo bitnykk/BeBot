@@ -62,10 +62,9 @@ function bebot_require_extension($extension, $label = null)
 function bebot_sql_driver_available($driver)
 {
     $driver = strtolower(trim($driver));
-    if ($driver === 'mariadb') $driver = 'mysql';
-    // The current MySQL implementation is still mysqli-based. PDO MySQL is
-    // reported separately until the PDO MySQL driver is wired into the factory.
+    if ($driver === 'mariadb') $driver = 'mysql'; // ensures compat
     if ($driver === 'mysql') return extension_loaded('mysqli');
+    if ($driver === 'pdo_mysql') return extension_loaded('pdo_mysql');
     if ($driver === 'sqlite') return extension_loaded('pdo_sqlite');
     return false;
 }
@@ -75,7 +74,11 @@ function bebot_sql_driver_details()
     return array(
         'mysql' => array(
             'available' => extension_loaded('mysqli'),
-            'extensions' => array('mysqli' => extension_loaded('mysqli'), 'pdo_mysql' => extension_loaded('pdo_mysql'))
+            'extensions' => array('mysqli' => extension_loaded('mysqli'))
+        ),
+        'pdo_mysql' => array(
+            'available' => extension_loaded('pdo_mysql'),
+            'extensions' => array('pdo_mysql' => extension_loaded('pdo_mysql'))
         ),
         'sqlite' => array(
             'available' => extension_loaded('pdo_sqlite'),
@@ -118,8 +121,8 @@ foreach (bebot_sql_driver_details() as $bebot_sql_driver => $bebot_sql_details) 
 Load extentions we need
 */
 bebot_require_extension("sockets", "Sockets");
-if (!extension_loaded('mysqli') && !extension_loaded('pdo_sqlite')) {
-    die("No usable SQL driver is available. Enable mysqli for MySQL/MariaDB or pdo_sqlite for SQLite.\n");
+if (!extension_loaded('mysqli') && !extension_loaded('pdo_mysql') && !extension_loaded('pdo_sqlite')) {
+    die("No usable SQL driver is available. Enable mysqli, pdo_mysql, or pdo_sqlite.\n");
 }
 bebot_require_extension("mbstring", "MbString");
 bebot_require_extension("bcmath", "BCMath");

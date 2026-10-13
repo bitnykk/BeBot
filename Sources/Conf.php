@@ -295,6 +295,7 @@ class Conf
             // Do not assume MySQL in that first-run path.
             $available = array();
             if (extension_loaded('mysqli')) $available[] = 'mysql';
+            if (extension_loaded('pdo_mysql')) $available[] = 'pdo_mysql';
             if (extension_loaded('pdo_sqlite')) $available[] = 'sqlite';
         }
         if (empty($available)) {
@@ -475,7 +476,7 @@ class Conf
 	/*
 	Db driver
 	*/			
-	$db_driver = "mysql";
+	$db_driver = "' . $driver . '";
 	
 	/*
 	Database name [for mysql]

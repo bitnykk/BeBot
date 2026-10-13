@@ -2,7 +2,7 @@
 	/*
 	Db driver
 	*/			
-	$db_driver = "";
+	$db_driver = ""; // mysql (mysqli), pdo_mysql, or sqlite
 	
 	/*
 	Database path [for sqlite]

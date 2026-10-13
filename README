@@ -121,8 +121,9 @@ libraries alone, you may have to copy correct .dll files for this specific PHP.
 From 7 base : libcrypt, libssl, libssh2, sockets, nghttp2, curl & phpX(ts).
 From 8 adds : brotli (common+dec) & libzstd (+ libsqlite3 if you use SQLite).
 
-Activate 6 extensions : curl, mbstring, mysqli², openssl, pdo_mysql, sockets.
-²: can instead be pdo_mysql or even sqlite3 & pdo_sqlite depending on your conf.
+Activate the extensions required by your configuration: curl, mbstring,
+openssl and sockets, plus one SQL driver: mysqli (`mysql`), pdo_mysql
+(`pdo_mysql`), or sqlite3/pdo_sqlite (`sqlite`).
 
 You also should look after the value of the parameter "memory_limit" in php.ini.
 It could be set at -1 (unlimited) which is fine if you got lot of RAM.

@@ -36,6 +36,13 @@
 *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 *  USA
 */
+// A number of legacy modules pass these mode constants to db->select().
+// Keep their public API usable when the selected backend is PDO and the
+// mysqli extension is not installed.
+if (!defined('MYSQLI_NUM')) define('MYSQLI_NUM', 2);
+if (!defined('MYSQLI_ASSOC')) define('MYSQLI_ASSOC', 1);
+if (!defined('MYSQLI_BOTH')) define('MYSQLI_BOTH', 3);
+
 class DatabaseFactory
 {
     public static function get_instance($bothandle)
@@ -56,7 +63,7 @@ class DatabaseFactory
         // Configuration files intentionally contain legacy variables.
         include $config_file;
         if (isset($db_driver)) {
-            $driver = strtolower($db_driver);
+            $driver = strtolower(trim($db_driver));
         } elseif (isset($dpath['driver'])) { // Sqlite only
             $driver = strtolower($dpath['driver']);
         }
@@ -70,12 +77,144 @@ class DatabaseFactory
 
         if ($driver === 'sqlite') {
             $instances[$bothandle] = new SQLiteDatabase($bothandle, isset($dpath) ? $dpath : array());
+        } elseif ($driver === 'pdo_mysql') {
+            $instances[$bothandle] = new PDOMySQLDatabase($bothandle, array(
+                'dbase' => isset($dbase) ? $dbase : '',
+                'user' => isset($user) ? $user : '',
+                'pass' => isset($pass) ? $pass : '',
+                'server' => isset($server) ? $server : 'localhost',
+                'table_prefix' => isset($table_prefix) ? $table_prefix : null,
+                'nounderscore' => isset($nounderscore) ? $nounderscore : false,
+                'master_tablename' => isset($master_tablename) ? $master_tablename : null
+            ));
         } else {
             // Keep mysqli as the default compatibility path
             $instances[$bothandle] = MySQL::get_instance($bothandle);
         }
 
         return $instances[$bothandle];
+    }
+}
+
+/**
+ * MySQL driver implemented with PDO. The separate class is intentional:
+ * `mysql` remains the historical mysqli backend and existing installations
+ * do not change behaviour unless they explicitly select `pdo_mysql`.
+ */
+class PDOMySQLDatabase
+{
+    public $CONN = null, $DBASE = '', $USER = '', $PASS = '', $SERVER = '', $bot;
+    public $tablenames = array(), $master_tablename, $table_prefix, $underscore = '_', $affected_rows = 0;
+    private $error_count = 0, $last_error = '';
+
+    public function __construct($bothandle, array $config)
+    {
+        $this->bot = Bot::get_instance($bothandle);
+        $this->DBASE = $config['dbase'];
+        $this->USER = $config['user'];
+        $this->PASS = $config['pass'];
+        $this->SERVER = $config['server'] ?: 'localhost';
+        $this->table_prefix = $config['table_prefix'] === null ? strtolower($this->bot->botname) : str_ireplace('<botname>', strtolower($this->bot->botname), $config['table_prefix']);
+        if ($config['nounderscore']) $this->underscore = '';
+        $this->master_tablename = $config['master_tablename'] ? str_ireplace('<botname>', strtolower($this->bot->botname), $config['master_tablename']) : strtolower($this->bot->botname) . '_tablenames';
+        if (!$this->connect(true)) {
+            throw new RuntimeException('Unable to connect using PDO MySQL.');
+        }
+        $this->query("CREATE TABLE IF NOT EXISTS " . $this->quoteIdentifier($this->master_tablename) . " (internal_name VARCHAR(255) NOT NULL PRIMARY KEY, prefix VARCHAR(100), use_prefix VARCHAR(10) NOT NULL DEFAULT 'false', schemaversion INT NOT NULL DEFAULT 1)");
+        $this->query("CREATE TABLE IF NOT EXISTS table_versions (internal_name VARCHAR(255) NOT NULL PRIMARY KEY, schemaversion INT NOT NULL DEFAULT 1)");
+    }
+
+    public function driverName() { return 'pdo_mysql'; }
+    public function connect($initial = false)
+    {
+        if ($this->CONN) return true;
+        try {
+            $dsn = 'mysql:host=' . $this->SERVER . ';dbname=' . $this->DBASE . ';charset=utf8';
+            $this->CONN = new PDO($dsn, $this->USER, $this->PASS, array(
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => true
+            ));
+            if ($initial && $this->bot) $this->bot->log('PDO_MYSQL', 'START', 'MySQL PDO connection established.');
+            return true;
+        } catch (Exception $e) {
+            $this->error('Connection failed', $initial, false, $e);
+            return false;
+        }
+    }
+    public function close() { if ($this->CONN) $this->CONN = null; }
+    public function begin() { return $this->CONN->beginTransaction(); }
+    public function commit() { return $this->CONN->commit(); }
+    public function rollback() { return $this->CONN->rollBack(); }
+    public function serverVersion() { return $this->CONN->getAttribute(PDO::ATTR_SERVER_VERSION); }
+    public function lastInsertId() { return $this->CONN->lastInsertId(); }
+    public function affectedRows() { return $this->affected_rows; }
+    public function real_escape_string($value) { return addslashes((string)$value); }
+    public function escape($value) { return $this->real_escape_string($value); }
+
+    public function select($sql, $result_form = null)
+    {
+        try {
+            $stmt = $this->prepare($sql);
+            $assoc = ($result_form === 'assoc' || (defined('MYSQLI_ASSOC') && $result_form === MYSQLI_ASSOC));
+            return $stmt->fetchAll($assoc ? PDO::FETCH_ASSOC : PDO::FETCH_NUM);
+        } catch (Exception $e) { $this->error($sql, false, true, $e); return false; }
+    }
+    public function query($sql)
+    {
+        try { $this->affected_rows = $this->CONN->exec($this->add_prefix($sql)); return true; }
+        catch (Exception $e) { $this->error($sql, false, true, $e); return false; }
+    }
+    public function execute($sql) { return $this->query($sql) ? $this->affectedRows() : false; }
+    public function returnQuery($sql)
+    {
+        try { return $this->prepare($sql); }
+        catch (Exception $e) { $this->error($sql, false, true, $e); return false; }
+    }
+    public function dropTable($sql) { return $this->query('DROP TABLE ' . $this->add_prefix($sql)); }
+    public function add_prefix($sql) { return preg_replace_callback('/#___([A-Za-z0-9_]+)/', array($this, 'prefixTable'), $sql); }
+    private function prefixTable($match) { return $this->quoteIdentifier($this->get_tablename($match[1])); }
+    private function quoteIdentifier($name) { return '`' . str_replace('`', '``', $name) . '`'; }
+    private function prepare($sql) { return $this->CONN->query($this->add_prefix($sql)); }
+
+    public function get_tablename($table, $use_prefix = true)
+    {
+        if (isset($this->tablenames[$table])) return $this->tablenames[$table];
+        $stmt = $this->CONN->prepare('SELECT prefix, use_prefix FROM ' . $this->quoteIdentifier($this->master_tablename) . ' WHERE internal_name = ?');
+        $stmt->execute(array($table)); $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) {
+            $prefix = ($use_prefix === true || strtolower((string)$use_prefix) === 'true') ? $this->table_prefix : '';
+            $stmt = $this->CONN->prepare('INSERT INTO ' . $this->quoteIdentifier($this->master_tablename) . ' (internal_name,prefix,use_prefix) VALUES (?,?,?)');
+            $stmt->execute(array($table, $prefix, $prefix === '' ? 'false' : 'true'));
+            $name = $prefix === '' ? $table : $prefix . $this->underscore . $table;
+        } else $name = ($row['use_prefix'] === 'true' && $row['prefix'] !== '') ? $row['prefix'] . $this->underscore . $table : $table;
+        return $this->tablenames[$table] = $name;
+    }
+    public function define_tablename($table, $use_prefix) { return $this->get_tablename($table, $use_prefix); }
+    public function get_version($table) { $r = $this->select('SELECT schemaversion,use_prefix FROM ' . $this->quoteIdentifier($this->master_tablename) . " WHERE internal_name='" . $this->real_escape_string($table) . "'", 'assoc'); return empty($r) ? 1 : (int)$r[0]['schemaversion']; }
+    public function set_version($table, $version) { return $this->query("UPDATE " . $this->quoteIdentifier($this->master_tablename) . " SET schemaversion=" . (int)$version . " WHERE internal_name='" . $this->real_escape_string($table) . "'"); }
+    public function update_table($table, $column, $action, $query)
+    {
+        $fields = $this->select('SHOW COLUMNS FROM ' . $this->quoteIdentifier($this->get_tablename($table)), 'assoc');
+        $columns = array();
+        foreach ((array)$fields as $field) $columns[$field['Field']] = true;
+        $requested = is_array($column) ? $column : array($column);
+        $action = strtolower($action);
+        $exists = true;
+        foreach ($requested as $item) if (!isset($columns[$item])) $exists = false;
+        if (($action === 'add' && !$exists) || (($action === 'drop' || $action === 'alter' || $action === 'modify') && $exists)) {
+            return $this->query($query);
+        }
+        if ($action === 'change' && isset($requested[0]) && isset($requested[1]) && isset($columns[$requested[0]]) && !isset($columns[$requested[1]])) {
+            return $this->query($query);
+        }
+        return true;
+    }
+    public function error($text, $fatal = false, $connected = true, $exception = null)
+    {
+        $this->error_count++; $this->last_error = $exception ? $exception->getMessage() : 'Database error';
+        if ($this->bot) $this->bot->log('PDO_MYSQL', 'ERROR', '(# ' . $this->error_count . ') ' . $this->last_error . ' SQL: ' . $text, $connected);
+        if ($fatal) throw new RuntimeException($this->last_error);
     }
 }
 
