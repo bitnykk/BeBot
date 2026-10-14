@@ -887,7 +887,11 @@ class AOChat
             case AOCP_BUDDY_LOGONOFF:
                 // Event is a buddy logging on/off
                 list ($id, $status) = $packet->args;
-
+				// We also need to make sure we catch 4294967295
+				if ($id > 4294967294 && $id < 4294967296) {
+					unset($this->buddies[$id]);
+					break;
+				}
                 if (strtolower(AOCHAT_GAME) == 'aoc') {
                     list ($bid, $bonline, $blevel, $blocation, $bclass) = $packet->args;
                     $this->buddies[$bid] = ($bonline ? AOC_BUDDY_ONLINE : 0) | AOC_BUDDY_KNOWN;

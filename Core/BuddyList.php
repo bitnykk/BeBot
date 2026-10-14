@@ -65,10 +65,8 @@ class BuddyList extends BasePassiveModule
     function buddy_ao($args)
     {
         $user = $this->bot->core("player")->name($args['id']);
-
-
-        if (empty($user)) {
-            $this->bot->log("DEBUG", "BuddyList", "buddy_ao() got empty user");
+        if (empty($user)||$user instanceof BotError) {
+            $this->bot->log("DEBUG", "BuddyList", "buddy_ao() got empty or erroneous user");
             if($this->bot->debug) $this->bot->log("DEBUG", "BuddyList", $this->bot->debug_bt());
             return $this->error;
         }

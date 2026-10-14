@@ -122,6 +122,9 @@ class Preferences_core extends BasePassiveModule
     function buddy($name, $msg)
     {
         $uid = $this->bot->core('player')->id($name);
+		if ($uid instanceof BotError) {
+			return false;
+		}
         if ($msg == 0 && isset($this->cache[$uid])) {
             //Buddy logging off. Throw out the cached data.
             unset($this->cache[$uid]);

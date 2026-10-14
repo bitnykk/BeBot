@@ -436,6 +436,7 @@ class OnlineDisplay extends BaseActiveModule
                     Continue;
                 }
                 $this->listed[$channel][$player[0]] = true;
+				if(is_null($player[4])) $player[4] = '';
                 if ($currentprof != $player[4]) {
                     $currentprof = $player[4];
                     if (strtolower(
@@ -512,6 +513,8 @@ class OnlineDisplay extends BaseActiveModule
                     }
                 }
                 $charinfo = "";
+				if(is_null($player[2])) $player[2] = '';
+				if(is_null($player[3])) $player[3] = '';
                 if ($this->bot->core("settings")->get("Online", "Useshortcuts")
                 ) {
                     $player[2] = $this->bot->core("shortcuts")
@@ -550,6 +553,7 @@ class OnlineDisplay extends BaseActiveModule
                 }
                 $online_list .= $this->bot->core("colors")
                     ->colorize("online_characters", " - Lvl " . $player[1]);
+				if(is_null($player[5])) $player[5] = '';
                 if (strtolower($this->bot->game) == 'ao') {
                     $online_list .= "/" . $player[5];
                 }
