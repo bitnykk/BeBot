@@ -3,12 +3,16 @@
 $server_list['Ao']['Testlive'] = array('server' => 'chat.dt.funcom.com', 'port' => 7109);
 $server_list['Ao']['Rubi-Ka'] = array('server' => 'chat.d1.funcom.com', 'port' => 7105);
 $server_list['Ao']['Rubi-Ka-2019'] = array('server' => 'chat.d1.funcom.com', 'port' => 7106);
+$server_list['Ao']['AorLocal'] = array('server' => 'localhost', 'port' => 7012);
+$server_list['Ao']['AorLive'] = array('server' => 'ao-rebirth.com', 'port' => 7012);
 $server_list['Ao']['AoTestProxy'] = array('server' => 'localhost', 'port' => 9993);
 $server_list['Ao']['AoLiveProxy'] = array('server' => 'localhost', 'port' => 9993);
 $server_list['Ao']['AoRk19Proxy'] = array('server' => 'localhost', 'port' => 9993);
 $server_list['Ao']['0'] = $server_list['Ao']['Testlive'];
 $server_list['Ao']['5'] = $server_list['Ao']['Rubi-Ka'];
 $server_list['Ao']['6'] = $server_list['Ao']['Rubi-Ka-2019'];
+$server_list['Ao']['10'] = $server_list['Ao']['AorLocal'];
+$server_list['Ao']['11'] = $server_list['Ao']['AorLive'];
 $server_list['Ao']['90'] = $server_list['Ao']['AoTestProxy'];
 $server_list['Ao']['95'] = $server_list['Ao']['AoLiveProxy'];
 $server_list['Ao']['96'] = $server_list['Ao']['AoRk19Proxy'];

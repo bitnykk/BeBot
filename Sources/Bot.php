@@ -110,37 +110,14 @@ define("IRC", 32);
 define("ALL", 255);
 class Bot
 {
-    var $lasttell;
-    var $banmsgout;
-    var $dimension;
-    var $botversion;
-    var $botversionname;
-    var $aoc;
-    var $irc;
-    var $db;
-    var $commpre;
-    var $crondelay;
-    var $telldelay;
-    var $maxsize;
-    var $reconnecttime;
-    var $guildbot;
-    var $guildid;
-    var $raidid;
-    var $guild;
-    var $log;
-    var $log_path;
-    var $log_timestamp;
-    var $use_proxy_server;
-    var $proxy_server_address;
-    var $starttime;
-    var $commands;
-	var $sixtyfourbit;
+    var $lasttell, $banmsgout, $dimension, $botversion, $botversionname;
+    var $aoc, $checkaor, $irc, $db, $commpre, $crondelay, $telldelay;
+    var $maxsize, $reconnecttime, $guildbot, $guildid, $raidid, $guild;
+    var $log, $log_path, $log_timestamp, $use_proxy_server, $proxy_server_address;
+    var $starttime, $commands, $sixtyfourbit, $command_error_text;
 	var $server, $port, $username, $password, $other_bots, $guildname, $game, $connected_time;
 	var $accessallbots, $core_directories, $module_directories, $ini, $cron_activated;
-	var $command_error_text;
-	public $slave, $periph;
-    public $owner;
-    public $super_admin;
+	public $slave, $periph, $owner, $super_admin;
     private $module_links = array();
     private $cron_times = array();
     private $cron_job_timer = array();
@@ -350,6 +327,7 @@ class Bot
         // Make sure all cronjobs are locked, we don't want to run any cronjob before we are logged in!
         $this->cron_activated = false;
         // Get dimension server
+		$this->checkaor = false;
         switch ($this->dimension) {
 			case "0":
 				$dimension = "Testlive";
@@ -360,6 +338,14 @@ class Bot
 			case "6":
 				$dimension = "Rubi-Ka-2019";
 				break;	
+			case "10":
+				$dimension = "AorLocal";
+				$this->checkaor = true;
+				break;
+			case "11":
+				$dimension = "AorLive";
+				$this->checkaor = true;
+				break;
 			case "90":
 				$dimension = "AoTestProxy";
 				$this->dimension = 0;
