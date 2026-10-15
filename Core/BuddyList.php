@@ -66,7 +66,7 @@ class BuddyList extends BasePassiveModule
     {
         $user = $this->bot->core("player")->name($args['id']);
         if (empty($user)||$user instanceof BotError) {
-            $this->bot->log("DEBUG", "BuddyList", "buddy_ao() got empty or erroneous user");
+            $this->bot->log("BUDDY", "DEBUG", "buddy_ao() got empty or erroneous user");
             if($this->bot->debug) $this->bot->log("DEBUG", "BuddyList", $this->bot->debug_bt());
             return $this->error;
         }
@@ -79,7 +79,7 @@ class BuddyList extends BasePassiveModule
             if ($args['online'] == 1) {
                 // Do we have a logon for a user already logged on?
                 if (isset($this->bot->glob["online"][$user])) {
-                    $this->bot->log("BUDDY", "ERROR", $user . " logged on despite of already being marked as logged on!!");
+                    $this->bot->log("BUDDY", "DEBUG", $user . " logged on despite of already being marked as logged on!!");
                     return;
                 } else {
                     // Enter the user into the online buddy list
@@ -88,7 +88,7 @@ class BuddyList extends BasePassiveModule
             } else {
                 // Do we have a logoff without a prior login?
                 if (!isset($this->bot->glob["online"][$user])) {
-                    if (!$this->bot->checkaor) $this->bot->log("BUDDY", "ERROR", $user . " logged off with no prior logon!!");
+                    $this->bot->log("BUDDY", "DEBUG", $user . " logged off with no prior logon!!");
                     return;
                 } else {
                     unset($this->bot->glob["online"][$user]);
