@@ -147,12 +147,15 @@ class Items_Core extends BasePassiveModule
             return "<a style='text-decoration:none' href='itemref://".$item['lowid']."/".$item['highid']."/".$item['lowlvl']."/".$item['highlvl']."/".$item['lowcrc']."/".$item['midcrc']."/".$item['highcrc']."'><font color=#".$item['color'].">[".$item['name']."]</font></a>";
     }
 
-    function rencode($base)
-    {
-		$conv = iconv("ISO-8859-1", "UTF-8", $base);
-		if($base!=$conv) return $conv; // ISO->UTF
-		else return $base; // ISO==UTF
-	}
+	function rencode($base)
+	{
+		$base = (string)$base;
+		if ($base === '' || preg_match('//u', $base)) {
+			return $base;
+		}
+		$converted = @iconv('ISO-8859-1', 'UTF-8//IGNORE', $base);
+		return ($converted !== false) ? $converted : $base;
+	}	
 	
     function is_item($item)
     {
