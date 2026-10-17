@@ -397,7 +397,7 @@ class Roster_Core extends BasePassiveModule
 						{
 							if($member["id"] == "0" || $member["id"] == "-1" || $member["id"] == "" || $member["id"] == NULL || empty($member["id"]) || strlen($id) < 5)
 							{
-								$this -> bot -> log("ROSTER", "ERROR", "Get ID Failed for $name (ID: ".$member["id"].")");
+								$this -> bot -> log("ROSTER", "ERROR", "Get ID Failed (ID: ".$member["id"].")");
 							}
 							else
 							{
@@ -566,7 +566,7 @@ class Roster_Core extends BasePassiveModule
 											$id
 										) < 5
 									) {
-										$this->bot->log("ROSTER", "ERROR", "Get ID Failed for $name (ID: " . $id . ")");
+										$this->bot->log("ROSTER", "ERROR", "Get ID Failed (ID: " . $id . ")");
 									}
 									$this->erase(
 										"Roster",
@@ -736,7 +736,7 @@ class Roster_Core extends BasePassiveModule
                                     $id
                                 ) < 5
                             ) {
-                                $this->bot->log("ROSTER", "ERROR", "Get ID Failed for $name (ID: " . $id . ")");
+                                $this->bot->log("ROSTER", "ERROR", "Get ID Failed (ID: " . $id . ")");
                             } else {
                                 $this->erase(
                                     "Roster",
