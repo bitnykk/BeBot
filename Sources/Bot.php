@@ -112,7 +112,7 @@ class Bot
 {
     var $lasttell, $banmsgout, $dimension, $botversion, $botversionname;
     var $aoc, $checkaor, $irc, $db, $commpre, $crondelay, $telldelay;
-    var $maxsize, $reconnecttime, $guildbot, $guildid, $raidid, $guild;
+    var $maxsize, $reconnecttime, $guildbot, $guildid, $raidid, $guild, $gc_target;
     var $log, $log_path, $log_timestamp, $use_proxy_server, $proxy_server_address;
     var $starttime, $commands, $sixtyfourbit, $command_error_text;
 	var $server, $port, $username, $password, $other_bots, $guildname, $game, $connected_time;
@@ -202,6 +202,7 @@ class Bot
         self::$instance[$bothandle]->password = $ao_password;
         self::$instance[$bothandle]->botname = ucfirst(strtolower($bot_name));
         self::$instance[$bothandle]->dimension = ucfirst(strtolower($dimension));
+        if(ucfirst(strtolower($dimension))==10||ucfirst(strtolower($dimension)==11)) self::$instance[$bothandle]->checkaor = true;
         self::$instance[$bothandle]->botversion = 'BOT_VERSION';
         self::$instance[$bothandle]->botversionname = 'BOT_VERSION_NAME';
 		if (isset($other_bots)&&is_array($other_bots)) {
@@ -327,7 +328,6 @@ class Bot
         // Make sure all cronjobs are locked, we don't want to run any cronjob before we are logged in!
         $this->cron_activated = false;
         // Get dimension server
-		$this->checkaor = false;
         switch ($this->dimension) {
 			case "0":
 				$dimension = "Testlive";
@@ -340,11 +340,9 @@ class Bot
 				break;	
 			case "10":
 				$dimension = "AorLocal";
-				$this->checkaor = true;
 				break;
 			case "11":
 				$dimension = "AorLive";
-				$this->checkaor = true;
 				break;
 			case "90":
 				$dimension = "AoTestProxy";
@@ -760,6 +758,17 @@ class Bot
             // We need to eradicate calls to this from all modules for sanitys sake.
             return false;
         }
+
+        // aor specificity
+        $raidid = $this->raidid;
+        if (is_string($raidid) && preg_match('/^0x/i', $raidid)) {
+            $raidid = hexdec($raidid);
+        }
+        if ($this->checkaor && (int)$raidid > 0 && $this->gc_target === "Raid") {
+            $this->send_gc($msg, 0, $checksize);
+            return;
+        }
+
         if ($group == null) {
             $group = $this->botname;
         }
@@ -822,7 +831,9 @@ class Bot
             if ($this->core("settings")->get("Core", "ColorizeGC")) {
                 $msg = $this->core("colors")->colorize("normal", $msg);
             }
-            if (strtolower($this->game) == 'ao') {
+            if ($this->gc_target !== null) {
+                $guild = $this->gc_target;
+            } elseif (strtolower($this->game) == 'ao') {
                 $guild = $this->guildname;
             } else {
                 $guild = "~Guild";
@@ -1296,7 +1307,32 @@ class Bot
 
 
     /*
-    * Incoming group message (Guildchat, towers etc)
+    * aor raid group check
+    */
+    function is_raid_group($gid, $group)
+    {
+        if (!$this->checkaor) {
+            return false;
+        }
+
+        $raidid = $this->raidid;
+        if (is_string($raidid) && preg_match('/^0x/i', $raidid)) {
+            $raidid = hexdec($raidid);
+        }
+        if ((int)$raidid <= 0) {
+            return false;
+        }
+
+        if (strtolower((string)$group) == "raid") {
+            return true;
+        }
+
+        return $gid === pack("C", 0x8F) . pack("N", (int)$raidid);
+    }
+
+
+    /*
+    * Incoming group message (Guildchat, towers, aor raid etc)
     */
     function inc_gmsg($args)
     {
@@ -1305,11 +1341,12 @@ class Bot
         if (!$group) {
             $group = $this->core("chat")->get_gname($args[0]);
         }
+		$is_raid = $this->is_raid_group($args[0], $group); // for aor raid
+		$is_guild_like = $is_raid || $group == $this->guildname || (strtolower(
+				$this->game
+			) == 'aoc' && $group == "~Guild");
 		if(mb_detect_encoding($args[2], 'UTF-8', true)) $args[2] = mb_convert_encoding($args[2], 'ISO-8859-1', 'UTF-8');
-        if (isset($this->commands["gmsg"][$group]) || $group == $this->guildname || (strtolower(
-                    $this->game
-                ) == 'aoc' && $group == "~Guild")
-        ) {
+		if (isset($this->commands["gmsg"][$group]) || $is_guild_like) {
             if (strtolower($this->game) == 'aoc' && $group == "~Guild") {
                 $msg = "[" . $this->guildname . "] ";
             } else {
@@ -1325,10 +1362,7 @@ class Bot
         }
         $disgc = $this->core("settings")->get("Core", "DisableGC");
         $disgcchat = $this->core("settings")->get("Core", "DisableGCchat");
-        if (($group == $this->guildname || (strtolower(
-                        $this->game
-                    ) == 'aoc' && $group == "~Guild")) && $disgc && $disgcchat
-        ) {
+        if ($is_guild_like && $disgc && $disgcchat) {
             Return false;
         }
         if ($args[1] == 0) {
@@ -1346,23 +1380,31 @@ class Bot
             $this->log("GROUP", "INCOMING", $msg);
         }
         if (!isset($this->other_bots[$user])) {
-            if ($group == $this->guildname || (strtolower($this->game) == 'aoc' && $group == "~Guild")) {
-                if (!$disgc) {
-                    $found = $this->handle_command_input($user, $args[2], "gc");
-                }
-
-                if ($this->command_error_text) {
-                    $this->send_gc($this->command_error_text);
-                }
-                unset($this->command_error_text);
+            $previous_gc_target = $this->gc_target;
+            if ($is_raid) {
+                $this->gc_target = "Raid";
             }
 
-            if (!$disgcchat) {
-                $found = $this->hand_to_chat($found, $user, $args[2], "gmsg", $group);
+            try { // aor raid routing
+                if ($is_guild_like) {
+                    if (!$disgc) {
+                        $found = $this->handle_command_input($user, $args[2], "gc");
+                    }
+
+                    if ($this->command_error_text) {
+                        $this->send_gc($this->command_error_text);
+                    }
+                    unset($this->command_error_text);
+                }
+
+                if (!$disgcchat) {
+                    $found = $this->hand_to_chat($found, $user, $args[2], "gmsg", $group);
+                }
+            } finally { // restoring non aor raid state
+                $this->gc_target = $previous_gc_target;
             }
         }
     }
-
 
     /*
     Does all the checks and work for a specific cron time

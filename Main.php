@@ -146,6 +146,7 @@ if (!empty($bot->core_directories)) {
 }
 $bot->load_files('Modules', 'Modules');
 $bot->load_files('Modules', "Modules/{$bot->game}");
+if($bot->checkaor) $bot->load_files('Modules', "Modules/Aor");
 $bot->load_files('Modules', 'Custom/Modules');
 if (!empty($bot->module_directories)) {
     $module_dirs = explode(",", $bot->module_directories);
