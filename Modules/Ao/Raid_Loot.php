@@ -192,7 +192,7 @@ class raidloot extends BaseActiveModule
         */
         function command_handler($source, $msg, $type)
         {
-                if (!$this->bot->exists_module("loot")) {
+                if (!$this->bot->exists_module("loots")) {
 					$this->bot->log("RAIDLOOT", "ERROR", "Loot module needs to be also activated.");
 					return "Loot module is inactive.";
 				}
