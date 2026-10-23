@@ -553,7 +553,8 @@ class Roster_Core extends BasePassiveModule
 										"INFO",
 										$member[1] . " is in members table but appears to not to be in XML, skipping removal for now"
 									);
-								}
+									if ($member[4] == 0) $upid[$member[0]] = true;
+								}							
 							}
 							if ($whois instanceof BotError) {
 								Continue; // prob shouldnt skip this but it will stop the crashing
@@ -725,7 +726,7 @@ class Roster_Core extends BasePassiveModule
                                 "INFO",
                                 $member[1] . " is in members table but Appears to have been Deleted, skipping removal for now"
                             );
-							$upid[$member[0]] = true;
+							if ($member[4] == 0) $upid[$member[0]] = true;
                         }
                     } /*
                     Catch rerolled characters.
@@ -750,9 +751,7 @@ class Roster_Core extends BasePassiveModule
                         If not we just run through the paces and make sure everything is in order.
                         */
                         else {
-                            if ($member[4] != 0) {
-								$upid[$id] = true;
-                            }
+							$upid[$id] = true;
                             /*
                             Make sure we have an entry in the whois cache for the character.
                             */

@@ -2,8 +2,8 @@
 Release 0.8.6 - ??? 202?
 ------------------------
 - For both: Core, Debug modernized ; SQLite support added
-- For AO: Defreeze, Orgs, Gsp improved ; Express setup added
-- For AoC: ...
+- For AO: Defreeze, Orgs, Gsp, Roster improved ; Express setup added
+- For AoC: Blacklist, Bound, Recruit & TimerAA improved
 
 ------------------------
 Release 0.8.5 - Jul 2026
