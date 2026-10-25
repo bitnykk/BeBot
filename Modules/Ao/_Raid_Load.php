@@ -3007,6 +3007,11 @@ class raid_load extends BasePassiveModule
                         {
                                 echo "\nError running query: ".$query."\n"; sleep(5);
                         }
+                        $query = "INSERT INTO #___RaidLoot (table_version, raid, area, boss, name, img, ref, multiloot) VALUES('$version', 'is', 'ismisc', 'IS Miscellaneous', 'Pattern of Approaching Death', '231182', '255550', '0')";
+                        if(!$this -> bot -> db -> query($query))
+                        {
+                                echo "\nError running query: ".$query."\n"; sleep(5);
+                        }						
                 // Jack &#39;Legchopper&#39; Menendez
                         $query = "INSERT INTO #___RaidLoot (table_version, raid, area, boss, name, img, ref, multiloot) VALUES('$version', 'jack', 'legchopper', 'Jack &#39;Legchopper&#39; Menendez', 'Ambidextrous Plasteel Gloves', '21979', '151686', '0')";
                         if(!$this -> bot -> db -> query($query))
