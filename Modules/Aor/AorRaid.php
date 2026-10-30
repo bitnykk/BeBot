@@ -50,7 +50,7 @@ class AorRaid extends BaseActiveModule
 
 	function cron()
     {
-		if($this->bot->checkaor&&$this->bot->raidid>0) $this->aorraidjoin();		
+		if($this->bot->checkaor&&!$this->bot->guildbot&&$this->bot->raidid>0) $this->aorraidjoin();		
 		$this->unregister_event("cron", "1min");
     }
 
@@ -58,7 +58,7 @@ class AorRaid extends BaseActiveModule
     {
 		$channelType = 0x8F;
 		$teamId = $this->bot->raidid;
-		$groupId =	pack("C", $channelType) . pack("V", $teamId);		
+		$groupId =	pack("C", $channelType) . pack("V", $teamId);
 		$status = 0;
         $packet = new AOChatPacket(
             "out",

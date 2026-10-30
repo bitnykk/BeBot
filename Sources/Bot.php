@@ -1332,6 +1332,25 @@ class Bot
 
 
     /*
+    * Returns true when the group is the configured AOR org channel.
+    * This is deliberately restricted to AOR guild bots so legacy AO/AoC
+    * guild handling remains untouched.
+    */
+    function is_aor_org_group($gid, $group)
+    {
+        if (!$this->checkaor || !$this->guildbot || (int)$this->guildid <= 0) {
+            return false;
+        }
+
+        if (strtolower((string)$group) == "org") {
+            return true;
+        }
+
+        return $gid === pack("C", 0x03) . pack("N", (int)$this->guildid);
+    }
+
+
+    /*
     * Incoming group message (Guildchat, towers, aor raid etc)
     */
     function inc_gmsg($args)
@@ -1342,7 +1361,8 @@ class Bot
             $group = $this->core("chat")->get_gname($args[0]);
         }
 		$is_raid = $this->is_raid_group($args[0], $group); // for aor raid
-		$is_guild_like = $is_raid || $group == $this->guildname || (strtolower(
+		$is_org = $this->is_aor_org_group($args[0], $group); // for aor org
+		$is_guild_like = $is_raid || $is_org || $group == $this->guildname || (strtolower(
 				$this->game
 			) == 'aoc' && $group == "~Guild");
 		if(mb_detect_encoding($args[2], 'UTF-8', true)) $args[2] = mb_convert_encoding($args[2], 'ISO-8859-1', 'UTF-8');
@@ -1383,6 +1403,8 @@ class Bot
             $previous_gc_target = $this->gc_target;
             if ($is_raid) {
                 $this->gc_target = "Raid";
+            } elseif ($is_org) {
+                $this->gc_target = $group ?: $this->guildname;
             }
 
             try { // aor raid routing

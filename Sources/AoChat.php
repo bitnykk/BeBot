@@ -1098,9 +1098,11 @@ class AOChat
             case AOCP_LOGIN_CHARLIST:
                 // AO server pings
             case AOCP_PING:
+				// deleted known friend notice
+			case AOCP_CLIENT_UNKNOWN:
                 break;
             default:
-                $bot->log("MAIN", "ERROR", "Unhandled packet of type $type. Args: " . serialize($packet->args));
+                $bot->log("MAIN", "DEBUG", "Unhandled packet of type $type. Args: " . serialize($packet->args));
                 if (is_resource($this->debug)) {
                     fwrite($this->debug, "<<<<<\n");
                     fwrite($this->debug, print_r($packet->args, true));
