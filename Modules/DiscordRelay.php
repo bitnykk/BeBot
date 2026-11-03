@@ -449,10 +449,13 @@ class DiscordRelay extends BaseActiveModule
 					$route = "/channels/{$channel}/messages";
 					$result = discord_get($route, $token);
 					if ($this->lastcheck==0) $this->lastcheck = date('Y-m-d').'T'.date("H:i:s").'.000000+00:00';
-					if(is_array($result)&&!is_null($result)) $invert = array_reverse($result);
-					if( (isset($invert['message'])&&isset($invert['code'])) || is_null($invert) ) {
-						$this->bot->log("DISCORD", "ERROR", "Wrong configuration : do !settings discord to fix");
+					if (!is_array($result)) {
+						$this->bot->log("DISCORD", "ERROR", "Discord returned no message list for channel {$channel}");
+					} elseif (isset($result['message'])) {
+						$code = isset($result['code']) ? $result['code'] : "unknown";
+						$this->bot->log("DISCORD", "ERROR", "Discord HTTP {$code}: " . $result['message']);
 					} else {
+						$invert = array_reverse($result);
 						foreach ($invert as $msg) {
 								if ($msg['id']>$this->lastmsg) { $this->lastmsg = $msg['id']; }
 								if ($msg['timestamp']>$this->lastcheck && !isset($msg['author']['bot'])) {
