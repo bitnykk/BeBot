@@ -203,6 +203,8 @@ class Bot
         self::$instance[$bothandle]->botname = ucfirst(strtolower($bot_name));
         self::$instance[$bothandle]->dimension = ucfirst(strtolower($dimension));
         if(ucfirst(strtolower($dimension))==10||ucfirst(strtolower($dimension)==11)) self::$instance[$bothandle]->checkaor = true;
+		if(ucfirst(strtolower($dimension))!=10&&ucfirst(strtolower($dimension)!=11)) self::$instance[$bothandle]->maxsize = $max_blobsize;
+		else self::$instance[$bothandle]->maxsize = 7168; // AOR Chatengine blob limit as of 11/2026
         self::$instance[$bothandle]->botversion = 'BOT_VERSION';
         self::$instance[$bothandle]->botversionname = 'BOT_VERSION_NAME';
 		if (isset($other_bots)&&is_array($other_bots)) {
@@ -214,7 +216,6 @@ class Bot
         self::$instance[$bothandle]->commpre = $command_prefix;
         self::$instance[$bothandle]->crondelay = $cron_delay;
         self::$instance[$bothandle]->telldelay = $tell_delay;
-        self::$instance[$bothandle]->maxsize = $max_blobsize;
         self::$instance[$bothandle]->reconnecttime = $reconnect_time;
         self::$instance[$bothandle]->guildbot = $guildbot;
         self::$instance[$bothandle]->guildid = $guild_id;
@@ -1351,7 +1352,21 @@ class Bot
 
 
     /*
-    * Incoming group message (Guildchat, towers, aor raid etc)
+    * Returns true when the group is the AOR Global channel.
+    */
+    function is_aor_global_group($gid, $group)
+    {
+        if (!$this->checkaor) {
+            return false;
+        }
+
+        return strtolower((string)$group) == "global"
+            || $gid === $this->aoc->get_gid("global");
+    }
+
+
+    /*
+    * Incoming group message (Guildchat, towers, aor raid, global etc)
     */
     function inc_gmsg($args)
     {
@@ -1362,7 +1377,8 @@ class Bot
         }
 		$is_raid = $this->is_raid_group($args[0], $group); // for aor raid
 		$is_org = $this->is_aor_org_group($args[0], $group); // for aor org
-		$is_guild_like = $is_raid || $is_org || $group == $this->guildname || (strtolower(
+		$is_global = $this->is_aor_global_group($args[0], $group); // for aor global
+		$is_guild_like = $is_raid || $is_org || $is_global || $group == $this->guildname || (strtolower(
 				$this->game
 			) == 'aoc' && $group == "~Guild");
 		if(mb_detect_encoding($args[2], 'UTF-8', true)) $args[2] = mb_convert_encoding($args[2], 'ISO-8859-1', 'UTF-8');
@@ -1405,6 +1421,8 @@ class Bot
                 $this->gc_target = "Raid";
             } elseif ($is_org) {
                 $this->gc_target = $group ?: $this->guildname;
+            } elseif ($is_global) {
+                $this->gc_target = $group ?: "Global";
             }
 
             try { // aor raid routing
