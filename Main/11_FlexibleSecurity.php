@@ -57,7 +57,7 @@ class FlexibleSecurity_Core extends BasePassiveModule
             "CREATE TABLE IF NOT EXISTS " . $this->bot->db->define_tablename("security_flexible", "true") . " (
 					id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 					gid INT(10) unsigned NOT NULL,
-					field ENUM('join', 'level', 'profession', 'faction', 'rank_id', 'org_id', 'at_id'),
+					field ENUM('join', 'level', 'profession', 'faction', 'rank_id', 'org_id', 'at_id', 'channel'),
 					op ENUM('=', '<', '<=', '>', '>=', '!=', '&&', '||'),
 					compareto VARCHAR(100) NOT NULL DEFAULT ''
 				)"
@@ -92,7 +92,7 @@ class FlexibleSecurity_Core extends BasePassiveModule
             $this->bot->core("settings")
                 ->del("FlexibleSecurity", "SchemaVersion");
         }
-        if ($this->bot->db->get_version("security_flexible" == 2)) {
+        if ($this->bot->db->get_version("security_flexible") >= 3) {
             return;
         }
         switch ($this->bot->db->get_version("security_flexible")) {
@@ -115,8 +115,15 @@ class FlexibleSecurity_Core extends BasePassiveModule
 						"ALTER TABLE #___security_flexible CHANGE `condition` `op` ENUM( '=', '<', '<=', '>', '>=', '!=', '&&', '||' )"
 					);
 				}
+            case 2:
+                $this->bot->db->update_table(
+                    "security_flexible",
+                    "field",
+                    "modify",
+                    "ALTER TABLE #___security_flexible MODIFY `field` ENUM('join', 'level', 'profession', 'faction', 'rank_id', 'org_id', 'at_id', 'channel')"
+                );
         }
-        $this->bot->db->set_version("security_flexible", 2);
+        $this->bot->db->set_version("security_flexible", 3);
     }
 
 
@@ -146,7 +153,7 @@ class FlexibleSecurity_Core extends BasePassiveModule
 
 
     // Returns the highest access level $player has due to flexible security groups if higher then $highest. Returns $highest otherwise.
-    function flexible_group_access($player, $highest)
+    function flexible_group_access($player, $highest, $channel = null)
     {
         // If we have no rules active, save time, memory and resources.
         if (!$this->enabled) {
@@ -155,9 +162,10 @@ class FlexibleSecurity_Core extends BasePassiveModule
         // Make sure $player is always ucfirst-strtolower:
         $player = $this->bot->core('tools')->sanitize_player($player);
         // Check if cached, then compare $highest with cached access level
-        if (isset($this->cache[$player])) {
-            if ($this->cache[$player] > $highest) {
-                $highest = $this->cache[$player];
+        $cache_key = $player . "|" . ($channel === null ? "*" : strtolower($channel));
+        if (isset($this->cache[$cache_key])) {
+            if ($this->cache[$cache_key] > $highest) {
+                $highest = $this->cache[$cache_key];
             }
             return $highest;
         }
@@ -170,8 +178,6 @@ class FlexibleSecurity_Core extends BasePassiveModule
         if (empty($groups)) {
             return $highest;
         }
-        // Do a whois lookup on the character to be certain he is in the cache
-        $this->bot->core("whois")->lookup($player);
         // Go through the groups in descending order of access levels
         foreach ($groups as $group) {
             $gid = $group[0];
@@ -187,12 +193,36 @@ class FlexibleSecurity_Core extends BasePassiveModule
             );
             // if we got rules build the query string
             if (!empty($rules)) {
+                $requires_whois = false;
+                foreach ($rules as $rule) {
+                    if (strtolower($rule[0]) != 'channel') {
+                        $requires_whois = true;
+                        break;
+                    }
+                }
+                if ($requires_whois) {
+                    $this->bot->core("whois")->lookup($player);
+                }
                 $wherestring = "";
-                $rulecount = count($rules);
+                $channel_rules = array();
+                $rulecount = 0;
+                foreach ($rules as $rule) {
+                    if (strtolower($rule[0]) != 'channel') {
+                        $rulecount++;
+                    }
+                }
                 $count = 0;
                 foreach ($rules as $rule) {
-                    $count++;
                     // handle faction = all or faction != all cases
+                    if (strtolower($rule[0]) == 'channel') {
+                        $expected = strtolower($rule[2]);
+                        $actual = $channel === null ? null : strtolower($channel);
+                        $channel_rules[] = $actual !== null
+                            && (($rule[1] == '=' && $actual == $expected)
+                                || ($rule[1] == '!=' && $actual != $expected));
+                        continue;
+                    }
+                    $count++;
                     if (strtolower($rule[0]) == 'faction' && strtolower($rule[2]) == 'all') {
                         if ($rule[1] == '=') {
                             $op = "OR";
@@ -210,19 +240,28 @@ class FlexibleSecurity_Core extends BasePassiveModule
                         $wherestring .= " " . $groupkind;
                     }
                 }
-                // Query the whois cache with the rules:
-                $ret = $this->bot->db->select(
-                    "SELECT nickname FROM #___whois WHERE nickname = '" . $player . "' AND (" . $wherestring . ")"
-                );
-                // If we got a result $player is member of this group, cache result and return it
-                if (!empty($ret)) {
-                    $this->cache[$player] = $acl;
+                $channel_match = empty($channel_rules)
+                    ? null
+                    : ($groupkind == 'AND' ? !in_array(false, $channel_rules, true) : in_array(true, $channel_rules, true));
+                $player_match = false;
+                if ($wherestring != "") {
+                    $ret = $this->bot->db->select(
+                        "SELECT nickname FROM #___whois WHERE nickname = '" . $player . "' AND (" . $wherestring . ")"
+                    );
+                    $player_match = !empty($ret);
+                }
+                $matches = $groupkind == 'AND'
+                    ? (($channel_match === null || $channel_match) && ($wherestring == "" || $player_match))
+                    : (($channel_match === true) || $player_match);
+                // If the player satisfies the group, cache result and return it
+                if ($matches) {
+                    $this->cache[$cache_key] = $acl;
                     return $acl;
                 }
             }
         }
         // Nothing higher found, cache this as result and return $highest
-        $this->cache[$player] = $highest;
+        $this->cache[$cache_key] = $highest;
         return $highest;
     }
 }

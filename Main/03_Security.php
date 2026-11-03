@@ -1473,7 +1473,7 @@ class Security_Core extends BaseActiveModule
         // Check if the flexible security module is enabled, if yes check there:
         if ($this->bot->core("flexible_security") != null) {
             $highestlevel = $this->bot->core("flexible_security")
-                ->flexible_group_access($player, $highestlevel);
+                ->flexible_group_access($player, $highestlevel, $this->bot->security_channel);
         }
 
         // !leader handling
@@ -1507,6 +1507,7 @@ class Security_Core extends BaseActiveModule
     function get_access_level($player)
     {
 		$player = $this->bot->core('tools')->sanitize_player($player);
+        $contextual = ($this->bot->security_channel !== null);
         // If setting UseAlts got changed since last round whipe mains cache:
         if ($this->last_alts_status != $this->bot->core("settings")
                 ->get("Security", "UseAlts")
@@ -1586,17 +1587,19 @@ class Security_Core extends BaseActiveModule
         // If alts should not be queried just return the access level for $player
         if (!$this->bot->core("settings")->get("Security", "Usealts")) {
             // If we got a cached entry, return that:
-            if (isset($this->cache['mains'][$player])) {
+            if (!$contextual && isset($this->cache['mains'][$player])) {
                 return $this->cache['mains'][$player];
             }
             // Otherwise get highest access level, cache it, and then return it.
             $highest = $this->get_access_level_player($player);
-            $this->cache['mains'][$player] = $highest;
+            if (!$contextual) {
+                $this->cache['mains'][$player] = $highest;
+            }
             return $highest;
         }
 
         // Check mains cache
-        if (isset($this->cache['mains'][$this->bot->core("alts")
+        if (!$contextual && isset($this->cache['mains'][$this->bot->core("alts")
             ->main($player)])
         ) {
             return $this->cache['mains'][$this->bot->core("alts")
@@ -1610,21 +1613,21 @@ class Security_Core extends BaseActiveModule
         // Check main and alts for owner or config file defined superadmins
         $foundSA = false;
         if ($main == $this->owner) {
-            $this->cache['mains'][$main] = 256;
+            if (!$contextual) $this->cache['mains'][$main] = 256;
             return 256;
         }
         if (isset($this->super_admin[$main])) {
-            $this->cache['mains'][$main] = 255;
+            if (!$contextual) $this->cache['mains'][$main] = 255;
             $foundSA = true;
         }
         if (!empty($alts)) {
             foreach ($alts as $alt) {
                 if ($alt == $this->owner) {
-                    $this->cache['mains'][$main] = 256;
+                    if (!$contextual) $this->cache['mains'][$main] = 256;
                     return 256;
                 }
                 if (isset($this->super_admin[$main])) {
-                    $this->cache['mains'][$main] = 255;
+                    if (!$contextual) $this->cache['mains'][$main] = 255;
                     $foundSA = true;
                 }
             }
@@ -1638,7 +1641,7 @@ class Security_Core extends BaseActiveModule
 
         // if main is banned user is considered banned
         if ($access == -1) {
-            $this->cache['mains'][$main] = -1;
+            if (!$contextual) $this->cache['mains'][$main] = -1;
             return -1;
         }
 
@@ -1650,7 +1653,7 @@ class Security_Core extends BaseActiveModule
             foreach ($alts as $alt) {
                 $newaccess = $this->get_access_level_player($alt);
                 if ($newaccess == -1) {
-                    $this->cache['mains'][$main] = -1;
+                    if (!$contextual) $this->cache['mains'][$main] = -1;
                     return -1;
                 }
                 if ($newaccess > $access) {
@@ -1659,7 +1662,7 @@ class Security_Core extends BaseActiveModule
             }
         }
 
-        $this->cache['mains'][$main] = $access;
+        if (!$contextual) $this->cache['mains'][$main] = $access;
         return $access;
     }
 

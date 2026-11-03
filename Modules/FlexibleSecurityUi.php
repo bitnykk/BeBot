@@ -64,6 +64,8 @@ class FlexibleSecurityGUI extends BaseActiveModule
         $this->help['command']['flexible'] = "Shows the GUI to create and delete flexible security groups";
         $this->help['command']['flexible condition add <groupname> <level|rank_id|at_id> <<|<=|>|>=|=|!=> <number>']
             = "Adds a new condition to the flexible security group <groupname> for level, rank_id or alien level (at_id), meeting the condition defined by the compare operator and the number to compare too.";
+        $this->help['command']['flexible condition add <groupname> channel = <tell|pgmsg|gc|org|raid|global>']
+            = "Restricts a flexible security group to the channel where the command originated.";
         $this->help['command']['flexible condition add <groupname> profession <=|!=> <prof>']
             = "Adds a new condition to the flexible security group <groupname> for profession requirement, with <prof> being either a shortcut or the full profession name.";
         $this->help['command']['flexible condition add <groupname> faction <=|!=> <omni|clan|neutral|all>']
@@ -93,6 +95,12 @@ class FlexibleSecurityGUI extends BaseActiveModule
         )
         ) {
             return $this->add_number_condition($info[1], $info[2], $info[3], $info[4]);
+        } elseif (preg_match(
+            "/^flexible condition add ([a-z_]+) channel (=|!=) (tell|pgmsg|gc|org|raid|global)$/i",
+            $msg,
+            $info
+        )) {
+            return $this->add_channel_condition($info[1], $info[2], $info[3]);
         } elseif (preg_match("/^flexible condition add ([a-z_]+) profession (=|!=) ([a-z]+)$/i", $msg, $info)) {
             return $this->add_prof_condition($info[1], $info[2], $info[3]);
         } elseif (preg_match(
@@ -105,7 +113,7 @@ class FlexibleSecurityGUI extends BaseActiveModule
         } elseif (preg_match("/^flexible condition add ([a-z_]+) org (=|!=) ([a-z][a-z01-9]+)$/i", $msg, $info)) {
             return $this->add_org_condition($info[1], $info[2], $info[3]);
         } elseif (preg_match(
-            "/^flexible condition del ([a-z_]+) (level|rank_id|at_id|profession|faction|org_id) (<|<=|>|>=|=|!=) (.+)/i",
+            "/^flexible condition del ([a-z_]+) (level|rank_id|at_id|profession|faction|org_id|channel) (<|<=|>|>=|=|!=) (.+)/i",
             $msg,
             $info
         )
@@ -123,6 +131,31 @@ class FlexibleSecurityGUI extends BaseActiveModule
             return $this->change_minlevel($info[1]);
         }
         return false;
+    }
+
+
+    function add_channel_condition($grpname, $condition, $channel)
+    {
+        $grpname = strtolower($grpname);
+        $channel = strtolower($channel);
+        $gid = $this->bot->core("security")->get_gid($grpname);
+        if ($gid == -1) {
+            return "No group with the name##highlight## " . $grpname . "##end## existing!";
+        }
+        if (!$this->exists_group($gid)) {
+            return "##error##You cannot add conditions to non-extended security groups!##end##";
+        }
+        $entry = $this->bot->db->select(
+            "SELECT * FROM #___security_flexible WHERE gid = " . $gid . " AND field = 'channel' AND op = '" . $condition . "' AND compareto = '" . $channel . "'"
+        );
+        if (!empty($entry)) {
+            return "##error##Duplicate entry in DB, you cannot enter the exactly same condition twice!##end##";
+        }
+        $this->bot->db->query(
+            "INSERT INTO #___security_flexible (gid, field, op, compareto) VALUES (" . $gid . ", 'channel', '" . $condition . "', '" . $channel . "')"
+        );
+        $this->bot->core("flexible_security")->clear_cache();
+        return "New condition##highlight## channel " . $condition . " " . $channel . "##end## added successfully to group##highlight## " . $grpname . "##end##!";
     }
 
 

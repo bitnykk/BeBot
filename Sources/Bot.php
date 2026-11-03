@@ -112,7 +112,7 @@ class Bot
 {
     var $lasttell, $banmsgout, $dimension, $botversion, $botversionname;
     var $aoc, $checkaor, $irc, $db, $commpre, $crondelay, $telldelay;
-    var $maxsize, $reconnecttime, $guildbot, $guildid, $raidid, $guild, $gc_target;
+    var $maxsize, $reconnecttime, $guildbot, $guildid, $raidid, $guild, $gc_target, $security_channel;
     var $log, $log_path, $log_timestamp, $use_proxy_server, $proxy_server_address;
     var $starttime, $commands, $sixtyfourbit, $command_error_text;
 	var $server, $port, $username, $password, $other_bots, $guildname, $game, $connected_time;
@@ -229,6 +229,7 @@ class Bot
         self::$instance[$bothandle]->proxy_server_address = explode(",", $proxy_server_address);
         self::$instance[$bothandle]->starttime = time();
         self::$instance[$bothandle]->game = AOCHAT_GAME;
+        self::$instance[$bothandle]->security_channel = null;
         self::$instance[$bothandle]->accessallbots = $accessallbots;
         self::$instance[$bothandle]->core_directories = $core_directories;
         self::$instance[$bothandle]->module_directories = $module_directories;
@@ -1146,6 +1147,8 @@ class Bot
         }
 		if(mb_detect_encoding($args[1], 'UTF-8', true)) $args[1] = mb_convert_encoding($args[1], 'ISO-8859-1', 'UTF-8');
         $this->log("TELL", "INCOMING", $user . ": " . $args[1]);
+        $previous_security_channel = $this->security_channel;
+        $this->security_channel = "tell";
         $found = $this->handle_command_input($user, $args[1], "tell");
         $found = $this->hand_to_chat($found, $user, $args[1], "tells");
         if (isset($this->command_error_text)&&$this->command_error_text!="") {
@@ -1164,6 +1167,7 @@ class Bot
                 }
             }
         }
+        $this->security_channel = $previous_security_channel;
         unset($this->command_error_text);
     }
 
@@ -1277,6 +1281,8 @@ class Bot
             );
         }
         if (!isset($this->other_bots[$user])) {
+            $previous_security_channel = $this->security_channel;
+            $this->security_channel = "pgmsg";
             if (strtolower($pgname) == strtolower($this->botname)) {
                 if (!$dispgmsg) {
                     $found = $this->handle_command_input($user, $args[2], "pgmsg");
@@ -1292,6 +1298,7 @@ class Bot
                 $this->send_pgroup($this->command_error_text, $pgname);
             }
             unset($this->command_error_text);
+            $this->security_channel = $previous_security_channel;
         }
     }
 
@@ -1435,12 +1442,18 @@ class Bot
         }
         if (!isset($this->other_bots[$user])) {
             $previous_gc_target = $this->gc_target;
+            $previous_security_channel = $this->security_channel;
             if ($is_raid) {
                 $this->gc_target = "Raid";
+                $this->security_channel = "raid";
             } elseif ($is_org) {
                 $this->gc_target = $group ?: $this->guildname;
+                $this->security_channel = "org";
             } elseif ($is_global) {
                 $this->gc_target = $group ?: "Global";
+                $this->security_channel = "global";
+            } else {
+                $this->security_channel = "gc";
             }
 
             try { // aor raid routing
@@ -1460,6 +1473,7 @@ class Bot
                 }
             } finally { // restoring non aor raid state
                 $this->gc_target = $previous_gc_target;
+                $this->security_channel = $previous_security_channel;
             }
         }
     }
