@@ -1403,6 +1403,11 @@ class Bot
 		$is_raid = $this->is_raid_group($args[0], $group); // for aor raid
 		$is_org = $this->is_aor_org_group($args[0], $group); // for aor org
 		$is_global = $this->is_aor_global_group($args[0], $group); // for aor global
+		// AOR GLOBAL may be identifiable by gid even when no display name was
+		// resolved from the group table. Keep a stable dispatch target.
+		if ($is_global) {
+			$group = "Global";
+		}
 		$is_guild_like = $is_raid || $is_org || $is_global || $group == $this->guildname || (strtolower(
 				$this->game
 			) == 'aoc' && $group == "~Guild");

@@ -96,7 +96,12 @@ class DiscordRelay extends BaseActiveModule
 		$this->register_event("connect");
 		$this->register_event("privgroup");
         $this->register_event("gmsg", "org");
-		if ($this->bot->checkaor&&$this->bot->exists_module("aorglobal")) $this->register_event("gmsg", "Global");
+        // AOR GLOBAL is announced/joined by the dedicated custom module, but
+        // DiscordRelay must not depend on that module's load order.
+        if ($this->bot->checkaor) {
+            $this->register_event("gmsg", "Global");
+            $this->register_event("gmsg", "global");
+        }
 		$this->register_event("buddy");
         $this->help['description'] = "Handles the Discord relay of the bot.";
         $this->help['command']['discord connect'] = "Tries relaying from/to the Discord channel.";
