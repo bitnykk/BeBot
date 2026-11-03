@@ -849,6 +849,21 @@ class Bot
     }
 
 
+    /*
+    * Send a message to the AOR Global channel.
+    */
+    function send_global($msg, $low = 0, $checksize = true)
+    {
+        $previous_gc_target = $this->gc_target;
+        $this->gc_target = "Global";
+        try {
+            return $this->send_gc($msg, $low, $checksize);
+        } finally {
+            $this->gc_target = $previous_gc_target;
+        }
+    }
+
+
     function send_output($source, $msg, $type, $low = 0)
     {
         // Parse color tags now to be sure they don't get changed by output filters
@@ -876,6 +891,9 @@ class Bot
             case '3':
             case 'gc':
                 $this->send_gc($msg, $low);
+                break;
+            case 'global':
+                $this->send_global($msg, $low);
                 break;
             case '4':
             case 'both':

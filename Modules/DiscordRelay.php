@@ -96,6 +96,7 @@ class DiscordRelay extends BaseActiveModule
 		$this->register_event("connect");
 		$this->register_event("privgroup");
         $this->register_event("gmsg", "org");
+		if ($this->bot->checkaor&&$this->bot->exists_module("aorglobal")) $this->register_event("gmsg", "Global");
 		$this->register_event("buddy");
         $this->help['description'] = "Handles the Discord relay of the bot.";
         $this->help['command']['discord connect'] = "Tries relaying from/to the Discord channel.";
@@ -114,7 +115,7 @@ class DiscordRelay extends BaseActiveModule
         $this->bot->core("settings")
             ->create("discord", "BotToken", "", "Bot Token obtain from https://discord.com/developers/applications ?");
         $this->bot->core("settings")
-            ->create("discord", "WhatChat", "both", "Which channel(s) should be relayed into Discord and vice versa (user gc only for AoC) ?", "gc;pgroup;both");
+            ->create("discord", "WhatChat", "both", "Which channel(s) should be relayed into Discord and vice versa (use gc only for AoC ; AO allows both aka gc+pgroup ; AOR also allows global) ?", "gc;pgroup;global;both");
         $this->bot->core("settings")
             ->create("discord", "IrcRelay", false, "Should the bot be relaying Discord towards IRC ?", "On;Off");			
         $this->bot->core("settings")
@@ -305,7 +306,8 @@ class DiscordRelay extends BaseActiveModule
 				if ($channel>0 && $token!="" && substr($msg,0,1)!=$this->bot->commpre) {
 					$route = "/channels/{$channel}/messages";
 					$form = $this->strip_formatting($msg);			
-					$sent = "[Guildchat] ".ucfirst($name).": ".$this->bot->core("tools")->cleanString($form,1);
+					$label = (strtolower($group) == "global") ? "[Global]" : "[Guildchat]";
+					$sent = $label." ".ucfirst($name).": ".$this->bot->core("tools")->cleanString($form,1);
 					$data = array("content" => $sent);
 					$result = discord_post($route, $token, $data);
 					if ($this->bot->core("settings")->get("discord", "OutLog")) $this->bot->log("DISCORD", "Outgoing", $sent);
