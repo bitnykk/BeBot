@@ -501,6 +501,10 @@ class SQLiteDatabase
 
     private function normalize_sql($sql)
     {
+        // SQLite has no CONCAT() function. The || operator has the same
+        // useful NULL-propagating behaviour for the legacy queries used by
+        // BeBot, including CONCAT(a, b, c).
+        $sql = preg_replace_callback('/\bCONCAT\s*\(([^()]*)\)/i', array($this, 'normalize_concat'), $sql);
         // Portable equivalent of MySQL TRUNCATE for SQLite. SQLite does not
         // implement TRUNCATE TABLE, but DELETE preserves the table schema.
         $sql = preg_replace('/^\s*TRUNCATE(?:\s+TABLE)?\s+([^\s;]+)\s*;?\s*$/i', 'DELETE FROM $1', $sql);
@@ -585,6 +589,38 @@ class SQLiteDatabase
         $sql = preg_replace('/ON\s+DUPLICATE\s+KEY\s+UPDATE/i', 'ON CONFLICT DO UPDATE SET', $sql);
         $sql = preg_replace('/\bVALUES\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/i', 'excluded.$1', $sql);
         return $sql;
+    }
+
+    private function normalize_concat($match)
+    {
+        $arguments = array();
+        $current = '';
+        $quote = '';
+        $length = strlen($match[1]);
+        for ($i = 0; $i < $length; $i++) {
+            $character = $match[1][$i];
+            if ($quote !== '') {
+                $current .= $character;
+                if ($character === $quote) {
+                    if ($i + 1 < $length && $match[1][$i + 1] === $quote) {
+                        $current .= $match[1][++$i];
+                    } else {
+                        $quote = '';
+                    }
+                }
+            } elseif ($character === "'" || $character === '"' || $character === '`') {
+                $quote = $character;
+                $current .= $character;
+            } elseif ($character === ',') {
+                $arguments[] = trim($current);
+                $current = '';
+            } else {
+                $current .= $character;
+            }
+        }
+        $arguments[] = trim($current);
+        if (count($arguments) < 2) return $match[0];
+        return '(' . implode(' || ', $arguments) . ')';
     }
 
     private function quoteIdentifier($identifier)
