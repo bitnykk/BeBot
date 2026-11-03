@@ -300,7 +300,11 @@ class DiscordRelay extends BaseActiveModule
 		$ignore = $this->bot->core("settings")->get("Discord", "ignoreSyntax");
 		if($ignore!=""&&substr($msg,0,1)==$ignore) return false;	
 		if ($this->bot->core("settings")->get("discord", "DiscordRelay")) {
-			if (strtolower($this->bot->core("settings")->get("discord", "WhatChat"))=="gc" || strtolower($this->bot->core("settings")->get("discord", "WhatChat"))=="both" ) {		
+			$what_chat = strtolower($this->bot->core("settings")->get("discord", "WhatChat"));
+			$is_global = strtolower($group) == "global";
+			$relay_this_group = ($is_global && $what_chat == "global")
+				|| (!$is_global && ($what_chat == "gc" || $what_chat == "both"));
+			if ($relay_this_group) {
 				$channel = $this->bot->core("settings")->get("discord", "ChannelId");
 				$token = $this->bot->core("settings")->get("discord", "BotToken");
 				if ($channel>0 && $token!="" && substr($msg,0,1)!=$this->bot->commpre) {
@@ -312,7 +316,7 @@ class DiscordRelay extends BaseActiveModule
 					$result = discord_post($route, $token, $data);
 					if ($this->bot->core("settings")->get("discord", "OutLog")) $this->bot->log("DISCORD", "Outgoing", $sent);
 					if(isset($result['message'])&& isset($result['code'])) {
-						$this->bot->log("DISCORD", "ERROR", "Erroneous configuration : do !settings discord to fix");
+						$this->bot->log("DISCORD", "ERROR", "Discord HTTP {$result['code']}: " . $result['message']);
 					}					
 				}
 			}

@@ -61,5 +61,11 @@ function discord_http($method, $uri, $headers, $data)
     curl_setopt($ch, CURLOPT_HTTPHEADER,  $headers );
     $response = curl_exec($ch);
     $json = json_decode($response, true);
+    if (!is_array($json)) {
+        $json = array('code' => curl_getinfo($ch, CURLINFO_HTTP_CODE), 'message' => $response ?: curl_error($ch));
+    } elseif (!isset($json['code'])) {
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($http_code >= 400) $json['code'] = $http_code;
+    }
     return $json;
 }
