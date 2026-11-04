@@ -773,31 +773,35 @@ class DiscordRelay extends BaseActiveModule
             ) == "pgroup"
         ) {
             $channels = "status_pg = 1";
-        }	
-        $online = $this->bot->db->select(
-            "SELECT DISTINCT(nickname), botname FROM #___online WHERE " . $this->bot
-                ->core("online")
-                ->otherbots() . " AND " . $channels . " ORDER BY nickname ASC"
-        );				
-        if (empty($online)) {
-            $sent = "Nobody online on notify!";
-        } else {
-            $orglist = array();
-			$othlist = array();
-            foreach ($online as $name) {
-				if($name[1] == $this->bot->botname) {
-					$orglist[] = $name[0];
-				}
-            }
-			foreach ($online as $name) {
-				if($name[1] != $this->bot->botname && !in_array($name[0], $orglist) ) {
-					$othlist[] = $name[0];
-				}				
-			}		
-            $sent = count($orglist) . " online in org + ". count($othlist) . " others : ";
-			if(count($orglist)>0&&count($othlist)>0) { $spacer = " + "; } else { $spacer = " "; }
-            $sent .= implode(" ", $orglist). $spacer . implode(" ", $othlist);
         }
+		if ($channels=="") {
+			$sent = "Unsupported channel ..."; // possibly AOR global
+		} else {
+			$online = $this->bot->db->select(
+				"SELECT DISTINCT(nickname), botname FROM #___online WHERE " . $this->bot
+					->core("online")
+					->otherbots() . " AND " . $channels . " ORDER BY nickname ASC"
+			);				
+			if (empty($online)) {
+				$sent = "Nobody online on notify!";
+			} else {
+				$orglist = array();
+				$othlist = array();
+				foreach ($online as $name) {
+					if($name[1] == $this->bot->botname) {
+						$orglist[] = $name[0];
+					}
+				}
+				foreach ($online as $name) {
+					if($name[1] != $this->bot->botname && !in_array($name[0], $orglist) ) {
+						$othlist[] = $name[0];
+					}				
+				}		
+				$sent = count($orglist) . " online in org + ". count($othlist) . " others : ";
+				if(count($orglist)>0&&count($othlist)>0) { $spacer = " + "; } else { $spacer = " "; }
+				$sent .= implode(" ", $orglist). $spacer . implode(" ", $othlist);
+			}
+		}
 		return $sent;		
     }	
 	
