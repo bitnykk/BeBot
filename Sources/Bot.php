@@ -708,7 +708,7 @@ class Bot
         if ($sizecheck) {
             if (strlen($msg) < 100000) {
                 if (preg_match("/<a href=\"(.+)\">/isU", $msg, $info)) {
-                    if (strlen($info[1]) > $this->maxsize) {
+                    if (strlen($msg) > $this->maxsize) {
                         $this->cut_size($msg, "tell", $to, $low);
                         $send = false;
                     }
@@ -788,7 +788,7 @@ class Bot
         $send = true;
         if ($checksize) {
             if (preg_match("/<a href=\"(.+)\">/isU", $msg, $info)) {
-                if (strlen($info[1]) > $this->maxsize) {
+                if (strlen($msg) > $this->maxsize) {
                     $this->cut_size($msg, "pgroup", $group);
                     $send = false;
                 }
@@ -822,7 +822,7 @@ class Bot
         $send = true;
         if ($checksize) {
             if (preg_match("/<a href=\"(.+)\">/isU", $msg, $info)) {
-                if (strlen($info[1]) > $this->maxsize) {
+                if (strlen($msg) > $this->maxsize) {
                     $this->cut_size($msg, "gc", "", $low);
                     $send = false;
                 }
@@ -1631,31 +1631,13 @@ class Bot
             $info[2] = $var2[0];
             $info[3] = $var2[1];
         }		
-        $info[2] = str_replace("<br>", "\n", $info[2]);
-        $content = explode("\n", $info[2]);
-        $page = 0;
-        $result[$page] = "";
-        foreach ($content as $line) {
-            if ((strlen($result[$page]) + strlen($line) + 12) < $this->maxsize) {
-                $result[$page] .= $line . "\n";
-            } else {
-				$line = preg_replace('/<\/([^>]+)> /','</$1>#@?-_#', $line);
-				$words = explode("#@?-_#", $line);
-				$wcnt = count($words);
-				$wrow = 0;
-				foreach ($words as $word) {
-					if ((strlen($result[$page]) + strlen($word) + 12) < $this->maxsize) {
-						if($wrow+1!=$wcnt) $result[$page] .= $word . " ";
-						elseif($wrow+1==$wcnt) $result[$page] .= $word . "\n";
-					} else {				
-						$page++;
-						if($wrow+1!=$wcnt) $result[$page] = $word . " ";
-						elseif($wrow+1==$wcnt) $result[$page] = $word . "\n";
-					}
-					$wrow++;
-				}
-            }
-        }
+		// Keep HTML tags atomic. AOR rejects the whole tell when a page cuts a
+		// tag in two, even though the old splitter tried to preserve closing tags.
+		// Reserve room for the blob link/title wrapper on every page.
+		$wrapper = strlen($info[1]) + strlen('<a href="text://">') + strlen($info[3]);
+		$payload_limit = max(1, $this->maxsize - $wrapper);
+		$result = $this->split_html_blob_content($info[2], $payload_limit);
+		$page = count($result) - 1;
         $between = "";
         for ($i = 0; $i <= $page; $i++) {
             if ($i != 0) {
@@ -1675,6 +1657,86 @@ class Bot
             }
         }
     }
+
+
+	/*
+	 * Split blob content without ever splitting an HTML tag. Open tags are
+	 * closed at the end of a page and reopened at the beginning of the next.
+	 */
+	function split_html_blob_content($content, $limit)
+	{
+		preg_match_all('/<!--[\\s\\S]*?-->|<[^>]+>|[^<]+/s', $content, $matches);
+		$tokens = $matches[0];
+		$pages = array();
+		$current = "";
+		$open = array();
+
+		$close_open = function ($tags) {
+			$closing = "";
+			for ($i = count($tags) - 1; $i >= 0; $i--) {
+				$closing .= "</" . $tags[$i]['name'] . ">";
+			}
+			return $closing;
+		};
+
+		$flush = function () use (&$pages, &$current, &$open, $close_open) {
+			if ($current === "") return;
+			$pages[] = $current . $close_open($open);
+			$current = "";
+			foreach ($open as $tag) $current .= $tag['tag'];
+		};
+
+		foreach ($tokens as $token) {
+			if ($token === "") continue;
+			$is_tag = ($token[0] === '<');
+			$name = "";
+			$is_close = false;
+			$is_void = false;
+			if ($is_tag && preg_match('/^<\\s*\\/?\\s*([a-z0-9]+)/i', $token, $tag_match)) {
+				$name = strtolower($tag_match[1]);
+				$is_close = (bool)preg_match('/^<\\s*\\//', $token);
+				$is_void = (bool)preg_match('/\\/\\s*>$/', $token)
+					|| in_array($name, array('br', 'hr', 'img', 'meta', 'link', 'input'));
+			}
+
+			if ($is_tag) {
+				$next_open = $open;
+				if ($is_close) {
+					for ($i = count($next_open) - 1; $i >= 0; $i--) {
+						if ($next_open[$i]['name'] === $name) {
+							array_splice($next_open, $i, 1);
+							break;
+						}
+					}
+				} elseif (!$is_void && $name !== "") {
+					$next_open[] = array('name' => $name, 'tag' => $token);
+				}
+				if (strlen($current) + strlen($token) + strlen($close_open($next_open)) > $limit && $current !== "") {
+					$flush();
+				}
+				$current .= $token;
+				$open = $next_open;
+				continue;
+			}
+
+			while ($token !== "") {
+				$available = $limit - strlen($current) - strlen($close_open($open));
+				if ($available < 1) {
+					$flush();
+					$available = $limit - strlen($current) - strlen($close_open($open));
+				}
+				$piece = function_exists('mb_strcut')
+					? mb_strcut($token, 0, $available, 'UTF-8')
+					: substr($token, 0, $available);
+				if ($piece === "") $piece = substr($token, 0, 1);
+				$current .= $piece;
+				$token = substr($token, strlen($piece));
+				if ($token !== "") $flush();
+			}
+		}
+		if ($current !== "") $pages[] = $current;
+		return empty($pages) ? array("") : $pages;
+	}
 
 
     // Registers a new reference to a module, used to access the new module by other modules.
