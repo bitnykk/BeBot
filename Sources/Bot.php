@@ -205,7 +205,7 @@ class Bot
         $dimension_number = (int)$dimension;
         self::$instance[$bothandle]->checkaor = in_array($dimension_number, array(10, 11), true);
 		self::$instance[$bothandle]->maxsize = self::$instance[$bothandle]->checkaor
-			? 4096 // Conservative AOR tell/blob limit; the server truncates larger packets
+			? 7168 // Safe AOR tell/blob limit; the server may truncate larger packets
 			: $max_blobsize;
         self::$instance[$bothandle]->botversion = 'BOT_VERSION';
         self::$instance[$bothandle]->botversionname = 'BOT_VERSION_NAME';
