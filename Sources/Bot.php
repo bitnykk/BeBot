@@ -849,6 +849,19 @@ class Bot
         }
     }
 
+    /*
+    * Send a message to the AOR Raid channel.
+    */
+	function send_raid($msg, $low = 0, $checksize = true)
+	{
+		$previous_gc_target = $this->gc_target;
+		$this->gc_target = "Raid";
+		try {
+			return $this->send_gc($msg, $low, $checksize);
+		} finally {
+			$this->gc_target = $previous_gc_target;
+		}
+	}
 
     /*
     * Send a message to the AOR Global channel.
@@ -863,7 +876,6 @@ class Bot
             $this->gc_target = $previous_gc_target;
         }
     }
-
 
     function send_output($source, $msg, $type, $low = 0)
     {
