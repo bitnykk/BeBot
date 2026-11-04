@@ -202,9 +202,11 @@ class Bot
         self::$instance[$bothandle]->password = $ao_password;
         self::$instance[$bothandle]->botname = ucfirst(strtolower($bot_name));
         self::$instance[$bothandle]->dimension = ucfirst(strtolower($dimension));
-        if(ucfirst(strtolower($dimension))==10||ucfirst(strtolower($dimension)==11)) self::$instance[$bothandle]->checkaor = true;
-		if(ucfirst(strtolower($dimension))!=10&&ucfirst(strtolower($dimension)!=11)) self::$instance[$bothandle]->maxsize = $max_blobsize;
-		else self::$instance[$bothandle]->maxsize = 7168; // AOR Chatengine blob limit as of 11/2026
+        $dimension_number = (int)$dimension;
+        self::$instance[$bothandle]->checkaor = in_array($dimension_number, array(10, 11), true);
+		self::$instance[$bothandle]->maxsize = self::$instance[$bothandle]->checkaor
+			? 7168 // AOR Chatengine blob limit as of 11/2026
+			: $max_blobsize;
         self::$instance[$bothandle]->botversion = 'BOT_VERSION';
         self::$instance[$bothandle]->botversionname = 'BOT_VERSION_NAME';
 		if (isset($other_bots)&&is_array($other_bots)) {
@@ -704,6 +706,9 @@ class Bot
         if ($parsecolors) {
             $msg = $this->core("colors")->parse($msg);
         }
+		// Size is a byte limit on the wire. Normalize encoding before splitting,
+		// otherwise ISO-8859-1 characters may grow when converted to UTF-8 later.
+		if (mb_detect_encoding($msg, 'UTF-8', false)) $msg = mb_convert_encoding($msg, 'UTF-8', mb_list_encodings());
         $send = true;
         if ($sizecheck) {
             if (strlen($msg) < 100000) {
@@ -784,6 +789,7 @@ class Bot
         if ($parsecolors) {
             $msg = $this->core("colors")->parse($msg);
         }
+		if (mb_detect_encoding($msg, 'UTF-8', false)) $msg = mb_convert_encoding($msg, 'UTF-8', mb_list_encodings());
         $gid = $this->core("player")->id($group);
         $send = true;
         if ($checksize) {
@@ -819,6 +825,7 @@ class Bot
         }
         // parse all color tags:
         $msg = $this->core("colors")->parse($msg);
+		if (mb_detect_encoding($msg, 'UTF-8', false)) $msg = mb_convert_encoding($msg, 'UTF-8', mb_list_encodings());
         $send = true;
         if ($checksize) {
             if (preg_match("/<a href=\"(.+)\">/isU", $msg, $info)) {
@@ -1635,7 +1642,9 @@ class Bot
 		// tag in two, even though the old splitter tried to preserve closing tags.
 		// Reserve room for the blob link/title wrapper on every page.
 		$wrapper = strlen($info[1]) + strlen('<a href="text://">') + strlen($info[3]);
-		$payload_limit = max(1, $this->maxsize - $wrapper);
+		// replace_string_tags(), colorize() and UTF-8 conversion happen before
+		// the packet is written. Keep a conservative margin for those additions.
+		$payload_limit = max(1, $this->maxsize - $wrapper - 256);
 		$result = $this->split_html_blob_content($info[2], $payload_limit);
 		$page = count($result) - 1;
         $between = "";
