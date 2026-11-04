@@ -202,11 +202,9 @@ class Bot
         self::$instance[$bothandle]->password = $ao_password;
         self::$instance[$bothandle]->botname = ucfirst(strtolower($bot_name));
         self::$instance[$bothandle]->dimension = ucfirst(strtolower($dimension));
-        $dimension_number = (int)$dimension;
-        self::$instance[$bothandle]->checkaor = in_array($dimension_number, array(10, 11), true);
-		self::$instance[$bothandle]->maxsize = self::$instance[$bothandle]->checkaor
-			? 7168 // Safe AOR tell/blob limit; the server may truncate larger packets
-			: $max_blobsize;
+        if(ucfirst(strtolower($dimension))==10||ucfirst(strtolower($dimension)==11)) self::$instance[$bothandle]->checkaor = true;
+		if(ucfirst(strtolower($dimension))!=10&&ucfirst(strtolower($dimension)!=11)) self::$instance[$bothandle]->maxsize = $max_blobsize;
+		else self::$instance[$bothandle]->maxsize = 7168; // AOR Chatengine blob limit as of 11/2026
         self::$instance[$bothandle]->botversion = 'BOT_VERSION';
         self::$instance[$bothandle]->botversionname = 'BOT_VERSION_NAME';
 		if (isset($other_bots)&&is_array($other_bots)) {
@@ -706,14 +704,11 @@ class Bot
         if ($parsecolors) {
             $msg = $this->core("colors")->parse($msg);
         }
-		// Size is a byte limit on the wire. Normalize encoding before splitting,
-		// otherwise ISO-8859-1 characters may grow when converted to UTF-8 later.
-		if (mb_detect_encoding($msg, 'UTF-8', false)) $msg = mb_convert_encoding($msg, 'UTF-8', mb_list_encodings());
         $send = true;
         if ($sizecheck) {
             if (strlen($msg) < 100000) {
                 if (preg_match("/<a href=\"(.+)\">/isU", $msg, $info)) {
-                    if (strlen($msg) > $this->maxsize) {
+                    if (strlen($info[1]) > $this->maxsize) {
                         $this->cut_size($msg, "tell", $to, $low);
                         $send = false;
                     }
@@ -789,12 +784,11 @@ class Bot
         if ($parsecolors) {
             $msg = $this->core("colors")->parse($msg);
         }
-		if (mb_detect_encoding($msg, 'UTF-8', false)) $msg = mb_convert_encoding($msg, 'UTF-8', mb_list_encodings());
         $gid = $this->core("player")->id($group);
         $send = true;
         if ($checksize) {
             if (preg_match("/<a href=\"(.+)\">/isU", $msg, $info)) {
-                if (strlen($msg) > $this->maxsize) {
+                if (strlen($info[1]) > $this->maxsize) {
                     $this->cut_size($msg, "pgroup", $group);
                     $send = false;
                 }
@@ -825,11 +819,10 @@ class Bot
         }
         // parse all color tags:
         $msg = $this->core("colors")->parse($msg);
-		if (mb_detect_encoding($msg, 'UTF-8', false)) $msg = mb_convert_encoding($msg, 'UTF-8', mb_list_encodings());
         $send = true;
         if ($checksize) {
             if (preg_match("/<a href=\"(.+)\">/isU", $msg, $info)) {
-                if (strlen($msg) > $this->maxsize) {
+                if (strlen($info[1]) > $this->maxsize) {
                     $this->cut_size($msg, "gc", "", $low);
                     $send = false;
                 }
@@ -1638,15 +1631,31 @@ class Bot
             $info[2] = $var2[0];
             $info[3] = $var2[1];
         }		
-		// Keep HTML tags atomic. AOR rejects the whole tell when a page cuts a
-		// tag in two, even though the old splitter tried to preserve closing tags.
-		// Reserve room for the blob link/title wrapper on every page.
-		$wrapper = strlen($info[1]) + strlen('<a href="text://">') + strlen($info[3]);
-		// replace_string_tags(), colorize() and UTF-8 conversion happen before
-		// the packet is written. Keep a conservative margin for those additions.
-		$payload_limit = max(1, $this->maxsize - $wrapper - 256);
-		$result = $this->split_html_blob_content($info[2], $payload_limit);
-		$page = count($result) - 1;
+        $info[2] = str_replace("<br>", "\n", $info[2]);
+        $content = explode("\n", $info[2]);
+        $page = 0;
+        $result[$page] = "";
+        foreach ($content as $line) {
+            if ((strlen($result[$page]) + strlen($line) + 12) < $this->maxsize) {
+                $result[$page] .= $line . "\n";
+            } else {
+				$line = preg_replace('/<\/([^>]+)> /','</$1>#@?-_#', $line);
+				$words = explode("#@?-_#", $line);
+				$wcnt = count($words);
+				$wrow = 0;
+				foreach ($words as $word) {
+					if ((strlen($result[$page]) + strlen($word) + 12) < $this->maxsize) {
+						if($wrow+1!=$wcnt) $result[$page] .= $word . " ";
+						elseif($wrow+1==$wcnt) $result[$page] .= $word . "\n";
+					} else {				
+						$page++;
+						if($wrow+1!=$wcnt) $result[$page] = $word . " ";
+						elseif($wrow+1==$wcnt) $result[$page] = $word . "\n";
+					}
+					$wrow++;
+				}
+            }
+        }
         $between = "";
         for ($i = 0; $i <= $page; $i++) {
             if ($i != 0) {
@@ -1666,86 +1675,6 @@ class Bot
             }
         }
     }
-
-
-	/*
-	 * Split blob content without ever splitting an HTML tag. Open tags are
-	 * closed at the end of a page and reopened at the beginning of the next.
-	 */
-	function split_html_blob_content($content, $limit)
-	{
-		preg_match_all('/<!--[\\s\\S]*?-->|<[^>]+>|[^<]+/s', $content, $matches);
-		$tokens = $matches[0];
-		$pages = array();
-		$current = "";
-		$open = array();
-
-		$close_open = function ($tags) {
-			$closing = "";
-			for ($i = count($tags) - 1; $i >= 0; $i--) {
-				$closing .= "</" . $tags[$i]['name'] . ">";
-			}
-			return $closing;
-		};
-
-		$flush = function () use (&$pages, &$current, &$open, $close_open) {
-			if ($current === "") return;
-			$pages[] = $current . $close_open($open);
-			$current = "";
-			foreach ($open as $tag) $current .= $tag['tag'];
-		};
-
-		foreach ($tokens as $token) {
-			if ($token === "") continue;
-			$is_tag = ($token[0] === '<');
-			$name = "";
-			$is_close = false;
-			$is_void = false;
-			if ($is_tag && preg_match('/^<\\s*\\/?\\s*([a-z0-9]+)/i', $token, $tag_match)) {
-				$name = strtolower($tag_match[1]);
-				$is_close = (bool)preg_match('/^<\\s*\\//', $token);
-				$is_void = (bool)preg_match('/\\/\\s*>$/', $token)
-					|| in_array($name, array('br', 'hr', 'img', 'meta', 'link', 'input'));
-			}
-
-			if ($is_tag) {
-				$next_open = $open;
-				if ($is_close) {
-					for ($i = count($next_open) - 1; $i >= 0; $i--) {
-						if ($next_open[$i]['name'] === $name) {
-							array_splice($next_open, $i, 1);
-							break;
-						}
-					}
-				} elseif (!$is_void && $name !== "") {
-					$next_open[] = array('name' => $name, 'tag' => $token);
-				}
-				if (strlen($current) + strlen($token) + strlen($close_open($next_open)) > $limit && $current !== "") {
-					$flush();
-				}
-				$current .= $token;
-				$open = $next_open;
-				continue;
-			}
-
-			while ($token !== "") {
-				$available = $limit - strlen($current) - strlen($close_open($open));
-				if ($available < 1) {
-					$flush();
-					$available = $limit - strlen($current) - strlen($close_open($open));
-				}
-				$piece = function_exists('mb_strcut')
-					? mb_strcut($token, 0, $available, 'UTF-8')
-					: substr($token, 0, $available);
-				if ($piece === "") $piece = substr($token, 0, 1);
-				$current .= $piece;
-				$token = substr($token, strlen($piece));
-				if ($token !== "") $flush();
-			}
-		}
-		if ($current !== "") $pages[] = $current;
-		return empty($pages) ? array("") : $pages;
-	}
 
 
     // Registers a new reference to a module, used to access the new module by other modules.
