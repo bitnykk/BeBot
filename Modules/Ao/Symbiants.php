@@ -62,20 +62,18 @@ class Symb_sql extends BaseActiveModule
         $this->register_command("all", "symb", "GUEST");
         $this->help['description'] = "Advanced search for symbiants and pocket bosses.";
         $this->help['command']['symb <level>[-<level2>]'] = "Find symbs of QL level. If [-<level2>] is specified it finds symbs between the two";
-        $this->help['command']['symb <slot>'] = "Finds symbiant for the given slot.";
-        $this->help['command']['symb <unit>'] = "Find a symbiant for the given <unit>.";
+        $this->help['command']['symb <slot>'] = "Finds symbiant for the given <slot>.";
+        $this->help['command']['symb <unit|type>'] = "Find a symbiant for the given <unit|type>.";
         $this->help['command']['symb <name>'] = "Find symbiants with the given <name>";
-        $this->help['command']['pb <name>'] = "Find the pocket boss closest matching <name>";
-        $this->help['command']['pb <pattern>'] = "Find the pocket boss produced by (pieces of) <pattern>";
         $this->help['notes'] = "You can use as many of each option as you like in every search.<br>";
-        $this->help['notes'] .= "Valid options for &gt;slot> are: eye, ocular, head, brain, ear, ";
+        $this->help['notes'] .= "Valid options for <slot> are: eye, ocular, head, brain, ear, ";
         $this->help['notes'] .= "right arm, rarm, chest, left arm, larm, ";
         $this->help['notes'] .= "right wrist, rwritst, waist, left wrist, lwrist, ";
         $this->help['notes'] .= "right hand, rhand, legs, thigh, left hand, lhand and feet<br>";
-        $this->help['notes'] .= "Valid options for &gt;unit> are: adventurer, adv, agent, beurocrat, crat, ";
+        $this->help['notes'] .= "Valid options for <unit> are: adventurer, adv, agent, bureaucrat, crat, ";
         $this->help['notes'] .= "doctor, doc, enforcer, enf, engineer, eng, fixer, martial artist, ma, ";
-        $this->help['notes'] .= "meta physicist, mp, nano technician, nt, soldier, sol and trader.<br><br>";
-        $this->help['notes'] .= "&gt;pattern> needs to be an item that is a pattern or piece of a pattern.";
+        $this->help['notes'] .= "meta physicist, mp, nano technician, nt, soldier, sol and trader.<br>";
+		$this->help['notes'] .= "Supported <type>: support, control, infantry, artillery, extermination.";		
         $this->tables();
     }
 
@@ -113,7 +111,8 @@ class Symb_sql extends BaseActiveModule
         );
         switch ($com['com']) {
             case 'symb':
-                return ($this->symb($com['args']));
+				if(empty($com['args']))  return $this->bot->send_help($name, "symb");
+                else return ($this->symb($com['args']));
                 break;
         }
     }

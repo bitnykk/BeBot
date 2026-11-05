@@ -110,14 +110,8 @@ class PB extends BaseActiveModule
         $this->register_command("all", "pb", "GUEST");
         $this->help['description'] = "Shows know pocket bosses and their loot.";
         $this->help['command']['pb <name>'] = "Shows the known loot of the pocket boss <name>.";
-        $this->help['command']['symb <type> <slot>'] = "Shows all known drops of symbs of <type> in <slot>.";
-        $this->help['command']['symb <profession> <slot>'] = "Shows all known drops of symbs usable by <profession> in <slot>";
-        $this->help['notes']
-            = "Supported slots: eye, ocular, head, brain, ear, rarm, right arm, chest, larm, left arm, rwrist, right wrist, waist, lwrist, left wrist, rhand, right hand, legs, thigh, lhand, left hand, feet.<br>";
-        $this->help['notes'] .= "Supported type: support, control, infantry, artillery, extermination.";
-        $this->help['notes']
-            .= "Supported professions: adventurer, adv, agent, bureaucrat, crat, doctor, doc, enforcer, enf, engineer, eng, fixer, martial artist, ma, meta-Physicist, mp, nano-technician, nt, soldier, sol, keeper, trader<br>";
-        $this->help['notes'] .= "For this module to work you need to have run pb_data.php in the 'extras' folder!";
+        $this->help['command']['pb <pattern>'] = "Find the pocket boss produced by (pieces of) <pattern>";		
+        $this->help['notes'] .= "<pattern> needs to be an item that is a pattern or piece of a pattern.<br>For this module to work you need to have run pb_data.php in the 'extras' folder!";
         $this->tables();
     }
 
