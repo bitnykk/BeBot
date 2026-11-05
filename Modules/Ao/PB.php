@@ -109,6 +109,8 @@ class PB extends BaseActiveModule
         parent::__construct($bot, get_class($this));
         $this->register_command("all", "pb", "GUEST");
         $this->help['description'] = "Shows know pocket bosses and their loot.";
+        $this->help['command']['pb'] = "Shows all the pocket bosses by zones.";
+        $this->help['command']['pb list'] = "Shows all the pocket bosses by alphabetical order.";
         $this->help['command']['pb <name>'] = "Shows the known loot of the pocket boss <name>.";
         $this->help['command']['pb <pattern>'] = "Find the pocket boss produced by (pieces of) <pattern>";		
         $this->help['notes'] .= "<pattern> needs to be an item that is a pattern or piece of a pattern.<br>For this module to work you need to have run pb_data.php in the 'extras' folder!";
@@ -149,6 +151,9 @@ class PB extends BaseActiveModule
         switch ($com['com']) {
             case 'pb':
                 switch ($com['args']) {
+                    case 'list':
+                        return $this->list_alpha($name);
+                        break;					
                     case '':
                         return $this->list_all($name);
                         break;
@@ -233,7 +238,7 @@ class PB extends BaseActiveModule
     {
         $query = "SELECT Playfield, name FROM pocketbosses ORDER BY Playfield, level, name";
         $bosslist = $this->bot->db->select($query);
-        $window = "##blob_title## :::  Pocket Bosses  :::##end####blob_text##\n";
+        $window = "##blob_title## :::  Pocket Bosses (by zone) :::##end####blob_text##\n";
         $area = false;
         foreach ($bosslist as $boss) {
             if ($boss[0] !== $area) {
@@ -244,8 +249,22 @@ class PB extends BaseActiveModule
                     ->chatcmd("pb " . $boss[1], $boss[1]) . "\n";
         }
         return ("Listing all " . $this->bot->core("tools")
-                ->make_blob("Pocket Bosses", $window));
+                ->make_blob("Pocket Bosses zone", $window));
     }
+	
+    function list_alpha($name)
+    {
+        $query = "SELECT name FROM pocketbosses ORDER BY name ASC";
+        $bosslist = $this->bot->db->select($query);
+        $window = "##blob_title## :::  Pocket Bosses (by name) :::##end####blob_text##\n";
+        foreach ($bosslist as $boss) {
+            $window .= "&#8226; " . $this->bot->core("tools")
+                    ->chatcmd("pb " . $boss[0], $boss[0]) . "\n";
+        }
+        return ("Listing all " . $this->bot->core("tools")
+                ->make_blob("Pocket Bosses list", $window));
+    }
+	
 }
 
 ?>
