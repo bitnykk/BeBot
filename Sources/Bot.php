@@ -203,8 +203,7 @@ class Bot
         self::$instance[$bothandle]->botname = ucfirst(strtolower($bot_name));
         self::$instance[$bothandle]->dimension = ucfirst(strtolower($dimension));
         if(ucfirst(strtolower($dimension))==10||ucfirst(strtolower($dimension)==11)) self::$instance[$bothandle]->checkaor = true;
-		if(ucfirst(strtolower($dimension))!=10&&ucfirst(strtolower($dimension)!=11)) self::$instance[$bothandle]->maxsize = $max_blobsize;
-		else self::$instance[$bothandle]->maxsize = 7168; // AOR Chatengine blob limit as of 11/2026
+		self::$instance[$bothandle]->maxsize = $max_blobsize;
         self::$instance[$bothandle]->botversion = 'BOT_VERSION';
         self::$instance[$bothandle]->botversionname = 'BOT_VERSION_NAME';
 		if (isset($other_bots)&&is_array($other_bots)) {
