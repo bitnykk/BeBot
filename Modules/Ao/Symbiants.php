@@ -172,20 +172,20 @@ class Symb_sql extends BaseActiveModule
                 if (!in_array($arg, $prof_units)) {
                     $prof_units[] = $arg;
                     if ($query_unit === false) {
-                        $query_unit = "unit = '$arg'";
+                        $query_unit = "LOWER(unit) = LOWER('$arg')";
                         $readable_units = "$arg";
                     } else {
-                        $query_unit .= " or unit = '$arg'";
+                        $query_unit .= " or LOWER(unit) = LOWER('$arg')";
                         $readable_units .= " and $arg";
                     }
                 }
             } //Check if $arg is a slot
             elseif ($slot_match = array_search($arg, $this->slots)) {
                 if ($query_slot === false) {
-                    $query_slot = "slot = '{$this->slots[$slot_match]}'";
+                    $query_slot = "LOWER(slot) = LOWER('{$this->slots[$slot_match]}')";
                     $readable_slot = $slot_match;
                 } else {
-                    $query_slot .= " or slot='{$this->slots[$slot_match]}'";
+                    $query_slot .= " or LOWER(slot) = LOWER('{$this->slots[$slot_match]}')";
                     $readable_slot .= " and $slot_match";
                 }
             } //Check if $arg is a number and thus a QL
@@ -241,6 +241,7 @@ class Symb_sql extends BaseActiveModule
         }
         $readable_output .= "------------------------------------------\n\n";
         //Build a query
+		$where_string = '';
         if ($query_ql !== false) {
             $where_string = "($query_ql)";
         }
