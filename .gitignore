@@ -12,6 +12,7 @@ SQLiteCustom.php
 .idea/tasks.xml
 *.iws
 .vs/
+.vscode/
 
 log/*
 Themes/Default.colors.xml
