@@ -259,7 +259,7 @@ class Orgs extends BaseActiveModule
 					$tmp = explode('"> ', $tmp[1]);
 					$id = $tmp[0]; 
 					$tmp = explode('</a>', $tmp[1]);
-					$orgname = $tmp[0];
+					$orgname = str_replace("\t", '', $tmp[0]);;
 					$tmp = explode('<td align="right">', $tmp[1], 2);
 					$tmp = explode('</td>', $tmp[1], 2);
 					$members = $tmp[0];
