@@ -461,7 +461,7 @@ class Whois_Core extends BasePassiveModule
             ) . "/bio.xml";
         $mirrorurl = $this->bot->core("settings")->get("Whois", "MirrorUrl")."/character/bio/d/" . $this->bot->dimension . "/name/" . strtolower(
                 $name
-            );
+            ) . "/bio.xml";
         if ($this->bot->core("settings")
                 ->get("Whois", "LookupOrder") == "funcom_mirror"
         ) {
